@@ -22,14 +22,14 @@ class Recording:
         sensor_frame: pd.DataFrame,
         time_frame: pd.Series,
         activities: pd.Series,
-        subject: str,
+        subject: int,
     ) -> None:
         assert_type(
             [
                 (sensor_frame, pd.DataFrame),
                 (time_frame, pd.Series),
                 (activities, pd.Series),
-                (subject, str),
+                (subject, int),
             ]
         )
         assert sensor_frame.shape[0] == time_frame.shape[0], "sensor_frame and time_frame have to have the same length"

@@ -10,10 +10,10 @@ def init():
     """
 
     global opportunity_dataset_path
-    opportunity_dataset_path = "opportunity-dataset"
+    opportunity_dataset_path = "data/opportunity-dataset"
 
     global opportunity_dataset_csv_path
-    opportunity_dataset_csv_path = "opportunity-dataset-csv"
+    opportunity_dataset_csv_path = "data/opportunity-dataset-csv"
     
 
     global activity_initial_num_to_activity_str

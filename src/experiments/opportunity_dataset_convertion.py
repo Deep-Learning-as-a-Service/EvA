@@ -101,13 +101,17 @@ def load_opportunity_dataset_to_csv(opportunity_dataset_path: str, destination_p
     data = pd.DataFrame()
     for i, recording in enumerate(recordings):
         recording_frame = pd.concat([recording.time_frame, recording.sensor_frame, recording.activities, pd.Series(np.repeat(recording.subject, len(recording.time_frame))), pd.Series(np.repeat(i, len(recording.time_frame)))], axis=1)
-        recording_frame.columns = ['milliseconds'] + list(recording.sensor_frame.columns) + ['label (activity idx)', 'context 2 (subject idx)', 'context (recording idx)']
+        recording_frame.columns = ['MILLISECONDS'] + list(recording.sensor_frame.columns) + ['ACTIVITY_IDX', 'SUBJECT_IDX', 'RECORDING_IDX']
         data = pd.concat([data, recording_frame])
+
+    # if path does not exist, create it
+    if not os.path.exists(destination_path):
+        os.makedirs(destination_path)
     
     data.to_csv(os.path.join(destination_path, "data.csv"), index=False)
 
 # main
 settings.init()
-load_opportunity_dataset_to_csv(settings.opportunity_dataset_path, "opportunity-dataset-csv")
+load_opportunity_dataset_to_csv(settings.opportunity_dataset_path, "data/opportunity-dataset-csv")
 
 
