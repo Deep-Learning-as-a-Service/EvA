@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
+from models.NeatNAS import NeatNAS
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
 from models.JensModel import JensModel
@@ -19,6 +20,7 @@ from evaluation.metrics import accuracy, f1_score
 from utils.Windowizer import Windowizer
 from sklearn.model_selection import KFold
 from utils.Converter import Converter
+from neat import config, population, genome
 
 
 settings.init()
@@ -75,11 +77,11 @@ def fitness(model_genome) -> float:
         print(f"Doing fold {idx}/{k-1} ... ============================================================")
         model.fit(X_train, y_train, batch_size, learning_rate, n_epochs)
         y_val_pred = model.predict(X_val)
-        acccuracies.append(accuracy(y_val, y_val_pred))
+        accuracies.append(accuracy(y_val, y_val_pred))
     return np.mean(accuracies)
 
 # NAS - Neural Architecture Search
-model_genome = NeatNAS(n_generation = 1, population_size = 10).run(fitness)
+model_genome = NeatNAS(n_generation = 1, population_size = 10, fitness = fitness).run()
 
 # Find Architecture Params
 dna = DNA(params_to_optimmize)
