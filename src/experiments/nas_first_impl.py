@@ -9,10 +9,10 @@ import numpy as np
 import pandas as pd
 from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
-from models.NeatNAS import NeatNAS
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
-from models.JensModel import JensModel
+from tensorflow import keras
+
 from utils.folder_operations import new_saved_experiment_folder
 from evaluation.conf_matrix import create_conf_matrix
 from evaluation.text_metrics import create_text_metrics
@@ -20,10 +20,18 @@ from evaluation.metrics import accuracy, f1_score
 from utils.Windowizer import Windowizer
 from sklearn.model_selection import KFold
 from utils.Converter import Converter
-from neat import config, population, genome
+from nas.NeatNAS import NeatNAS
+import utils.nas_settings as nas_settings
+from nas.LayerMapper import LayerMapper
 
+layer_pool = [
+    lambda **args: keras.layers.Dense(**args, activation='relu'),
+    Layer()
+]
 
-settings.init()
+layer_mapper = LayerMapper()
+nas_settings.init(layer_mapper)
+settings.init() 
 
 # Load data
 recordings = load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
@@ -31,7 +39,6 @@ recordings = load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'd
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
 )
-
 random.seed(1678978086101)
 random.shuffle(recordings)
 
@@ -48,7 +55,7 @@ convert = Converter(n_classes=6).jens_convert
 flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
 
 # Validation Splits
-k = 4
+k = 2
 k_fold = KFold(n_splits=k, random_state=None)
 recordings_train = np.array(recordings_train)
 recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split(recordings_train)]
@@ -65,7 +72,8 @@ X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, wi
 
 
 def fitness(model_genome) -> float:
-    model = ModelBuilder(model_genome)
+    model = model_genome.get_model()
+    # model_genome.fit(X_train, y_train)
 
     # Traininsparams
     batch_size = model_genome.batch_size
@@ -81,7 +89,7 @@ def fitness(model_genome) -> float:
     return np.mean(accuracies)
 
 # NAS - Neural Architecture Search
-model_genome = NeatNAS(n_generation = 1, population_size = 10, fitness = fitness).run()
+model_genome = NeatNAS(n_generation = 1, population_size = 10, fitness=fitness).run()
 
 # Find Architecture Params
 dna = DNA(params_to_optimmize)
@@ -95,7 +103,7 @@ model = ModelBuilder(model_genome)
 y_test_pred = model.predict(X_test)
 
 # Create Folder, save model export and evaluations there
-experiment_folder_path = new_saved_experiment_folder('opportunity_jens_cnn') # create folder to store results
+experiment_folder_path = new_saved_experiment_folder('nas_first_impl') # create folder to store results
 
 # model.export(experiment_folder_path) # opt: export model to folder
 create_conf_matrix(experiment_folder_path, y_test_pred, y_test)

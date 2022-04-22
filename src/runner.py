@@ -14,7 +14,7 @@ Only import from experiments and tests
 
 
 if __name__ == "__main__":
-    import experiments.pipeline
     # import experiments.opportunity_dataset_convertion
+    import experiments.nas_first_impl
 
     

@@ -13,7 +13,7 @@ def load_dataset(path: str, label_column_name: str, recording_idx_name: str, col
     Returns a list of Recordings from the dataset
     """
     print(f"Will read dataset from {path}")
-    dataset = pd.read_csv(path, header=0, engine='python', verbose=True)    
+    dataset = pd.read_csv(path, header=0, engine='python', verbose=True)
 
     assert len(dataset.columns) == len(set(dataset.columns)), "Duplicate column names"
     feature_column_names = list(set(list(dataset.columns)) - set([label_column_name, recording_idx_name]) - set(column_names_to_ignore))

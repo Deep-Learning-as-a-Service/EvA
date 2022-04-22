@@ -22,6 +22,18 @@ class Preprocessor:
         # not needed? dataCollection = dataCollection.apply(pd.to_numeric, errors="coerce")  # data like 'k' (strings) will be converted to NaN
         recordings = self._normal_interpolate(recordings)
         return recordings
+    
+    def jens_preprocess_with_normalize(self, recordings: "list[Recording]") -> "list[Recording]":
+        """
+        1. _normal_interpolate
+        2. _normalize_minmaxscaler
+        """
+        assert_type([(recordings[0], Recording)])
+
+        # not needed? dataCollection = dataCollection.apply(pd.to_numeric, errors="coerce")  # data like 'k' (strings) will be converted to NaN
+        recordings = self._normal_interpolate(recordings)
+        recordings = self._normalize_minmaxscaler(recordings)
+        return recordings
 
     def our_preprocess(self, recordings: "list[Recording]") -> "list[Recording]":
         """

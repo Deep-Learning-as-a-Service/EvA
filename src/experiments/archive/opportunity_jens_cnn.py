@@ -60,7 +60,7 @@ test_percentage = 0.4
 recordings_train, recordings_test = split_list_by_percentage(recordings, test_percentage)
 
 # Init, Train
-model = JensModel(window_size=25, n_features=recordings[0].sensor_frame.shape[1], n_outputs=6, verbose=1, n_epochs=10)
+model = JensModel(window_size=25, n_features=recordings[0].sensor_frame.shape[1], n_outputs=6, verbose=1, n_epochs=5)
 model.windowize_convert_fit(recordings_train)
 
 # Test, Evaluate
