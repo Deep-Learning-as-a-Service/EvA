@@ -53,17 +53,23 @@ class ModelGenome():
         assert self.input_model_node.architecture_block is not None, "architecture block didn't get initialized yet, call make_compatible() first"
         
         # TODO: get hyperparams hereeeeeeeeeee 
+        n_outputs = 6
+        window_size = 25
+        n_features = 51
+        batch_size=self.batch_size
         i = Input(
-            shape=(25, 6, 1)
+            shape=(window_size, n_features, 1)
         )
-        x = self.input_model_node.architecture_block(i)
+        
+        # wrap i into list, since architecture_block expects a list of all inputs
+        x = self.input_model_node.architecture_block([i])
+
         current_nodes_with_output = {self.input_model_node: x}
         calculated_nodes = [self.input_model_node]
         finished_nodes = []
         output_func = None
         while True:
             for calculated_node in calculated_nodes:
-                print(calculated_node.layer)
                 for child in calculated_node.childs:
                     
                     # child has already been calculated
@@ -88,7 +94,12 @@ class ModelGenome():
             # break out of while loop if all children of all nodes have been retrieved already
             if(len(calculated_nodes) == 0):
                 break
-        model = Model(i, output_func)
+            
+        # add flatten and softmax as last layers to map onto outputs, 
+        # TODO: This should be integrated into the last layer of Genome instead of adding another layer
+        output_func = Flatten()(output_func)
+        out = Dense(n_outputs, activation='softmax')(output_func)
+        model = Model(i, out)
         
         # TODO: parametrize thatttttttttttttttttttttt
         model.compile(

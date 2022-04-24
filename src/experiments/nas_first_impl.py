@@ -75,7 +75,6 @@ windows_train, windows_test = windowize(recordings_train), windowize(recordings_
 # Convert
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
-
 def fitness(model_genome) -> float:
     model = model_genome.get_model()
     print(model.summary())
@@ -89,13 +88,13 @@ def fitness(model_genome) -> float:
     accuracies = []
     for idx, (X_train, y_train, X_val, y_val) in enumerate(X_y_validation_splits):
         print(f"Doing fold {idx}/{k-1} ... ============================================================")
-        model.fit(X_train, y_train, batch_size, learning_rate, n_epochs)
+        model.fit(X_train, y_train, batch_size=batch_size, epochs=n_epochs)
         y_val_pred = model.predict(X_val)
         accuracies.append(accuracy(y_val, y_val_pred))
     return np.mean(accuracies)
 
 # NAS - Neural Architecture Search
-model_genome = NeatNAS(n_generation = 1, population_size = 10, fitness=fitness).run()
+model_genome = NeatNAS(n_generation = 5, population_size = 2, fitness=fitness).run()
 
 # Find Architecture Params
 dna = DNA(params_to_optimmize)
