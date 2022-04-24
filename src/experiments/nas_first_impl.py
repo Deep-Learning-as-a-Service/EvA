@@ -23,13 +23,18 @@ from utils.Converter import Converter
 from nas.NeatNAS import NeatNAS
 import utils.nas_settings as nas_settings
 from nas.LayerMapper import LayerMapper
-
+from nas.PDenseLayer import PDenseLayer
+from nas.IntEvoParam import IntEvoParam
 layer_pool = [
-    lambda **args: keras.layers.Dense(**args, activation='relu'),
-    Layer()
+    PDenseLayer(keras.layers.Dense, 
+                [IntEvoParam(
+                    key="units", 
+                    value=10, 
+                    range=[5,50])
+                ])
 ]
 
-layer_mapper = LayerMapper()
+layer_mapper = LayerMapper(layer_pool=layer_pool)
 nas_settings.init(layer_mapper)
 settings.init() 
 
@@ -73,6 +78,7 @@ X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, wi
 
 def fitness(model_genome) -> float:
     model = model_genome.get_model()
+    print(model.summary())
     # model_genome.fit(X_train, y_train)
 
     # Traininsparams
