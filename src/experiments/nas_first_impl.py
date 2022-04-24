@@ -25,13 +25,27 @@ import utils.nas_settings as nas_settings
 from nas.LayerMapper import LayerMapper
 from nas.PDenseLayer import PDenseLayer
 from nas.IntEvoParam import IntEvoParam
+from nas.PConvLayer import PConvLayer
+
 layer_pool = [
     PDenseLayer(keras.layers.Dense, 
                 [IntEvoParam(
                     key="units", 
                     value=10, 
                     range=[5,50])
-                ])
+                ])#,
+    #PConvLayer(keras.layers.Conv1D,
+    #           [IntEvoParam(
+    #               key="filters",
+    #               value=32,
+    #               range=[16, 64]
+    #          ),
+    #            IntEvoParam(
+    #               key="kernel_size",
+    #              value=10,
+    #               range=[2, 20]
+    #           )]
+    #)
 ]
 
 layer_mapper = LayerMapper(layer_pool=layer_pool)
@@ -76,8 +90,7 @@ windows_train, windows_test = windowize(recordings_train), windowize(recordings_
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
 def fitness(model_genome) -> float:
-    model = model_genome.get_model()
-    print(model.summary())
+    
     # model_genome.fit(X_train, y_train)
 
     # Traininsparams
@@ -88,13 +101,16 @@ def fitness(model_genome) -> float:
     accuracies = []
     for idx, (X_train, y_train, X_val, y_val) in enumerate(X_y_validation_splits):
         print(f"Doing fold {idx+1}/{k} ... ============================================================")
-        model.fit(X_train, y_train, batch_size=batch_size, epochs=n_epochs)
+        model = model_genome.get_model()
+        model.fit(X_train, y_train, batch_size=batch_size, epochs=n_epochs, verbose=0)
         y_val_pred = model.predict(X_val)
         accuracies.append(accuracy(y_val, y_val_pred))
+
     return np.mean(accuracies)
 
 # NAS - Neural Architecture Search
 model_genome = NeatNAS(n_generation = 5, population_size = 2, fitness=fitness).run()
+print(model_genome.get_model().summary())
 
 # Find Architecture Params
 dna = DNA(params_to_optimmize)

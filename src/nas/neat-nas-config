@@ -3,8 +3,8 @@
 [NEAT]
 fitness_criterion     = max
 # fitness_threshold before 3.9
-fitness_threshold     = 0.03
-pop_size              = 60
+fitness_threshold     = 0.6
+pop_size              = 5
 reset_on_extinction   = False
 
 [DefaultGenome]
@@ -40,14 +40,14 @@ enabled_default         = True
 enabled_mutate_rate     = 0.01
 
 feed_forward            = True
-initial_connection      = full
+initial_connection      = full_nodirect
 
 # node add/remove rates
-node_add_prob           = 0.2
-node_delete_prob        = 0.2
+node_add_prob           = 0.5
+node_delete_prob        = 0.5
 
 # network parameters
-num_hidden              = 5
+num_hidden              = 3
 num_inputs              = 1
 num_outputs             = 1
 

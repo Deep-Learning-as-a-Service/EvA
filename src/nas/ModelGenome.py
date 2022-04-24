@@ -58,7 +58,7 @@ class ModelGenome():
         n_features = 51
         batch_size=self.batch_size
         i = Input(
-            shape=(window_size, n_features, 1)
+            shape=(window_size, n_features)
         )
         
         # wrap i into list, since architecture_block expects a list of all inputs
@@ -77,7 +77,12 @@ class ModelGenome():
                         continue
                     
                     # retrieve outputs from all parents of current child
-                    inputs_for_child = [current_nodes_with_output[parent] for parent in child.parents]
+                    try:
+                        inputs_for_child = [current_nodes_with_output[parent] for parent in child.parents]
+                        
+                    # parent hasn't been calculated yet, skip child, since it has another parent that will look at it later
+                    except KeyError:
+                        continue
                     
                     # add output of child into dict
                     current_nodes_with_output[child] = child.architecture_block(inputs_for_child)

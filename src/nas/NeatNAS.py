@@ -1,6 +1,7 @@
 import neat
 import os
 from nas.ModelGenome import ModelGenome
+import keras
 
 class NeatNAS:
     def __init__(self, n_generation, population_size, fitness):
@@ -16,7 +17,9 @@ class NeatNAS:
             for neat_genome_id, neat_genome in neat_genomes:
                 model_genome = create_model_genome(neat_genome)
                 neat_genome.fitness = self.fitness(model_genome)
-                print(neat_genome.fitness)
+                
+                # clear keras backend to avoid memory leaks
+                keras.backend.clear_session()
 
         # Load configuration.
         config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, os.path.join(os.path.dirname(__file__), 'neat-nas-config'))
@@ -25,7 +28,7 @@ class NeatNAS:
         p = neat.Population(config)
 
         # Add a stdout reporter to show progress in the terminal.
-        p.add_reporter(neat.StdOutReporter(False))
+        p.add_reporter(neat.StdOutReporter(True))
 
         # Run until a solution is found.
         winner_neat_genome = p.run(eval_genomes)
