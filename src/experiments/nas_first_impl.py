@@ -87,7 +87,7 @@ def fitness(model_genome) -> float:
 
     accuracies = []
     for idx, (X_train, y_train, X_val, y_val) in enumerate(X_y_validation_splits):
-        print(f"Doing fold {idx}/{k-1} ... ============================================================")
+        print(f"Doing fold {idx+1}/{k} ... ============================================================")
         model.fit(X_train, y_train, batch_size=batch_size, epochs=n_epochs)
         y_val_pred = model.predict(X_val)
         accuracies.append(accuracy(y_val, y_val_pred))

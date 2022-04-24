@@ -16,7 +16,7 @@ class NeatNAS:
             for neat_genome_id, neat_genome in neat_genomes:
                 model_genome = create_model_genome(neat_genome)
                 neat_genome.fitness = self.fitness(model_genome)
-                print(neat_genome.fitnes)
+                print(neat_genome.fitness)
 
         # Load configuration.
         config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, os.path.join(os.path.dirname(__file__), 'neat-nas-config'))
