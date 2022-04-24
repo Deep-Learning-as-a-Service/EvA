@@ -1,4 +1,3 @@
-from platform import architecture
 from nas.ModelNode import ModelNode
 import keras.models
 from tensorflow.keras.layers import (

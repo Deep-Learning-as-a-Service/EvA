@@ -1,4 +1,3 @@
-from numpy import concatenate
 import utils.nas_settings as nas_settings
 from nas.ParametrizedLayer import ParametrizedLayer 
 from keras.layers import concatenate

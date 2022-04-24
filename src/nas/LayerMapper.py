@@ -1,6 +1,5 @@
 import random
 from nas.ParametrizedLayer import ParametrizedLayer 
-from nas.PDenseLayer import PDenseLayer
 
 class LayerMapper():
     def __init__(self, layer_pool):

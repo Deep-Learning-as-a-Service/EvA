@@ -1,4 +1,3 @@
-import numpy as np
 from tensorflow import keras
 from tensorflow.keras import layers
 from models.JensModel import JensModel
