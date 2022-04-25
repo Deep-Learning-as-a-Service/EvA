@@ -1,4 +1,4 @@
-from nas.ModelNode import ModelNode
+from model_representation.ModelNode import ModelNode
 import keras.models
 from tensorflow.keras.layers import (
     Input,
@@ -45,18 +45,23 @@ class ModelGenome():
             parent=None, 
             nodes_already_created=nodes_already_created
         ) # TODO create_from_connections recursive
+        # TODO: input_model_node.assign_layer() - take this from make_compatible
         input_model_node.make_compatible()
         return ModelGenome(input_model_node=input_model_node, neat_genome=neat_genome, n_epochs=5, batch_size=32, learning_rate=0.001)
     
     def get_model(self) -> keras.models.Model:
+        """
+        compile model from current model_genome instance
+        """
         
         assert self.input_model_node.architecture_block is not None, "architecture block didn't get initialized yet, call make_compatible() first"
         
-        # TODO: get hyperparams hereeeeeeeeeee 
+        # TODO: get hyperparams hereeeeeeeeeee - build DataConfig class! global?
         n_outputs = 6
         window_size = 25
         n_features = 51
         batch_size=self.batch_size
+        # TODO: No extra Node here - instead the layer mapper should assign the Input layer to our input_model_node
         i = Input(
             shape=(window_size, n_features)
         )
@@ -65,18 +70,22 @@ class ModelGenome():
         x = self.input_model_node.architecture_block([i])
 
         current_nodes_with_output = {self.input_model_node: x}
-        calculated_nodes = [self.input_model_node]
-        finished_nodes = []
+        calculated_nodes = [self.input_model_node] # Queue: in progress, not all childs considered yet
+        finished_nodes = [] # finsished, all childs considered
         output_func = None
+
+        # breadth first search
+        # TODO: topological sort easier???
         while True:
             for calculated_node in calculated_nodes:
                 for child in calculated_node.childs:
                     
                     # child has already been calculated
-                    if(child in calculated_nodes or child in finished_nodes):
+                    if child in calculated_nodes or child in finished_nodes:
                         continue
                     
                     # retrieve outputs from all parents of current child
+                    # TODO: try catch not in control flow: add check for is key in dict
                     try:
                         inputs_for_child = [current_nodes_with_output[parent] for parent in child.parents]
                         
@@ -89,6 +98,9 @@ class ModelGenome():
                     
                     # add child to calculated nodes
                     calculated_nodes.append(child)
+
+                    # FINISH
+                    # TODO: model_genome.type == 'output'
                     if(len(child.childs) == 0):
                         output_func = current_nodes_with_output[child]
             

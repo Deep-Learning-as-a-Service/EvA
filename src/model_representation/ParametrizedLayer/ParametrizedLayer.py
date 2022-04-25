@@ -10,6 +10,8 @@ class ParametrizedLayer(ABC):
         kwargs = {}
         for param in self.params:
             kwargs[param.key] = param.value
+        
+        # lambda x: self.layer(**kwargs)(x)
         return self.layer(**kwargs)
     
     @abstractmethod

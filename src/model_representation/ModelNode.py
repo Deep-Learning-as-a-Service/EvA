@@ -1,5 +1,5 @@
 import utils.nas_settings as nas_settings
-from nas.ParametrizedLayer import ParametrizedLayer 
+from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer 
 from keras.layers import concatenate
 
 class ModelNode():
@@ -10,6 +10,7 @@ class ModelNode():
         self.layer = nas_settings.layer_mapper.get_layer(neat_node_key)
         self.neat_node_key = neat_node_key
 
+        # TODO: find better name for architectutre_block
         self.architecture_block = None
         self.parents = [parent]
 
@@ -43,17 +44,19 @@ class ModelNode():
         """
         Recursive applied to the whole DAG
         dependent on input and output nodes wraps the keras layer function in a function that concatenates/reshapes the data
-        self.architecture_block = lambda input_1, input_2: keras.layer.Dense(concatenate([input_1, input_2])
+        self.architecture_block = lambda input_func_list: keras.layer.Dense(concatenate(input_func_list))
         """
         parametrized_layer: ParametrizedLayer = nas_settings.layer_mapper.get_layer(self.neat_node_key)
         self.layer = parametrized_layer.get_func()
         
-        # concatenate inputs if node has multiple inputs
-        concatenate_func = lambda input: input[0]
-        if(len(self.parents) > 1):
-            concatenate_func = lambda input: concatenate(input)
+        # concatenate func is identity, if there is nothing to concatenate
+        concatenate_func = lambda input_func_list: input_func_list[0]
+
+        # concatenate func get a keras.Layer.concatenate if there are multiple input_funcs
+        if len(self.parents) > 1:
+            concatenate_func = lambda input_func_list: concatenate(input_func_list)
         
-        self.architecture_block = lambda input: self.layer(concatenate_func(input))
+        self.architecture_block = lambda input_func_list: self.layer(concatenate_func(input_func_list))
         
         for child in self.childs:
             child.make_compatible()

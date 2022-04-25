@@ -1,5 +1,5 @@
 import random
-from nas.ParametrizedLayer import ParametrizedLayer 
+from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer 
 
 class LayerMapper():
     def __init__(self, layer_pool):

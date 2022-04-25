@@ -1,4 +1,4 @@
-from nas.ParametrizedLayer import ParametrizedLayer
+from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 import random
 
 class PConvLayer(ParametrizedLayer):

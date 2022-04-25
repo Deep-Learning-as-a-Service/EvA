@@ -15,6 +15,9 @@ Only import from experiments and tests
 
 if __name__ == "__main__":
     # import experiments.opportunity_dataset_convertion
-    import experiments.nas_first_impl
+    # import tests.test_visualize_graph
+    # import experiments.nas_first_impl
+    # import tests.test_visualize_model_genome
+    import tests.test_tmp
 
     

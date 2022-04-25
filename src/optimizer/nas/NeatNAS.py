@@ -1,6 +1,6 @@
 import neat
 import os
-from nas.ModelGenome import ModelGenome
+from model_representation.ModelGenome import ModelGenome
 import keras
 
 class NeatNAS:

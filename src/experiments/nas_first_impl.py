@@ -20,14 +20,16 @@ from evaluation.metrics import accuracy, f1_score
 from utils.Windowizer import Windowizer
 from sklearn.model_selection import KFold
 from utils.Converter import Converter
-from nas.NeatNAS import NeatNAS
+from optimizer.nas.NeatNAS import NeatNAS
 import utils.nas_settings as nas_settings
-from nas.LayerMapper import LayerMapper
-from nas.PDenseLayer import PDenseLayer
-from nas.IntEvoParam import IntEvoParam
-from nas.PConvLayer import PConvLayer
+from model_representation.LayerMapper import LayerMapper
+from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
+from model_representation.EvoParam.IntEvoParam import IntEvoParam
+from model_representation.ParametrizedLayer.PConvLayer import PConvLayer
 
+# TODO: keras.Layer.Dense can be fixed in PDenseLayer __init__
 layer_pool = [
+
     PDenseLayer(keras.layers.Dense, 
                 [IntEvoParam(
                     key="units", 
@@ -90,7 +92,8 @@ windows_train, windows_test = windowize(recordings_train), windowize(recordings_
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
 def fitness(model_genome) -> float:
-    
+    print("calculating fitness from model_genome...")
+    # Refactoring idea
     # model_genome.fit(X_train, y_train)
 
     # Traininsparams
@@ -100,13 +103,15 @@ def fitness(model_genome) -> float:
 
     accuracies = []
     for idx, (X_train, y_train, X_val, y_val) in enumerate(X_y_validation_splits):
-        print(f"Doing fold {idx+1}/{k} ... ============================================================")
+        print(f"Doing fold {idx+1}/{k} ...")
         model = model_genome.get_model()
         model.fit(X_train, y_train, batch_size=batch_size, epochs=n_epochs, verbose=0)
         y_val_pred = model.predict(X_val)
         accuracies.append(accuracy(y_val, y_val_pred))
 
-    return np.mean(accuracies)
+    fitness = np.mean(accuracies)
+    print(f"Fitness: {fitness}")
+    return fitness
 
 # NAS - Neural Architecture Search
 model_genome = NeatNAS(n_generation = 5, population_size = 2, fitness=fitness).run()

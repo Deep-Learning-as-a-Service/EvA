@@ -1,4 +1,4 @@
-from nas.ParametrizedLayer import ParametrizedLayer
+from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 import random
 
 class PDenseLayer(ParametrizedLayer):
@@ -6,7 +6,7 @@ class PDenseLayer(ParametrizedLayer):
     def mutate(self, range):
         self.params.mutate(range)
         
-    def cross(self, parametrized_layer_02):
+    def cross(self, parametrized_layer_02: 'PDenseLayer'):
         crossed_params = []
         for idx, param in enumerate(self.params):
             
