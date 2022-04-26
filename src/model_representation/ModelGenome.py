@@ -28,6 +28,9 @@ class ModelGenome():
         self.batch_size = batch_size
         self.learning_rate = learning_rate
     
+    def get_input_model_node(self) -> 'ModelNode':
+        return self.input_model_node
+    
     @staticmethod
     def create_with_default_params(neat_genome) -> 'ModelGenome':
         """

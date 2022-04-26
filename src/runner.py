@@ -18,6 +18,6 @@ if __name__ == "__main__":
     # import tests.test_visualize_graph
     # import experiments.nas_first_impl
     # import tests.test_visualize_model_genome
-    import tests.test_tmp
+    import tests.test_visualize_model_genome
 
     
