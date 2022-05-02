@@ -35,29 +35,23 @@ import itertools
 class JensModel(RainbowModel):
     def __init__(self, **kwargs):
         """
-
-        epochs=10
         :param kwargs:
             window_size: int
             n_features: int
             n_outputs: int
+        
+        - leave recording out
+        - higher level opportunity
+        - 3 sec window (90)
+        -> accuracy: 0.63
         """
 
-        # hyper params to instance vars
-        super().__init__(**kwargs)
-        self.verbose = kwargs["verbose"]
-        self.n_epochs = kwargs["n_epochs"] or 10
         self.model_name = "jens_model"
+        super().__init__(**kwargs)
 
-        # create model
-        self.model = self._create_model(kwargs.get("n_features"), kwargs.get("n_outputs"), kwargs.get("window_size"))
-        print(
-            f"Building model for {kwargs.get("window_size")} timesteps (window_size) and {kwargs['n_features']} features"
-        )
+    def _create_model(self):
 
-    def _create_model(self, n_features, n_outputs, window_size):
-
-        i = Input(shape=(window_size, n_features, 1))  # before: self.x_train[0].shape - (25, 51, 1)... before self_x_train = np.expand_dims(self.x_train[0], -1) - around the value another []
+        i = Input(shape=(self.window_size, self.n_features, 1))  # before: self.x_train[0].shape - (25, 51, 1)... before self_x_train = np.expand_dims(self.x_train[0], -1) - around the value another []
         x = Conv2D(
             32,
             (3, 3),
@@ -69,6 +63,7 @@ class JensModel(RainbowModel):
         x = BatchNormalization()(x)
         x = MaxPooling2D((2, 2))(x)
         x = Dropout(0.2)(x)
+
         x = Conv2D(
             64,
             (3, 3),
@@ -79,6 +74,7 @@ class JensModel(RainbowModel):
         )(x)
         x = BatchNormalization()(x)
         x = Dropout(0.4)(x)
+
         x = Conv2D(
             128,
             (3, 3),
@@ -90,14 +86,15 @@ class JensModel(RainbowModel):
         x = BatchNormalization()(x)
         x = MaxPooling2D((2, 2))(x)
         x = Dropout(0.2)(x)
+
         x = Flatten()(x)
         x = Dropout(0.2)(x)
         x = Dense(1024, activation="relu")(x)
         x = Dropout(0.2)(x)
-        x = Dense(n_outputs, activation="softmax")(x)
+        x = Dense(self.n_outputs, activation="softmax")(x)
         model = Model(i, x)
         model.compile(
-            optimizer=Adam(lr=0.001),
+            optimizer=Adam(learning_rate=self.learning_rate),
             loss="CategoricalCrossentropy", # CategoricalCrossentropy (than we have to to the one hot encoding - to_categorical), before: "sparse_categorical_crossentropy"
             metrics=["accuracy"],
         )

@@ -24,24 +24,33 @@ from utils.typing import assert_type
 import utils.settings as settings
 from utils.folder_operations import create_folders_in_path
 
+import wandb
+from wandb.keras import WandbCallback
+
 
 class RainbowModel(ABC):
 
     # general
     model_name = None
-
-    # variables that need to be implemented in the child class
-    window_size: Union[int, None] = None
-    stride_size: Union[int, None] = None
     class_weight = None
-
     model: Any = None
+
+    # Input Params
+    n_features: Union[int, None] = None
+    n_outputs: Union[int, None] = None
+    window_size: Union[int, None] = None
+
+    # Training Params
     batch_size: Union[int, None] = None
-    verbose: Union[int, None] = None
     n_epochs: Union[int, None] = None
+    learning_rate: Union[float, None] = None
+
+    # Config
+    wandb_project: Union[str, None] = None
+    verbose: Union[int, None] = 1
     kwargs = None
 
-    @abstractmethod
+    # @abstractmethod
     def __init__(self, **kwargs):
         """
         Builds a model, assigns it to self.model = ...
@@ -52,7 +61,28 @@ class RainbowModel(ABC):
 
         # self.model = None
         # assert (self.model is not None)
+        self.window_size = kwargs.get("window_size", None)
+        self.n_features = kwargs.get("n_features", None)
+        self.n_outputs = kwargs.get("n_outputs", None)
+        self.batch_size = kwargs.get("batch_size", None)
+        self.n_epochs = kwargs.get("n_epochs", None)
+        self.learning_rate = kwargs.get("learning_rate", None)
+        self.validation_split = kwargs.get("validation_split", 0.2)
+        self.verbose = kwargs.get("verbose", 1)
+        self.class_weight = kwargs.get("class_weight", None)
+        self.wandb_config = kwargs.get("wandb_config", None)
+
         self.kwargs = kwargs
+        self.model = self._create_model()
+        self.model.summary()
+
+    def _create_model(self) -> tf.keras.Model:
+        """
+        Subclass Responsibility:
+        returns a keras model
+        """
+        raise NotImplementedError
+
 
     # Fit ----------------------------------------------------------------------
 
@@ -66,16 +96,38 @@ class RainbowModel(ABC):
         assert (
             X_train.shape[0] == y_train.shape[0]
         ), "X_train and y_train have to have the same length"
-        # print(f"Fitting with class weight: {self.class_weight}")
+        
+        # Wandb
+        callbacks = None
+        if self.wandb_config is not None:
+            assert self.wandb_config['project'] is not None, "Wandb project name is not set"
+            assert self.wandb_config['entity'] is not None, "Wandb entity name is not set"
+            assert self.wandb_config['name'] is not None, "Wandb name is not set"
+
+            wandb.init(
+                project=str(self.wandb_config['project']), 
+                entity=self.wandb_config['entity'],
+                name=str(self.wandb_config['name'])
+            )
+            wandb.config = {
+                "learning_rate": self.learning_rate,
+                "epochs": self.n_epochs,
+                "batch_size": self.batch_size,
+            }
+            callbacks = [wandb.keras.WandbCallback()]
+
         history = self.model.fit(
             X_train,
             y_train,
-            validation_split=0.2,
+            validation_split=self.validation_split,
             epochs=self.n_epochs,
             batch_size=self.batch_size,
             verbose=self.verbose,
-            class_weight=self.class_weight
+            class_weight=self.class_weight,
+            callbacks=callbacks
         )
+        
+
         self.history = history
 
     # Predict ------------------------------------------------------------------------
