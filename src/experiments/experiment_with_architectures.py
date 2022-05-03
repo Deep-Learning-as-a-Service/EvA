@@ -48,7 +48,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 
 # Config --------------------------------------------------------------------------------------------------------------
-window_size = 90
+window_size = 30*3
 n_classes = 6
 
 load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
@@ -61,7 +61,7 @@ preprocess = lambda recordings: Preprocessor().jens_preprocess_with_normalize(re
 windowize = lambda recordings: Windowizer(window_size=window_size).jens_windowize(recordings)
 convert = lambda windows: Converter(n_classes=n_classes).sonar_convert(windows)
 flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
-test_train_split = lambda recordings: leave_person_out_split(test_person_idx=1)(recordings)
+test_train_split = lambda recordings: leave_person_out_split(test_person_idx=2)(recordings)
 
 
 # Load data
@@ -83,7 +83,7 @@ windows_train, windows_test = windowize(recordings_train), windowize(recordings_
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
 # or JensModel
-model = MultilaneConvLSTM(
+model = BestPerformerConv(
     window_size=window_size, 
     n_features=recordings[0].sensor_frame.shape[1], 
     n_outputs=n_classes, 
@@ -96,6 +96,7 @@ model = MultilaneConvLSTM(
         'name': experiment_name
     }
 )
+# learning_rate=0.001
 # wandb_project=experiment_name
 model.fit(X_train, y_train)
 

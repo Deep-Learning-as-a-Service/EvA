@@ -4,6 +4,7 @@ opportunity-dataset
 opportunity-dataset-csv/
 saved_experiments/
 wandb
+data.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
