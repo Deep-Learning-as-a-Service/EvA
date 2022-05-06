@@ -73,6 +73,14 @@ class RainbowModel(ABC):
         self.wandb_config = kwargs.get("wandb_config", None)
 
         self.kwargs = kwargs
+
+        # Important declarations
+        assert self.window_size is not None, "window_size is not set"
+        assert self.n_features is not None, "n_features is not set"
+        assert self.n_outputs is not None, "n_outputs is not set"
+        assert self.batch_size is not None, "batch_size is not set"
+        assert self.n_epochs is not None, "n_epochs is not set"
+        assert self.learning_rate is not None, "learning_rate is not set"
         self.model = self._create_model()
         self.model.summary()
 

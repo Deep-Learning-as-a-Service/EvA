@@ -25,7 +25,7 @@ from models.JensModel import JensModel
 from models.MultilaneConv import MultilaneConv
 from models.BestPerformerConv import BestPerformerConv
 from models.OldLSTM import OldLSTM
-from models.MultilaneConvLSTM import MultilaneConvLSTM
+from models.SenselessDeepConvLSTM import SenselessDeepConvLSTM
 
 
 settings.init()
@@ -83,7 +83,7 @@ windows_train, windows_test = windowize(recordings_train), windowize(recordings_
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
 # or JensModel
-model = BestPerformerConv(
+model = SenselessDeepConvLSTM(
     window_size=window_size, 
     n_features=recordings[0].sensor_frame.shape[1], 
     n_outputs=n_classes, 
