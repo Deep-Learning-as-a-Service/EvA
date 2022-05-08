@@ -9,15 +9,14 @@ import copy
 
 class SeqEvo:
     
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, layer_mapper):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution):
         
         assert sum(generation_distribution.values()) == 1.0, "sum of generation distribution must be 1"
         self.n_generations = n_generations
         self.pop_size = pop_size
         self.fitness_func = fitness_func
         self.n_parents = n_parents
-        self.generation_distribution = generation_distribution       
-        self.layer_mapper = layer_mapper
+        self.generation_distribution = generation_distribution
         
     def initialize_population(self):
         population = []
@@ -42,7 +41,7 @@ class SeqEvo:
         # - define layer params mutation probabilities for a given layer mutation intensity                #
         # - add + remove layers / ModelNodes within ModelGenomes with a certain probability                #
         # - make_compatible() is still unfinished, need for more assertions (at a certain amount           #
-        #       of Conv1Ds, one dimensions folds to 0, which throws an error in runtime)                   #
+        #       of Conv1Ds, one dimension folds to 0, which throws an error at runtime)                    #
         # - on uneven pop_size there is an issue with the calculation of n_mutation_childs and             #
         #       n_crossover_childs                                                                         #
         ####################################################################################################

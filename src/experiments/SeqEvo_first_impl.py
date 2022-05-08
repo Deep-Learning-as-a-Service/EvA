@@ -124,7 +124,7 @@ generation_distribution = {
     "mutate_all" : 0.5
 }
 
-parent_selector = Selector.select_from_fitness#
+parent_selector = Selector.select_from_fitness
 crossover = Crosser.middlepoint_crossover
 
 # NAS - Neural Architecture Search
@@ -132,8 +132,7 @@ model_genome = SeqEvo(n_generations = 5,
                       pop_size=6,
                       fitness_func = fitness,
                       n_parents = 2,
-                      generation_distribution = generation_distribution,
-                      layer_mapper = layer_mapper
+                      generation_distribution = generation_distribution
                       ).run(parent_selector, crossover)
 print(model_genome.get_model().summary())
 exit()
