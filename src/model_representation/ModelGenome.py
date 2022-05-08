@@ -32,6 +32,32 @@ class ModelGenome():
         return self.input_model_node
     
     @staticmethod
+    def create_from_SeqEvoGenome(seq_evo_genome):
+        # TODO: currently this is ugly af, bc made for Neat => REWORK TBD
+        model_nodes = []
+        
+        # initialize ModelNodes
+        for idx, layer in enumerate(seq_evo_genome.layers):
+            model_node = ModelNode(
+                neat_node_key = seq_evo_genome.layers[idx].innovation_number,
+                parents = [],
+                childs = []
+            )
+            model_nodes.append(model_node)
+            
+        # add childs and parents for each node
+        for i in range(len(seq_evo_genome.layers)):
+            if i != 0:
+                model_nodes[i].parents = [model_nodes[i-1]]
+                
+            if i != len(seq_evo_genome.layers) - 1:
+                model_nodes[i].childs = [model_nodes[i+1]]
+    
+        model_nodes[0].make_compatible()
+        return ModelGenome(input_model_node=model_nodes[0], neat_genome=None, n_epochs=5, batch_size=32, learning_rate=0.001)
+            
+    
+    @staticmethod
     def create_with_default_params(neat_genome) -> 'ModelGenome':
         """
         create a model genome from a neat genome

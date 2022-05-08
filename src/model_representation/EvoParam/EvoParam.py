@@ -7,5 +7,5 @@ class EvoParam(ABC):
         self.value_range = value_range # [min, max], ['categorical1', 'categorical2', ...]
     
     @abstractmethod
-    def mutate(intensity):
+    def mutate(self, intensity):
         pass

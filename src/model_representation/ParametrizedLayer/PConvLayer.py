@@ -2,9 +2,6 @@ from model_representation.ParametrizedLayer.ParametrizedLayer import Parametrize
 import random
 
 class PConvLayer(ParametrizedLayer):
-    
-    def mutate(self, range):
-        self.params.mutate(range)
         
     def cross(self, parametrized_layer_02):
         crossed_params = []

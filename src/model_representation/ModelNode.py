@@ -3,7 +3,15 @@ from model_representation.ParametrizedLayer.ParametrizedLayer import Parametrize
 from keras.layers import concatenate
 
 class ModelNode():
-    def __init__(self, neat_node_key, neat_connections, parent, nodes_already_created):
+    
+    def __init__(self, neat_node_key, parents, childs):
+        self.neat_node_key = neat_node_key
+        self.parents = parents
+        self.childs = childs
+    
+    # TODO: currently broken, was initializer for NEAT, because needed different initializer and python doesnt allow multiple initializers
+    @staticmethod
+    def THIS_IS_BROKEN(self, neat_node_key, neat_connections, parent, nodes_already_created):
         nodes_already_created.append(self)
 
         # TODO: at this point the layer_mapper has not complete info about the neighbours - only random layer_mapper possible - will lead to semantic senseless architectures - # save time
@@ -36,7 +44,7 @@ class ModelNode():
                         node.add_parent(self)
                         self.childs.append(node)
                         break
-    
+        
     def add_parent(self, parent):
         self.parents.append(parent)
 

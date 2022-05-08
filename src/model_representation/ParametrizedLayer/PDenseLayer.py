@@ -3,9 +3,6 @@ import random
 
 class PDenseLayer(ParametrizedLayer):
     
-    def mutate(self, range):
-        self.params.mutate(range)
-        
     def cross(self, parametrized_layer_02: 'PDenseLayer'):
         crossed_params = []
         for idx, param in enumerate(self.params):
