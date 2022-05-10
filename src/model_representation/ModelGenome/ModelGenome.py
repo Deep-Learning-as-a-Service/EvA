@@ -1,4 +1,4 @@
-from model_representation.ModelNode import ModelNode
+from model_representation.ModelNode.ModelNode import ModelNode
 import keras.models
 from tensorflow.keras.layers import (
     Input,
@@ -21,64 +21,27 @@ class ModelGenome():
     - keras layer hyperparams
     - training params
     """
-    def __init__(self, input_model_node, neat_genome, n_epochs, batch_size, learning_rate):
+    default_n_epochs = 5
+    default_batch_size = 32 
+    default_learning_rate = 0.001
+
+    def __init__(self, input_model_node, n_epochs, batch_size, learning_rate):
         self.input_model_node = input_model_node
-        self.neat_genome = neat_genome
         self.n_epochs = n_epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
     
+    @classmethod
+    def create_with_default_params(cls):
+        """
+        Subclass responsibility
+        """
+        raise NotImplementedError
+    
     def get_input_model_node(self) -> 'ModelNode':
         return self.input_model_node
     
-    @staticmethod
-    def create_from_SeqEvoGenome(seq_evo_genome):
-        # TODO: currently this is ugly af, bc made for Neat => REWORK TBD
-        model_nodes = []
-        
-        # initialize ModelNodes
-        for idx, layer in enumerate(seq_evo_genome.layers):
-            model_node = ModelNode(
-                neat_node_key = seq_evo_genome.layers[idx].innovation_number,
-                parents = [],
-                childs = []
-            )
-            model_nodes.append(model_node)
-            
-        # add childs and parents for each node
-        for i in range(len(seq_evo_genome.layers)):
-            if i != 0:
-                model_nodes[i].parents = [model_nodes[i-1]]
-                
-            if i != len(seq_evo_genome.layers) - 1:
-                model_nodes[i].childs = [model_nodes[i+1]]
-    
-        model_nodes[0].make_compatible()
-        return ModelGenome(input_model_node=model_nodes[0], neat_genome=None, n_epochs=5, batch_size=32, learning_rate=0.001)
-            
-    
-    @staticmethod
-    def create_with_default_params(neat_genome) -> 'ModelGenome':
-        """
-        create a model genome from a neat genome
-        with standard trainings params
-            - n_epochs=5, batch_size=32, learning_rate=0.001
-        
-        - we have one input neuron always (config)
-        - in the neat implementation this node has the key -1
-        """
-        nodes_already_created = []
-        input_model_node = ModelNode(
-            neat_node_key=-1, 
-            neat_connections=list(neat_genome.connections.values()), 
-            parent=None, 
-            nodes_already_created=nodes_already_created
-        ) # TODO create_from_connections recursive
-        # TODO: input_model_node.assign_layer() - take this from make_compatible
-        input_model_node.make_compatible()
-        return ModelGenome(input_model_node=input_model_node, neat_genome=neat_genome, n_epochs=5, batch_size=32, learning_rate=0.001)
-    
-    def get_model(self) -> keras.models.Model:
+    def get_model(self, window_size, n_features, n_classes) -> keras.models.Model:
         """
         compile model from current model_genome instance
         """
@@ -86,14 +49,8 @@ class ModelGenome():
         assert self.input_model_node.architecture_block is not None, "architecture block didn't get initialized yet, call make_compatible() first"
         
         # TODO: get hyperparams hereeeeeeeeeee - build DataConfig class! global?
-        n_outputs = 6
-        window_size = 25
-        n_features = 51
-        batch_size=self.batch_size
         # TODO: No extra Node here - instead the layer mapper should assign the Input layer to our input_model_node
-        i = Input(
-            shape=(window_size, n_features)
-        )
+        i = Input(shape=(window_size, n_features))
         
         # wrap i into list, since architecture_block expects a list of all inputs
         x = self.input_model_node.architecture_block([i])
@@ -144,7 +101,7 @@ class ModelGenome():
         # add flatten and softmax as last layers to map onto outputs, 
         # TODO: This should be integrated into the last layer of Genome instead of adding another layer
         output_func = Flatten()(output_func)
-        out = Dense(n_outputs, activation='softmax')(output_func)
+        out = Dense(n_classes, activation='softmax')(output_func)
         model = Model(i, out)
         
         # TODO: parametrize thatttttttttttttttttttttt

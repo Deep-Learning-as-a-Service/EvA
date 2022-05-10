@@ -2,14 +2,15 @@
 
 from operator import attrgetter
 import random
-from model_representation.SeqEvoGenome import SeqEvoGenome
+from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
+from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
 from model_representation.ModelGenome import ModelGenome
 import copy
 
 
-class SeqEvo:
+class SeqEvo():
     
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func):
         
         assert sum(generation_distribution.values()) == 1.0, "sum of generation distribution must be 1"
         self.n_generations = n_generations
@@ -17,6 +18,9 @@ class SeqEvo:
         self.fitness_func = fitness_func
         self.n_parents = n_parents
         self.generation_distribution = generation_distribution
+
+        self.parent_selector = parent_selector
+        self.crossover_func = crossover_func
         
     def initialize_population(self):
         population = []
@@ -25,14 +29,17 @@ class SeqEvo:
         return population
             
     def evaluate_current_population(self, population):
-        for genome in population:
-            model_genome = ModelGenome.create_from_SeqEvoGenome(genome)
-            genome.fitness = self.fitness_func(model_genome)
+        """
+        set the model_genome.fitness values of the population
+        """
+        for seqevo_genome in population:
+            model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
+            seqevo_genome.fitness = self.fitness_func(model_genome)
             
     def pick_two_parents_random(self, parents):
         return random.sample(parents, 2)
     
-    def run(self, parent_selector, crossover_func):
+    def run(self):
         
         ####################################################################################################
         #                                   still important TODO:                                          #
@@ -66,14 +73,14 @@ class SeqEvo:
                 best_individual = population[0]
                 
             # select parents of next generation via selector function
-            parents = parent_selector(sorted_population = population, n_parents = self.n_parents)
+            parents = self.parent_selector(sorted_population = population, n_parents = self.n_parents)
             next_generation = []
             
             # get childs from crossover fucntion
             n_crossover_childs = round(self.generation_distribution["crossover"] * self.pop_size)
             for _ in range(n_crossover_childs):
                 pa, ma = self.pick_two_parents_random(parents)
-                next_generation.append(crossover_func(pa, ma))
+                next_generation.append(self.crossover_func(pa, ma))
             
             # get childs from mutations
             for mutation_intensity in ["low", "mid", "high", "all"]:
@@ -90,6 +97,6 @@ class SeqEvo:
             print("NEXT GENERATION LENGTH: " + str(len(next_generation)))
             population = next_generation
         
-        return ModelGenome.create_from_SeqEvoGenome(best_individual)
+        return SeqEvoModelGenome.create_with_default_params(best_individual)
                     
                 

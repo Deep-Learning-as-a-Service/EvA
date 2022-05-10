@@ -4,14 +4,14 @@ Test visualize_genome
 import os
 import neat
 
-from model_representation.ModelGenome import ModelGenome
+from model_representation.ModelGenome.ModelGenome import ModelGenome
 import utils.nas_settings as nas_settings
 import utils.settings as settings
 from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
-from model_representation.LayerMapper import LayerMapper
+from model_representation.LayerManager.LayerManager import LayerMapper
 from tensorflow import keras
-from model_representation.ModelNode import ModelNode
+from model_representation.ModelGenome.ModelNode.ModelNode import ModelNode
 from typing import Union
 from visualization.visualize_neat_genome import visualize_neat_genome
 from utils.folder_operations import new_saved_experiment_folder

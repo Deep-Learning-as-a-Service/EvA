@@ -1,43 +1,36 @@
 from model_representation.EvoParam.EvoParam import EvoParam
 import random
 
+from abc import ABC, abstractmethod 
 class IntEvoParam(EvoParam):
     
-    def __init__(self, key, value, value_range):
-        super().__init__(key, value, value_range)
-        assert type(self.value) is int
-        assert type(self.value_range) is list
-        assert type(self.value_range[0]) is int
-        assert type(self.value_range[1]) is int
-        assert self.value_range[1] - self.value_range[0] > 0
-        
+    @classmethod
+    def create(cls, value):
+        assert type(value) is int, "value must be of type int"
+        assert type(cls._value_range) is list, "value_range must be a list"
+        assert type(cls._value_range[0]) is int, "value_range[0] must be int"
+        assert type(cls._value_range[1]) is int, "value_range[1] must be int"
+        assert cls._value_range[1] - cls._value_range[0] > 0, "value_range needs to go from small to large"
+        assert cls._value_range[0] <= value and value <= cls._value_range[1], "value out of range"
+        return super().create(value=value)
+    
+    def _mutated_value(self, mutation_percentage):
+        range_size = self._value_range[1] - self._value_range[0]
+        min_limit = max(self._value_range[0], self.value - (range_size * mutation_percentage))
+        max_limit = min(self._value_range[1], self.value + (range_size * mutation_percentage))
+        return random.randint(min_limit, max_limit)
+
     def mutate(self, intensity):
         """
         mutating IntEvoParams will have ranges for range params as followed:
-        "all" => whole range
-        "high" => +/- 50% of range
-        "mid" => +/- 15% of range
-        "low" => +/- 5% of range
         """
-        # TODO: Refactor calculation - one function that takes percentage and returns value
-        range_size = self.value_range[1] - self.value_range[0]
-        if (intensity == "all"):
-            self.value = random.randint(self.value_range[0],self.value_range[1])
-            
-        elif (intensity == "high"):
-            min_limit = max(self.value_range[0], self.value - (range_size * 0.5))
-            max_limit = min(self.value_range[1], self.value + (range_size * 0.5))
-            self.value = random.randint(min_limit, max_limit)
-            
-        elif (intensity == "mid"):
-            min_limit = max(self.value_range[0], self.value - (range_size * 0.15))
-            max_limit = min(self.value_range[1], self.value + (range_size * 0.15))
-            self.value = random.randint(min_limit, max_limit)
-            
-        elif (intensity == "low"):
-            min_limit = max(self.value_range[0], self.value - (range_size * 0.05))
-            max_limit = min(self.value_range[1], self.value + (range_size * 0.05))
-            self.value = random.randint(min_limit, max_limit)
-            
-        else:
-            raise Exception("Unknown intensity Param")
+        intensity_percentages = {
+            "all": 1,
+            "high": 0.5,
+            "mid": 0.15,
+            "low": 0.05
+        }
+        
+        self.value = self._mutated_value(mutation_percentage=intensity_percentages[intensity])
+    
+

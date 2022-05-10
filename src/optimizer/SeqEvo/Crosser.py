@@ -1,9 +1,9 @@
-from model_representation.SeqEvoGenome import SeqEvoGenome
+from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 import math
 import random 
 
 
-class Crosser:  
+class Crosser():  
     @staticmethod
     def middlepoint_crossover(ma: SeqEvoGenome, pa: SeqEvoGenome):
         

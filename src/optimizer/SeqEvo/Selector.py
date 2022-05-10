@@ -1,9 +1,9 @@
 import random
 
-class Selector:
+class Selector():
     
     @staticmethod
-    def select_from_fitness(sorted_population, n_parents):
+    def select_from_fitness_probability(sorted_population, n_parents):
         """
         returns n_parents, their probability of being chosen is weighted linear via their fitness value
         """

@@ -22,10 +22,10 @@ from sklearn.model_selection import KFold
 from utils.Converter import Converter
 from optimizer.nas.NeatNAS import NeatNAS
 import utils.nas_settings as nas_settings
-from model_representation.LayerMapper import LayerMapper
+from model_representation.LayerManager.LayerManager import LayerMapper
 from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
-from model_representation.ParametrizedLayer.PConvLayer import PConvLayer
+from model_representation.ParametrizedLayer.PConv1DLayer import PConvLayer
 
 # TODO: keras.Layer.Dense can be fixed in PDenseLayer __init__
 layer_pool = [

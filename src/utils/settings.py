@@ -1,13 +1,16 @@
 import os
 
 
-def init():
+def init(_layer_pool):
     """
     Refactoring idea:
     - pass the mapping, that we can easily switch between datasets and labels
     - mapping.py file (in utils) should include activity and subject mappings for the datasets
     - the experiments loads the required ones and passes them in the init (settings.init(mappings)O
     """
+
+    global layer_pool
+    layer_pool = _layer_pool
 
     global opportunity_dataset_path
     opportunity_dataset_path = "data/opportunity-dataset"

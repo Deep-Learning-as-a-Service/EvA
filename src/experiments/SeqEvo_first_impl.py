@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
-from optimizer.nas.SeqEvo import SeqEvo
+from optimizer.SeqEvo.SeqEvo import SeqEvo
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
 from tensorflow import keras
@@ -21,62 +21,68 @@ from evaluation.metrics import accuracy, f1_score
 from utils.Windowizer import Windowizer
 from sklearn.model_selection import KFold
 from utils.Converter import Converter
-from optimizer.nas.NeatNAS import NeatNAS
-import utils.nas_settings as nas_settings
-from model_representation.LayerMapper import LayerMapper
+from optimizer.NeatNAS.NeatNAS import NeatNAS
 from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
-from model_representation.ParametrizedLayer.PConvLayer import PConvLayer
-from optimizer.EvolutionFunctions.Selector import Selector
-from optimizer.EvolutionFunctions.Crosser import Crosser
+from model_representation.ParametrizedLayer.PConv1DLayer import PConv1DLayer
+from optimizer.SeqEvo.Selector import Selector
+from optimizer.SeqEvo.Crosser import Crosser
+from datetime import datetime
+from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 
-# TODO: keras.Layer.Dense can be fixed in PDenseLayer __init__
+# Experiment Name ---------------------------------------------------------------
+experiment_name = "best-performer-conv-finally"
+currentDT = datetime.now()
+currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
+experiment_name = experiment_name + "-" + currentDT_str
 
-layer_pool = [
+# Config --------------------------------------------------------------------------
+window_size = 30*3
+n_features = 51
+n_classes = 6
 
-    PDenseLayer(keras.layers.Dense, 
-                [IntEvoParam(
-                    key="units", 
-                    value=10, 
-                    value_range=[5,50])
-                ]),
-    PConvLayer(keras.layers.Conv1D,
-               [IntEvoParam(
-                   key="filters",
-                   value=32,
-                   value_range=[16, 64]
-              ),
-                IntEvoParam(
-                   key="kernel_size",
-                   value=2,
-                   value_range=[2, 4])
-                ])
-]
+layer_pool: 'list[ParametrizedLayer]' = [PDenseLayer, PConv1DLayer]
+settings.init(_layer_pool=layer_pool)
 
-layer_mapper = LayerMapper(layer_pool=layer_pool)
-nas_settings.init(layer_mapper)
-settings.init() 
 
-# Load data
-recordings = load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
+# Lib -----------------------------------------------------------
+leave_recording_out_split = lambda test_percentage: lambda recordings: split_list_by_percentage(list_to_split=recordings, percentage_to_split=test_percentage)
+# leave_recording_out_split(test_percentage=0.3)(recordings)
+def leave_person_out_split_idx(recordings, test_person_idx):
+    subset_from_condition = lambda condition, recordings: [recording for recording in recordings if condition(recording)] 
+    recordings_train = subset_from_condition(lambda recording: recording.subject != test_person_idx, recordings)
+    recordings_test = subset_from_condition(lambda recording: recording.subject == test_person_idx, recordings)
+    return recordings_train, recordings_test
+leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person_out_split_idx(recordings=recordings, test_person_idx=test_person_idx)
+# leave_person_out_split(test_person_idx=2)(recordings) # 1-4, TODO: could be random
+
+
+# Funcs --------------------------------------------------------------------------------------------------------------
+
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
 )
+
+
+preprocess = lambda recordings: Preprocessor().jens_preprocess(recordings)
+windowize = lambda recordings: Windowizer(window_size=window_size).jens_windowize(recordings)
+convert = lambda windows: Converter(n_classes=n_classes).sonar_convert(windows)
+flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
+test_train_split = lambda recordings: leave_recording_out_split(test_percentage=0.25)(recordings)
+
+recordings = load_recordings()
+
 random.seed(1678978086101)
 random.shuffle(recordings)
 
 # Preprocessing
-recordings = Preprocessor().jens_preprocess(recordings)
+recordings = preprocess(recordings)
 
-# Test Train Split
+# Test Train Splits ----------------------------------------------------------------------------------------------------
 test_percentage = 0.3
-recordings_train, recordings_test = split_list_by_percentage(recordings, test_percentage)
-
-# Functions
-windowize = Windowizer(window_size=25).jens_windowize
-convert = Converter(n_classes=6).jens_convert
-flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
+recordings_train, recordings_test = test_train_split(recordings)
 
 # Validation Splits
 k = 2
@@ -89,12 +95,14 @@ windows_validation_splits = list(map(lambda validation_split: map(windowize, val
 X_y_validation_splits = list(map(lambda validation_split: tuple(flatten(map(convert, validation_split))), windows_validation_splits))
 # Output: [(X_train_01, y_train_01, X_val_01, y_val_01), (X_train_02, y_train_02, X_val_02, y_val_02), ...]
 
-windows_train, windows_test = windowize(recordings_train), windowize(recordings_test)
 
-# Convert
+# Windowize, Convert --------------------------------------------------------------------------------------------------
+windows_train, windows_test = windowize(recordings_train), windowize(recordings_test)
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
-def fitness(model_genome) -> float:
+
+# Fitness Funcs ------------------------------------------------------------------------------------------------------
+def fitness_val_split(model_genome) -> float:
     print("calculating fitness from model_genome...")
     # Refactoring idea
     # model_genome.fit(X_train, y_train)
@@ -116,6 +124,31 @@ def fitness(model_genome) -> float:
     print(f"Fitness: {fitness}")
     return fitness
 
+def fitness_easy(model_genome) -> float:
+    print("calculating fitness from model_genome...")
+    model = model_genome.get_model(
+        window_size=window_size,
+        n_features=n_features,
+        n_classes=n_classes
+    )
+    model.fit(
+        X_train, 
+        y_train, 
+        batch_size=model_genome.batch_size, 
+        epochs=model_genome.n_epochs,
+        verbose=0
+    )
+
+    y_test_pred = model.predict(X_test)
+    fitness = accuracy(y_test, y_test_pred)
+    print(f"Fitness: {fitness}")
+    return fitness
+
+# Optimization -------------------------------------------------------------------------------------------------------
+
+# Config
+parent_selector = Selector.select_from_fitness_probability
+crossover_func = Crosser.middlepoint_crossover
 generation_distribution = {
     "crossover" : 0.5,
     "mutate_low" : 0.0,
@@ -124,18 +157,19 @@ generation_distribution = {
     "mutate_all" : 0.5
 }
 
-parent_selector = Selector.select_from_fitness
-crossover = Crosser.middlepoint_crossover
-
 # NAS - Neural Architecture Search
-model_genome = SeqEvo(n_generations = 5, 
-                      pop_size=6,
-                      fitness_func = fitness,
-                      n_parents = 2,
-                      generation_distribution = generation_distribution
-                      ).run(parent_selector, crossover)
-print(model_genome.get_model().summary())
-exit()
+model_genome = SeqEvo(
+    n_generations = 5, 
+    pop_size=6,
+    fitness_func = fitness_easy,
+    n_parents = 2,
+    generation_distribution = generation_distribution,
+    parent_selector=parent_selector,
+    crossover_func=crossover_func
+).run()
+
+
+raise Exception("Done") # TODO bigger smaller split, evaluate the optimization
 
 # Find Architecture Params
 dna = DNA(params_to_optimmize)
