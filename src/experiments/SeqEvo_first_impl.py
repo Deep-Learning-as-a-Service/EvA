@@ -29,6 +29,7 @@ from optimizer.SeqEvo.Selector import Selector
 from optimizer.SeqEvo.Crosser import Crosser
 from datetime import datetime
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
+from utils.progress_bar import print_progress_bar
 
 # Experiment Name ---------------------------------------------------------------
 experiment_name = "best-performer-conv-finally"
@@ -102,8 +103,8 @@ X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, wi
 
 
 # Fitness Funcs ------------------------------------------------------------------------------------------------------
-def fitness_val_split(model_genome) -> float:
-    print("calculating fitness from model_genome...")
+def fitness_val_split(model_genome, log_func=print) -> float:
+    prog_bar = lambda progress: print_progress_bar(progress, total=len(X_y_validation_splits), prefix="k_fold", suffix=f"{progress}/{len(X_y_validation_splits)}", length=30, log_func=log_func, fill=">")
     # Refactoring idea
     # model_genome.fit(X_train, y_train)
 
@@ -114,18 +115,28 @@ def fitness_val_split(model_genome) -> float:
 
     accuracies = []
     for idx, (X_train, y_train, X_val, y_val) in enumerate(X_y_validation_splits):
-        print(f"Doing fold {idx+1}/{k} ...")
-        model = model_genome.get_model()
-        model.fit(X_train, y_train, batch_size=batch_size, epochs=n_epochs, verbose=0)
+        prog_bar(progress=idx)
+        model = model_genome.get_model(
+            window_size=window_size,
+            n_features=n_features,
+            n_classes=n_classes
+        )
+        model.fit(
+            X_train, 
+            y_train, 
+            batch_size=model_genome.batch_size, 
+            epochs=model_genome.n_epochs,
+            verbose=0
+        )
         y_val_pred = model.predict(X_val)
         accuracies.append(accuracy(y_val, y_val_pred))
 
+    prog_bar(progress=len(X_y_validation_splits))
+
     fitness = np.mean(accuracies)
-    print(f"Fitness: {fitness}")
     return fitness
 
-def fitness_easy(model_genome) -> float:
-    print("calculating fitness from model_genome...")
+def fitness_easy(model_genome, log_func=print) -> float:
     model = model_genome.get_model(
         window_size=window_size,
         n_features=n_features,
@@ -141,7 +152,6 @@ def fitness_easy(model_genome) -> float:
 
     y_test_pred = model.predict(X_test)
     fitness = accuracy(y_test, y_test_pred)
-    print(f"Fitness: {fitness}")
     return fitness
 
 # Optimization -------------------------------------------------------------------------------------------------------
@@ -161,11 +171,12 @@ generation_distribution = {
 model_genome = SeqEvo(
     n_generations = 5, 
     pop_size=6,
-    fitness_func = fitness_easy,
+    fitness_func = fitness_val_split,
     n_parents = 2,
     generation_distribution = generation_distribution,
     parent_selector=parent_selector,
-    crossover_func=crossover_func
+    crossover_func=crossover_func,
+    log_func=print
 ).run()
 
 
