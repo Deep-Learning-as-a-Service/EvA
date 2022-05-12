@@ -35,6 +35,9 @@ class ParametrizedLayer(ABC):
         self.innovation_number = ParametrizedLayer.innovation_number
         ParametrizedLayer.innovation_number += 1
     
+    def __str__(self):
+        return f"{self.__class__.__name__}({' '.join([str(param) for param in self.params])})"
+    
     def get_func(self) -> keras.layers.Layer:
         kwargs = {}
         for param in self.params:

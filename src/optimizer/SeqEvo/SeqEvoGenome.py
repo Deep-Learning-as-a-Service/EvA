@@ -38,14 +38,16 @@ class SeqEvoGenome():
     The other implementation is a generic ModelGenomeType with a network of ModelGenomes
     """
 
-    def __init__(self, layers):
+    def __init__(self, layers, created_from="-"):
         self.layers = layers
         self.fitness = None
+        self.created_from = created_from
 
     @classmethod
     def create_random(cls):
         seq_evo_genome = cls.create_random_default()
         seq_evo_genome.mutate(intensity="all")
+        seq_evo_genome.created_from = "random"
         return seq_evo_genome
 
     @classmethod
@@ -55,8 +57,11 @@ class SeqEvoGenome():
         for _ in range(size):
             layer_class = random.choice(settings.layer_pool)
             layers.append(layer_class.create_random_default())
-        return cls(layers=layers)
-  
+        return cls(layers=layers, created_from="random_default")
+    
+    def __str__(self):
+        return f"SeqEvoGenome [{' '.join([str(layer) for layer in self.layers])}]\n\tfitness: {self.fitness}\n\tcreated_from: {self.created_from}"
+    
     def mutate(self, intensity):
         """
         TODO: 
