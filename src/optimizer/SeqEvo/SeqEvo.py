@@ -6,12 +6,33 @@ from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
 from model_representation.ModelGenome import ModelGenome
 import copy
+from utils.mutation_helper import get_mutation_probability
 from utils.progress_bar import print_progress_bar
 from utils.print_list import print_list
 
-
 class SeqEvo():
-    
+    intensitiy_to_genome_mutation = {
+        "low" : {
+            "add_node_random" : 0.01,
+            "remove_node_random": 0.01,
+            "none": 0.98
+        },
+        "mid" : {
+            "add_node_random" : 0.1,
+            "remove_node_random": 0.1,
+            "none": 0.8
+        },
+        "high" : {
+            "add_node_random" : 0.25,
+            "remove_node_random": 0.25,
+            "none": 0.5
+        },
+        "all" : {
+            "add_node_random" : 0.5,
+            "remove_node_random": 0.5,
+            "none": 0.0
+        } 
+    }
     def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, verbose=True, log_func=print):
         
         assert sum(generation_distribution.values()) == 1.0, "sum of generation distribution must be 1"
@@ -59,6 +80,14 @@ class SeqEvo():
                 
                 # copy random parent and mutate it with given intensity
                 parent_to_mutate = copy.deepcopy(random.choice(parents))
+
+                prob_dict = SeqEvo.intensitiy_to_genome_mutation[mutation_intensity]
+                genome_mutation = get_mutation_probability(prob_dict)
+                if genome_mutation == "add_node_random":
+                    parent_to_mutate.add_node_random()
+                elif genome_mutation == "remove_node_random":
+                    parent_to_mutate.remove_node_random()
+
                 mutated_child = parent_to_mutate.mutate(mutation_intensity)
                 mutated_child.created_from = "mutate_" + mutation_intensity
                 next_generation.append(mutated_child)

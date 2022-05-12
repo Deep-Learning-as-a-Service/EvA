@@ -1,8 +1,35 @@
 from abc import ABC, abstractmethod 
 import keras.layers
+from utils.mutation_helper import get_mutation_probability
 
 class ParametrizedLayer(ABC):
     innovation_number = 0
+    intensity_to_param_mutation_probability = {
+        "low": {
+            "low" : 0.8,
+            "mid" : 0.2,
+            "high" : 0.0,
+            "all" : 0.0
+        },
+        "mid": {
+            "low" : 0.3,
+            "mid" : 0.4,
+            "high" : 0.3,
+            "all" : 0.0
+        },
+        "high": {
+            "low" : 0.0,
+            "mid" : 0.3,
+            "high" : 0.4,
+            "all" : 0.3
+        },
+       "all": {
+            "low" : 0.0,
+            "mid" : 0.0,
+            "high" : 0.0,
+            "all" : 1.0
+        }
+    }
     def __init__(self, params) -> None:
         self.params = params
         self.innovation_number = ParametrizedLayer.innovation_number
@@ -19,9 +46,11 @@ class ParametrizedLayer(ABC):
         # lambda x: self.layer(**kwargs)(x)
         return self._layer(**kwargs)
     
-    def mutate(self, intensity):
+    def mutate(self, layer_mutation_intensity):
         for param in self.params:
-            param.mutate(intensity)
+            prob_dict = ParametrizedLayer.intensity_to_param_mutation_probability[layer_mutation_intensity]
+            param_mutation_intensity = get_mutation_probability(prob_dict)
+            param.mutate(param_mutation_intensity)
         self.innovation_number = ParametrizedLayer.innovation_number
         ParametrizedLayer.innovation_number += 1
     
