@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod 
 import keras.layers
-from utils.mutation_helper import get_mutation_probability
+from utils.mutation_helper import get_key_from_prob_dict
 
 class ParametrizedLayer(ABC):
     innovation_number = 0
@@ -30,6 +30,7 @@ class ParametrizedLayer(ABC):
             "all" : 1.0
         }
     }
+
     def __init__(self, params) -> None:
         self.params = params
         self.innovation_number = ParametrizedLayer.innovation_number
@@ -46,20 +47,13 @@ class ParametrizedLayer(ABC):
         # lambda x: self.layer(**kwargs)(x)
         return self._layer(**kwargs)
     
-    def mutate(self, layer_mutation_intensity):
+    def mutate(self, intensity: str) -> None:
         for param in self.params:
-            prob_dict = ParametrizedLayer.intensity_to_param_mutation_probability[layer_mutation_intensity]
-            param_mutation_intensity = get_mutation_probability(prob_dict)
-            param.mutate(param_mutation_intensity)
+            param_mutation_prob = self.intensity_to_param_mutation_probability[intensity]
+            param_mutation = get_key_from_prob_dict(param_mutation_prob)
+            param.mutate(param_mutation)
         self.innovation_number = ParametrizedLayer.innovation_number
         ParametrizedLayer.innovation_number += 1
-    
-    @abstractmethod
-    def cross(self, parametrized_layer_02):
-        """
-        subclass responsibility
-        """
-        raise NotImplementedError
     
     # Constructors ----------------------------------------------------------------------------------------------
 

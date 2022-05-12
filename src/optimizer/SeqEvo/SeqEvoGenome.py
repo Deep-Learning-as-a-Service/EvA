@@ -5,12 +5,36 @@ import utils.nas_settings as nas_settings
 import model_representation.ParametrizedLayer as ParametrizedLayer
 import model_representation.EvoParam as EvoParam
 import utils.settings as settings
-from utils.mutation_helper import get_mutation_probability
+from utils.mutation_helper import get_key_from_prob_dict
 import random
 
 class SeqEvoGenome():
     _default_n_layers_range = [2, 7]
-    _intensity_to_layer_probabilities = {
+    _mutation_intensitiy_to_struct_change = {
+        "low" : {
+            "add_layer_random" : 0,
+            "remove_layer_random": 0,
+            "none": 1
+        },
+        "mid" : {
+            "add_layer_random" : 0.1,
+            "remove_layer_random": 0.1,
+            "none": 0.8
+        },
+        "high" : {
+            "add_layer_random" : 0.25,
+            "remove_layer_random": 0.25,
+            "none": 0.5
+        },
+        "all" : {
+            "add_layer_random" : 0.5,
+            "remove_layer_random": 0.5,
+            "none": 0.0
+        } 
+    }
+
+    # low: at one point high param mutation? or at many places low
+    _mutation_intensity_to_layer_mutation = {
         "low": {
             "mutate_layer_type" : 0.0,
             "leave_out_layer" : 0.5,
@@ -22,9 +46,9 @@ class SeqEvoGenome():
             "mutate_layer_params" : 0.6
         },
         "high": {
-            "mutate_layer_type" : 0.1,
+            "mutate_layer_type" : 0.3,
             "leave_out_layer" : 0.2,
-            "mutate_layer_params" : 0.7
+            "mutate_layer_params" : 0.5
         },
         "all": {
             "mutate_layer_type" : 0.3,
@@ -63,29 +87,33 @@ class SeqEvoGenome():
         return f"SeqEvoGenome [{' '.join([str(layer) for layer in self.layers])}]\n\tfitness: {self.fitness}\n\tcreated_from: {self.created_from}"
     
     def mutate(self, intensity):
-        """
-        TODO: 
-        - add leave out layers
-        - add change layer type
-        """
+
+        # Structural mutation
+        struct_change_prob = self._mutation_intensitiy_to_struct_change[intensity]
+        struct_change = get_key_from_prob_dict(struct_change_prob)
+        if struct_change == "add_layer_random":
+            self.add_layer_random()
+        elif struct_change == "remove_layer_random":
+            self.remove_layer_random()
+        
+        # Layer mutation
         for layer in self.layers:
             # get which mutation should be applied per layer
-            prob_dict = SeqEvoGenome._intensity_to_layer_probabilities[intensity]
-            mutation = get_mutation_probability(prob_dict)
+            layer_mutation_prob = SeqEvoGenome._mutation_intensity_to_layer_mutation[intensity]
+            layer_mutation = get_key_from_prob_dict(layer_mutation_prob)
 
-            if mutation == "mutate_layer_type":
-                #TODO: mutate layer type
+            if layer_mutation == "mutate_layer_type":
                 layer = random.choice(settings.layer_pool).create_random_default()
-            elif mutation == "leave_out_layer":
+            elif layer_mutation == "leave_out_layer":
                 continue
-            elif mutation == "mutate_layer_params":
+            elif layer_mutation == "mutate_layer_params":
                 layer.mutate(intensity)
         return self
 
-    def add_node_random(self):
+    def add_layer_random(self):
         layer_to_add = random.choice(settings.layer_pool).create_random_default()
         self.layers.insert(random.randint(0,len(self.layers)),layer_to_add)
 
-    def remove_node_random(self):
-        layer_index_to_remove = random.randint(0,len(self.layers))
+    def remove_layer_random(self):
+        layer_index_to_remove = random.randint(0, len(self.layers) - 1)
         self.layers.pop(layer_index_to_remove)
