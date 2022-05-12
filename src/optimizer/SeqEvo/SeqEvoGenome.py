@@ -5,6 +5,7 @@ import utils.nas_settings as nas_settings
 import model_representation.ParametrizedLayer as ParametrizedLayer
 import model_representation.EvoParam as EvoParam
 import utils.settings as settings
+from utils.mutation_helper import get_mutation_probability
 import random
 
 class SeqEvoGenome():
@@ -55,20 +56,6 @@ class SeqEvoGenome():
             layer_class = random.choice(settings.layer_pool)
             layers.append(layer_class.create_random_default())
         return cls(layers=layers)
-    
-    @classmethod
-    def get_layer_mutation(cls, intensity) -> str:
-        rand_dict = cls._intensity_to_layer_probabilities[intensity]
-        assert sum(rand_dict.values()) == 1.0, "sum of probabilities should be 1"
-        rand_number = random.random()
-        mutation: str = None
-        endProbability = 0.0
-        for mutation_type, mutation_type_probability in rand_dict.items():
-            endProbability += mutation_type_probability
-            if rand_number <= endProbability:
-                mutation = mutation_type
-                break
-        return mutation
   
     def mutate(self, intensity):
         """
@@ -78,7 +65,9 @@ class SeqEvoGenome():
         """
         for layer in self.layers:
             # get which mutation should be applied per layer
-            mutation = SeqEvoGenome.get_layer_mutation(intensity)
+            prob_dict = SeqEvoGenome._intensity_to_layer_probabilities[intensity]
+            mutation = get_mutation_probability(prob_dict)
+
             if mutation == "mutate_layer_type":
                 #TODO: mutate layer type
                 layer = random.choice(settings.layer_pool).create_random_default()
@@ -87,3 +76,11 @@ class SeqEvoGenome():
             elif mutation == "mutate_layer_params":
                 layer.mutate(intensity)
         return self
+
+    def add_node_random(self):
+        layer_to_add = random.choice(settings.layer_pool).create_random_default()
+        self.layers.insert(random.randint(0,len(self.layers)),layer_to_add)
+
+    def remove_node_random(self):
+        layer_index_to_remove = random.randint(0,len(self.layers))
+        self.layers.pop(layer_index_to_remove)

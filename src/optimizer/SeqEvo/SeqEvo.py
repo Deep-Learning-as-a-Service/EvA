@@ -6,10 +6,31 @@ from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
 from model_representation.ModelGenome import ModelGenome
 import copy
-
+from utils.mutation_helper import get_mutation_probability
 
 class SeqEvo():
-    
+    intensitiy_to_genome_mutation = {
+        "low" : {
+            "add_node_random" : 0.01,
+            "remove_node_random": 0.01,
+            "none": 0.98
+        },
+        "mid" : {
+            "add_node_random" : 0.1,
+            "remove_node_random": 0.1,
+            "none": 0.8
+        },
+        "high" : {
+            "add_node_random" : 0.25,
+            "remove_node_random": 0.25,
+            "none": 0.5
+        },
+        "all" : {
+            "add_node_random" : 0.5,
+            "remove_node_random": 0.5,
+            "none": 0.0
+        } 
+    }
     def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func):
         
         assert sum(generation_distribution.values()) == 1.0, "sum of generation distribution must be 1"
@@ -44,8 +65,8 @@ class SeqEvo():
         ####################################################################################################
         #                                   still important TODO:                                          #
         #                                                                                                  #
-        # - mutate layer itself with a certain probability (given via intensity), not just layer params    #
-        # - define layer params mutation probabilities for a given layer mutation intensity                #
+        # - (DONE) mutate layer itself with a certain probability (given via intensity)                    #
+        # - (DONE) define layer params mutation probabilities for a given layer mutation intensity         #
         # - add + remove layers / ModelNodes within ModelGenomes with a certain probability                #
         # - make_compatible() is still unfinished, need for more assertions (at a certain amount           #
         #       of Conv1Ds, one dimension folds to 0, which throws an error at runtime)                    #
@@ -86,9 +107,16 @@ class SeqEvo():
             for mutation_intensity in ["low", "mid", "high", "all"]:
                 n_mutation_childs = round(self.generation_distribution["mutate_" + mutation_intensity] * self.pop_size)
                 for _ in range(n_mutation_childs):
-                    
-                    # copy random parent and mutate it with given intensity
+                    # add/remove nodes
                     parent_to_mutate = copy.deepcopy(random.choice(parents))
+                    prob_dict = SeqEvo.intensitiy_to_genome_mutation[mutation_intensity]
+                    genome_mutation = get_mutation_probability(prob_dict)
+
+                    if genome_mutation == "add_node_random":
+                        parent_to_mutate.add_node_random()
+                    elif genome_mutation == "remove_node_random":
+                        parent_to_mutate.remove_node_random()
+                    
                     next_generation.append(parent_to_mutate.mutate(mutation_intensity))
             
             # assign next generation
