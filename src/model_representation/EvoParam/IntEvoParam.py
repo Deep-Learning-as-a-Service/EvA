@@ -16,8 +16,8 @@ class IntEvoParam(EvoParam):
     
     def _mutated_value(self, mutation_percentage):
         range_size = self._value_range[1] - self._value_range[0]
-        min_limit = max(self._value_range[0], self.value - (range_size * mutation_percentage))
-        max_limit = min(self._value_range[1], self.value + (range_size * mutation_percentage))
+        min_limit = max(self._value_range[0], self.value - round(range_size * mutation_percentage))
+        max_limit = min(self._value_range[1], self.value + round(range_size * mutation_percentage))
         return random.randint(min_limit, max_limit)
 
     def mutate(self, intensity):

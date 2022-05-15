@@ -70,14 +70,6 @@ class SeqEvoModelChecker():
         conv_layer_idx_list = list(filter(lambda idx: (seqevo_genome.layers[idx].__class__.__name__ in ["PConv1DLayer", "PConv2DLayer"]), range(len(seqevo_genome.layers))))
         layer_idx_to_remove = random.choice(conv_layer_idx_list)
 
-        # remove conv layer and reset parents/childrens of adjacent layers
         seqevo_genome.layers.pop(layer_idx_to_remove)
-        if layer_idx_to_remove - 1 >= 0 and layer_idx_to_remove + 1 < len(seqevo_genome.layers):
-            seqevo_genome.layers[layer_idx_to_remove - 1].childs = [seqevo_genome.layers[layer_idx_to_remove + 1]]
-            seqevo_genome.layers[layer_idx_to_remove + 1].parents = [seqevo_genome.layers[layer_idx_to_remove - 1]]
-        elif layer_idx_to_remove - 1 >= 0:
-            seqevo_genome.layers[layer_idx_to_remove - 1].childs = None
-        elif layer_idx_to_remove + 1 < len(seqevo_genome.layers):
-            seqevo_genome.layers[layer_idx_to_remove + 1].parents = None
 
 

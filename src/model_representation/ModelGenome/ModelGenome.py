@@ -57,8 +57,8 @@ class ModelGenome():
 
         current_nodes_with_output = {self.input_model_node: x}
         calculated_nodes = [self.input_model_node] # Queue: in progress, not all childs considered yet
-        finished_nodes = [] # finsished, all childs considered
-        output_func = None
+        finished_nodes = [] # finished, all childs considered
+        output_func = x # default output_func is x for models of length 1
 
         # breadth first search
         # TODO: topological sort easier???
