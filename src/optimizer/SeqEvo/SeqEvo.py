@@ -15,7 +15,7 @@ class SeqEvo():
 
     def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, verbose=True, log_func=print):
         
-        assert sum(generation_distribution.values()) == 1.0, "sum of generation distribution must be 1"
+        assert sum(generation_distribution.values()) == pop_size, "sum of generation distribution must be equal to population size"
         self.n_generations = n_generations
         self.pop_size = pop_size
         self.fitness_func = fitness_func
@@ -48,14 +48,14 @@ class SeqEvo():
         parents = self.parent_selector(sorted_population = population, n_parents = self.n_parents)
         
         # get childs from crossover fucntion
-        n_crossover_childs = round(self.generation_distribution["crossover"] * self.pop_size)
+        n_crossover_childs = self.generation_distribution["crossover"]
         for _ in range(n_crossover_childs):
             pa, ma = self.pick_two_parents_random(parents)
             next_generation.append(self.crossover_func(pa, ma))
         
         # get childs from mutations
         for mutation_intensity in ["low", "mid", "high"]:
-            n_mutation_childs = round(self.generation_distribution["mutate_" + mutation_intensity] * self.pop_size)
+            n_mutation_childs = self.generation_distribution["mutate_" + mutation_intensity]
             for _ in range(n_mutation_childs):
                 
                 # copy random parent and mutate it with given intensity
@@ -66,7 +66,7 @@ class SeqEvo():
                 next_generation.append(mutated_child)
         
         # get random individuals for "all" intensity
-        n_mutation_childs_all = round(self.generation_distribution["mutate_all"] * self.pop_size)
+        n_mutation_childs_all = self.generation_distribution["mutate_all"]
         for _ in range(n_mutation_childs_all):
 
                 mutated_child = SeqEvoGenome.create_random()

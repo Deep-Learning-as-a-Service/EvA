@@ -161,17 +161,17 @@ def fitness_easy(model_genome, log_func=print) -> float:
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
 generation_distribution = {
-    "crossover" : 0.5,
-    "mutate_low" : 0.0,
-    "mutate_mid" : 0.0,
-    "mutate_high" : 0.0,
-    "mutate_all" : 0.5
+    "crossover" : 2,
+    "mutate_low" : 2,
+    "mutate_mid" : 2,
+    "mutate_high" : 2,
+    "mutate_all" : 2
 }
 
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
     n_generations = 5, 
-    pop_size=6,
+    pop_size = 10,
     fitness_func = fitness_val_split,
     n_parents = 2,
     generation_distribution = generation_distribution,
