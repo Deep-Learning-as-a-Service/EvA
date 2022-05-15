@@ -8,13 +8,19 @@ class Conv1DFiltersParam(IntEvoParam):
     _key = "filters"
 
 class Conv1DKernelSizeParam(IntEvoParam):
-    _default_values = [2, 4]
-    _value_range = [2, 4]
+    _default_values = [2, 6, 12]
+    _value_range = [2, 24]
     _key = "kernel_size"
+
+#TODO make stride dependent from Kernel Size
+class Conv1DStridesParam(IntEvoParam):
+    _default_values = [1, 3, 5]
+    _value_range = [1, 5]
+    _key = "strides"
     
 
 
 class PConv1DLayer(ParametrizedLayer):
     _layer = keras.layers.Conv1D
-    _param_classes = [Conv1DFiltersParam, Conv1DKernelSizeParam]
+    _param_classes = [Conv1DFiltersParam, Conv1DKernelSizeParam, Conv1DStridesParam]
 

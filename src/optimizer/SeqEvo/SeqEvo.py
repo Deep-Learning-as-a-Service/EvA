@@ -2,6 +2,7 @@
 
 from operator import attrgetter
 import random
+from model_representation.ModelChecker.SeqEvoModelChecker import SeqEvoModelChecker
 from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
 from model_representation.ModelGenome import ModelGenome
@@ -53,7 +54,7 @@ class SeqEvo():
             next_generation.append(self.crossover_func(pa, ma))
         
         # get childs from mutations
-        for mutation_intensity in ["low", "mid", "high", "all"]:
+        for mutation_intensity in ["low", "mid", "high"]:
             n_mutation_childs = round(self.generation_distribution["mutate_" + mutation_intensity] * self.pop_size)
             for _ in range(n_mutation_childs):
                 
@@ -64,6 +65,14 @@ class SeqEvo():
                 mutated_child.created_from = "mutate_" + mutation_intensity
                 next_generation.append(mutated_child)
         
+        # get random individuals for "all" intensity
+        n_mutation_childs_all = round(self.generation_distribution["mutate_all"] * self.pop_size)
+        for _ in range(n_mutation_childs_all):
+
+                mutated_child = SeqEvoGenome.create_random()
+                mutated_child.created_from = "mutate_all" 
+                next_generation.append(mutated_child)
+
         return next_generation
     
     def run(self):
@@ -80,7 +89,9 @@ class SeqEvo():
             # Evaluate fitness of population
             for i, seqevo_genome in enumerate(population):
                 self.verbose_print(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
+                SeqEvoModelChecker.check_model_genome(seqevo_genome)
                 model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
+                
                 seqevo_genome.fitness = self.fitness_func(model_genome=model_genome, log_func=self.verbose_print)
                 self.verbose_print(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
             
