@@ -29,6 +29,7 @@ from optimizer.SeqEvo.Selector import Selector
 from optimizer.SeqEvo.Crosser import Crosser
 from datetime import datetime
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
+from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
 
 # Experiment Name ---------------------------------------------------------------
@@ -42,7 +43,7 @@ window_size = 30*3
 n_features = 51
 n_classes = 6
 
-layer_pool: 'list[ParametrizedLayer]' = [PDenseLayer, PConv1DLayer]
+layer_pool: 'list[ParametrizedLayer]' = [PDenseLayer, PConv1DLayer, PLstmLayer]
 settings.init(_layer_pool=layer_pool)
 
 
@@ -60,7 +61,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 # Funcs --------------------------------------------------------------------------------------------------------------
 
-load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']

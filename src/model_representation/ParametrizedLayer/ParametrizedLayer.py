@@ -45,7 +45,7 @@ class ParametrizedLayer(ABC):
             kwargs[param._key] = param.value
         
         # lambda x: self.layer(**kwargs)(x)
-        return self._layer(**kwargs)
+        return self.__class__._layer(**kwargs)
     
     def mutate(self, intensity: str) -> None:
         for param in self.params:
