@@ -91,9 +91,9 @@ class SeqEvoGenome():
         # Structural mutation
         struct_change_prob = self._mutation_intensitiy_to_struct_change[intensity]
         struct_change = get_key_from_prob_dict(struct_change_prob)
-        if struct_change == "add_layer_random":
+        if struct_change == "add_layer_random" and len(self.layers) < self._default_n_layers_range[1]:
             self.add_layer_random()
-        elif struct_change == "remove_layer_random":
+        elif struct_change == "remove_layer_random" and len(self.layers) > self._default_n_layers_range[0]:
             self.remove_layer_random()
         
         # Layer mutation
