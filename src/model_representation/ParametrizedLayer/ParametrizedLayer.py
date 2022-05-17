@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod 
 import keras.layers
 from utils.mutation_helper import get_key_from_prob_dict
+from model_representation.EvoParam.DEvoParam import DEvoParam
 
 class ParametrizedLayer(ABC):
     innovation_number = 0
@@ -32,6 +33,9 @@ class ParametrizedLayer(ABC):
     }
 
     def __init__(self, params) -> None:
+        assert self._layer is not None, f"{self.__class__.__name__} has no cls._layer"
+        assert self._param_classes is not None, f"{self.__class__.__name__} has no cls._param_classes"
+
         self.params = params
         self.innovation_number = ParametrizedLayer.innovation_number
         ParametrizedLayer.innovation_number += 1
@@ -45,7 +49,7 @@ class ParametrizedLayer(ABC):
             kwargs[param._key] = param.value
         
         # lambda x: self.layer(**kwargs)(x)
-        return self.__class__._layer(**kwargs)
+        return self._layer(**kwargs)
     
     def mutate(self, intensity: str) -> None:
         for param in self.params:
@@ -72,6 +76,21 @@ class ParametrizedLayer(ABC):
         assert cls._param_classes is not None, "_param_classes must be set"
         assert cls._layer is not None, "_layer must be set"
         
-        params = [param_class.create_random_default() for param_class in cls._param_classes]
+        # create all NOT DEPENDENT params
+        params = []
+        for param_class in cls._param_classes:
+            if not issubclass(param_class, DEvoParam):
+                params.append(param_class.create_random_default())
+
+        # create all DEPENDENT params
+        for param_class in cls._param_classes:
+            if issubclass(param_class, DEvoParam):
+                # find dependent param, needed for creation (hopefully already created)
+                params_of_dependent_class = list(filter(lambda param: type(param) is param_class._dependent_class, params))
+                assert len(params_of_dependent_class) == 1, f"there must be exactly one param of type {param_class._dependent_class.__name__} to create a {param_class.__name__}"
+                dependent_on_param = params_of_dependent_class[0]
+
+                params.append(param_class.create_random_default(dependent_on_param=dependent_on_param))
+
         return cls(params=params)
     

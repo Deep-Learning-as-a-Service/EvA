@@ -25,6 +25,7 @@ from optimizer.NeatNAS.NeatNAS import NeatNAS
 from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
 from model_representation.ParametrizedLayer.PConv1DLayer import PConv1DLayer
+from model_representation.ParametrizedLayer.PConv2DLayer import PConv2DLayer
 from optimizer.SeqEvo.Selector import Selector
 from optimizer.SeqEvo.Crosser import Crosser
 from datetime import datetime
@@ -43,7 +44,7 @@ window_size = 30*3
 n_features = 51
 n_classes = 6
 
-layer_pool: 'list[ParametrizedLayer]' = [PDenseLayer, PConv1DLayer, PLstmLayer]
+layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer] # [PDenseLayer, PConv1DLayer, PLstmLayer]
 settings.init(_layer_pool=layer_pool)
 
 
@@ -61,7 +62,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 # Funcs --------------------------------------------------------------------------------------------------------------
 
-load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
@@ -172,7 +173,7 @@ generation_distribution = {
 model_genome = SeqEvo(
     n_generations = 5, 
     pop_size = 10,
-    fitness_func = fitness_val_split,
+    fitness_func = fitness_easy,
     n_parents = 2,
     generation_distribution = generation_distribution,
     parent_selector=parent_selector,

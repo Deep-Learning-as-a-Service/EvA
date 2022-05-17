@@ -3,16 +3,16 @@ import random
 
 from abc import ABC, abstractmethod 
 class IntEvoParam(EvoParam):
-    
-    @classmethod
-    def create(cls, value):
+
+    def __init__(self, value):
         assert type(value) is int, "value must be of type int"
-        assert type(cls._value_range) is list, "value_range must be a list"
-        assert type(cls._value_range[0]) is int, "value_range[0] must be int"
-        assert type(cls._value_range[1]) is int, "value_range[1] must be int"
-        assert cls._value_range[1] - cls._value_range[0] > 0, "value_range needs to go from small to large"
-        assert cls._value_range[0] <= value and value <= cls._value_range[1], "value out of range"
-        return super().create(value=value)
+        assert type(self._value_range) is list, "value_range must be a list"
+        assert type(self._value_range[0]) is int, "value_range[0] must be int"
+        assert type(self._value_range[1]) is int, "value_range[1] must be int"
+        assert self._value_range[1] - self._value_range[0] > 0, "value_range needs to go from small to large"
+        assert self._value_range[0] <= value and value <= self._value_range[1], "value out of range"
+
+        super().__init__(value=value)
     
     def _mutated_value(self, mutation_percentage):
         range_size = self._value_range[1] - self._value_range[0]
