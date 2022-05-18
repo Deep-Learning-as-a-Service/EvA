@@ -18,6 +18,11 @@ class Conv2DKernelSizeParam(TupleIntEvoParam):
     _key = "kernel_size"
 
 class Conv2DStridesParam(TupleCategDEvoParam):
+    """
+    TODO
+    - mutate should go 1 label to the right/ to the left, instead of coinflip on everything
+    """
+
     _dependent_class = Conv2DKernelSizeParam
     _default_values = [("step1", "step1"), ("100%", "step1")]
     _value_range = ["step1", "25%", "50%", "75%", "100%"]
@@ -30,7 +35,7 @@ class Conv2DStridesParam(TupleCategDEvoParam):
         else:
             percentage = int(dependent_value_tup_pos[:-1]) / 100 # "25%" -> 0.25
             # Conv2DKernelSizeParam is also a tuple
-            return round(self._dependent_on_param.value[tuple_position] * percentage)
+            return max(1, round(self._dependent_on_param.value[tuple_position] * percentage))
 
     @property
     def value(self):

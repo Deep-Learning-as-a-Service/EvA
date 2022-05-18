@@ -9,7 +9,7 @@ class TupleCategDEvoParam(DEvoParam):
         assert type(dependent_value) is tuple, "dependent_value must be tuple"
         assert dependent_value[0] in self._value_range, "dependent_value[0] must be of correct categorical"
         assert dependent_value[1] in self._value_range, "dependent_value[1] must be of correct categorical"
-        assert issubclass(type(dependent_on_param), EvoParam), "dependent_on_param must be child of a normal EvoParam"
+        assert not issubclass(type(dependent_on_param), DEvoParam), "dependent_on_param must be child of a normal EvoParam"
 
         super().__init__(dependent_value=dependent_value, dependent_on_param=dependent_on_param)
     

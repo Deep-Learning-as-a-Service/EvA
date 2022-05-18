@@ -44,7 +44,7 @@ window_size = 30*3
 n_features = 51
 n_classes = 6
 
-layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer] # [PDenseLayer, PConv1DLayer, PLstmLayer]
+layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] #PConv1DLayer
 settings.init(_layer_pool=layer_pool)
 
 

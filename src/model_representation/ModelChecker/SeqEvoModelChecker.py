@@ -3,6 +3,10 @@ import random
 from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 import utils.settings as settings
 class SeqEvoModelChecker():
+    """
+    - data remaining in the end?
+    - remove random conv layers from model if not!
+    """
 
     @classmethod
     def check_model_genome(cls, seqevo_genome: SeqEvoGenome) -> None:
@@ -44,7 +48,7 @@ class SeqEvoModelChecker():
                         stride = param.value  
                 timesteps_dimension_size_after_convs = math.floor((timesteps_dimension_size_after_convs - kernel_size) / stride) + 1
 
-            # size of timesteps and features dimension gets reduced by Conv1D
+            # size of timesteps and features dimension gets reduced by Conv2D
             elif layer.__class__.__name__ == "PConv2DLayer":
                 kernel_size = None
                 stride = None
