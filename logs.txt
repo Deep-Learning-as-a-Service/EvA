@@ -1,0 +1,62 @@
+
+================================================================
+========================= Generation 1/500 =======================
+================================================================
+
+██ Evaluating 1/20 ...
+SeqEvoGenome [PConv2DLayer(filters=97 kernel_size=(6, 6) strides=(3, 4)) PConv2DLayer(filters=128 kernel_size=(3, 3) strides=(1, 1)) PConv2DLayer(filters=128 kernel_size=(1, 1) strides=(1, 1)) PDenseLayer(units=73)]
+	fitness: None
+	created_from: random
+
+================================================================
+========================= Generation 1/500 =======================
+================================================================
+
+██ Evaluating 1/20 ...
+SeqEvoGenome [PConv2DLayer(filters=97 kernel_size=(6, 6) strides=(3, 4)) PConv2DLayer(filters=128 kernel_size=(3, 3) strides=(1, 1)) PConv2DLayer(filters=128 kernel_size=(1, 1) strides=(1, 1)) PDenseLayer(units=73)]
+	fitness: None
+	created_from: random
+k_fold |------------------------------| 0.0% 0/2
+k_fold |>>>>>>>>>>>>>>>---------------| 50.0% 1/2
+k_fold |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| 100.0% 2/2
+
+================================================================
+========================= Generation 1/500 =======================
+================================================================
+
+██ Evaluating 1/20 ...
+SeqEvoGenome [PConv2DLayer(filters=97 kernel_size=(6, 6) strides=(3, 4)) PConv2DLayer(filters=128 kernel_size=(3, 3) strides=(1, 1)) PConv2DLayer(filters=128 kernel_size=(1, 1) strides=(1, 1)) PDenseLayer(units=73)]
+	fitness: None
+	created_from: random
+k_fold |------------------------------| 0.0% 0/2
+k_fold |>>>>>>>>>>>>>>>---------------| 50.0% 1/2
+k_fold |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| 100.0% 2/2
+
+=> evaluated fitness: 0.4095790331341662
+
+██ Evaluating 2/20 ...
+SeqEvoGenome [PConv2DLayer(filters=79 kernel_size=(5, 3) strides=(4, 2)) PConv2DLayer(filters=64 kernel_size=(2, 2) strides=(2, 1))]
+	fitness: None
+	created_from: random
+k_fold |------------------------------| 0.0% 0/2
+k_fold |>>>>>>>>>>>>>>>---------------| 50.0% 1/2
+k_fold |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| 100.0% 2/2
+
+=> evaluated fitness: 0.42956816947311244
+
+██ Evaluating 3/20 ...
+SeqEvoGenome [PLstmLayer(units=32) PDenseLayer(units=64) PDenseLayer(units=75) PDenseLayer(units=92)]
+	fitness: None
+	created_from: random
+k_fold |------------------------------| 0.0% 0/2
+k_fold |>>>>>>>>>>>>>>>---------------| 50.0% 1/2
+k_fold |>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>| 100.0% 2/2
+
+=> evaluated fitness: 0.49962248777838136
+
+██ Evaluating 4/20 ...
+SeqEvoGenome [PLstmLayer(units=32) PDenseLayer(units=83) PLstmLayer(units=4)]
+	fitness: None
+	created_from: random
+k_fold |------------------------------| 0.0% 0/2
+k_fold |>>>>>>>>>>>>>>>---------------| 50.0% 1/2
