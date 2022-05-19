@@ -5,6 +5,7 @@ opportunity-dataset-csv/
 saved_experiments/
 wandb
 data.csv
+logs.txt
 
 
 # Byte-compiled / optimized / DLL files
