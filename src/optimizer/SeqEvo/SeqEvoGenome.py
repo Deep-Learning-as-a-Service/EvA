@@ -86,6 +86,9 @@ class SeqEvoGenome():
     def __str__(self):
         return f"SeqEvoGenome [{' '.join([str(layer) for layer in self.layers])}]\n\tfitness: {self.fitness}\n\tcreated_from: {self.created_from}"
     
+    def get_architecture_identifier(self):
+        return f"{' '.join([str(layer) for layer in self.layers])}"
+    
     def mutate(self, intensity):
 
         # Structural mutation

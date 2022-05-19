@@ -25,6 +25,8 @@ class SeqEvo():
         self.parent_selector = parent_selector
         self.crossover_func = crossover_func
 
+        self.modelcache = {}
+
         # Logging
         self.verbose_print = log_func if verbose else lambda *a, **k: None
         progress_bar = lambda prefix, suffix, progress, total: print_progress_bar(progress, total, prefix = prefix, suffix = suffix, length = 30, log_func = self.verbose_print)
@@ -41,12 +43,20 @@ class SeqEvo():
     def pick_two_parents_random(self, parents):
         return random.sample(parents, 2)
     
-    def create_next_generation(self, population):
+    def create_next_generation(self, population, best_individual):
         next_generation = []
 
         # select parents of next generation via selector function
         parents = self.parent_selector(sorted_population = population, n_parents = self.n_parents)
-        
+
+        # get childs from best individual mutation
+        n_finetuned_childs = self.generation_distribution["finetune_best_individual"]
+        for _ in range(n_finetuned_childs):
+            child_best_individual = copy.deepcopy(best_individual)
+            child_best_individual.mutate("low")
+            child_best_individual.created_from = "finetuned_best_individual"
+            next_generation.append(child_best_individual)
+
         # get childs from crossover fucntion
         n_crossover_childs = self.generation_distribution["crossover"]
         for _ in range(n_crossover_childs):
@@ -90,11 +100,18 @@ class SeqEvo():
             for i, seqevo_genome in enumerate(population):
                 self.verbose_print(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
                 SeqEvoModelChecker.check_model_genome(seqevo_genome)
-                model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
-                
-                seqevo_genome.fitness = self.fitness_func(model_genome=model_genome, log_func=self.verbose_print)
-                self.verbose_print(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
-            
+                if seqevo_genome.get_architecture_identifier() not in self.modelcache:
+                    model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
+                    seqevo_genome.fitness = self.fitness_func(model_genome=model_genome, log_func=self.verbose_print)
+
+                    # cache fitness 
+                    self.modelcache[seqevo_genome.get_architecture_identifier()] = seqevo_genome.fitness 
+                    self.verbose_print(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
+
+                else:
+                    seqevo_genome.fitness = self.modelcache[seqevo_genome.get_architecture_identifier()]
+                    self.verbose_print(f"already calculated model architecture, getting fitness from cache")                           
+        
             # Rank population
             population.sort(key=attrgetter('fitness'), reverse=True)
             self.verbose_print(f'{self.marker_symbol} Ranking:')
@@ -109,7 +126,7 @@ class SeqEvo():
                 self.verbose_print(f"{self.marker_symbol} Old best individual: {best_individual}")
                 
             # assign next generation
-            population = self.create_next_generation(population=population)
+            population = self.create_next_generation(population=population, best_individual=best_individual)
         
         return SeqEvoModelGenome.create_with_default_params(best_individual)
                     
