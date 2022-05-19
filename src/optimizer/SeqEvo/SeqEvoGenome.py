@@ -86,6 +86,7 @@ class SeqEvoGenome():
     def __str__(self):
         return f"SeqEvoGenome [{' '.join([str(layer) for layer in self.layers])}]\n\tfitness: {self.fitness}\n\tcreated_from: {self.created_from}"
     
+    #TODO: get a better identifier by implementing the == operation on layer/param instead of using the logging function  
     def get_architecture_identifier(self):
         return f"{' '.join([str(layer) for layer in self.layers])}"
     
