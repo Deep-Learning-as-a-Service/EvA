@@ -100,6 +100,10 @@ class SeqEvo():
             for i, seqevo_genome in enumerate(population):
                 self.verbose_print(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
                 SeqEvoModelChecker.check_model_genome(seqevo_genome)
+
+                # get fitness of seqevo_genome
+                # TODO: if we have a lot of duplicates, the gen_distribution is inaccurate, while no new individual mutate("low")
+                # by fitting
                 if seqevo_genome.get_architecture_identifier() not in self.modelcache:
                     model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
                     seqevo_genome.fitness = self.fitness_func(model_genome=model_genome, log_func=self.verbose_print)
@@ -108,9 +112,10 @@ class SeqEvo():
                     self.modelcache[seqevo_genome.get_architecture_identifier()] = seqevo_genome.fitness 
                     self.verbose_print(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
 
+                # from cache
                 else:
                     seqevo_genome.fitness = self.modelcache[seqevo_genome.get_architecture_identifier()]
-                    self.verbose_print(f"already calculated model architecture, getting fitness from cache")                           
+                    self.verbose_print(f"=> !! fitness from cache: {seqevo_genome.fitness}\n")                           
         
             # Rank population
             population.sort(key=attrgetter('fitness'), reverse=True)

@@ -62,7 +62,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 # Funcs --------------------------------------------------------------------------------------------------------------
 
-load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
@@ -88,7 +88,7 @@ test_percentage = 0.3
 recordings_train, recordings_test = test_train_split(recordings)
 
 # Validation Splits
-k = 4
+k = 2
 k_fold = KFold(n_splits=k, random_state=None)
 recordings_train = np.array(recordings_train)
 recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split(recordings_train)]
@@ -162,16 +162,16 @@ def fitness_easy(model_genome, log_func=print) -> float:
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
 generation_distribution = {
-    "finetune_best_individual": 2,
-    "crossover" : 0,
-    "mutate_low" : 0,
-    "mutate_mid" : 0,
-    "mutate_high" : 0,
-    "mutate_all" : 0
+    "finetune_best_individual": 1,
+    "crossover" : 1,
+    "mutate_low" : 1,
+    "mutate_mid" : 1,
+    "mutate_high" : 1,
+    "mutate_all" : 1
 }
 
 def log_func(*args, **kwargs):
-    message = args[0] if len(args) > 0 else ""
+    message = str(args[0]) if len(args) > 0 else ""
     print(message)
     with open("logs.txt", "a+") as f:
         f.write(message + "\n")
@@ -179,7 +179,7 @@ def log_func(*args, **kwargs):
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
     n_generations = 10, 
-    pop_size = 2,
+    pop_size = 6,
     fitness_func = fitness_easy,
     n_parents = 3,
     generation_distribution = generation_distribution,
