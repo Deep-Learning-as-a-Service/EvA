@@ -54,6 +54,7 @@ class SeqEvo():
         for _ in range(n_finetuned_childs):
             child_best_individual = copy.deepcopy(best_individual)
             child_best_individual.mutate("low")
+            child_best_individual.fitness = None
             child_best_individual.created_from = "finetuned_best_individual"
             next_generation.append(child_best_individual)
 
@@ -72,6 +73,7 @@ class SeqEvo():
                 parent_to_mutate = copy.deepcopy(random.choice(parents))
 
                 mutated_child = parent_to_mutate.mutate(mutation_intensity)
+                mutated_child.fitness = None
                 mutated_child.created_from = "mutate_" + mutation_intensity
                 next_generation.append(mutated_child)
         
