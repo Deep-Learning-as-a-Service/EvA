@@ -32,6 +32,7 @@ from datetime import datetime
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
+from utils.logger import logger
 
 # Experiment Name ---------------------------------------------------------------
 experiment_name = "best-performer-conv-finally"
@@ -62,7 +63,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 # Funcs --------------------------------------------------------------------------------------------------------------
 
-load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
@@ -105,7 +106,7 @@ X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, wi
 
 
 # Fitness Funcs ------------------------------------------------------------------------------------------------------
-def fitness_val_split(model_genome, log_func=print) -> float:
+def fitness_val_split(model_genome, log_func) -> float:
     prog_bar = lambda progress: print_progress_bar(progress, total=len(X_y_validation_splits), prefix="k_fold", suffix=f"{progress}/{len(X_y_validation_splits)}", length=30, log_func=log_func, fill=">")
     # Refactoring idea
     # model_genome.fit(X_train, y_train)
@@ -138,7 +139,7 @@ def fitness_val_split(model_genome, log_func=print) -> float:
     fitness = np.mean(accuracies)
     return fitness
 
-def fitness_easy(model_genome, log_func=print) -> float:
+def fitness_easy(model_genome, log_func) -> float:
     model = model_genome.get_model(
         window_size=window_size,
         n_features=n_features,
@@ -170,26 +171,20 @@ generation_distribution = {
     "mutate_all" : 1
 }
 
-def log_func(*args, **kwargs):
-    message = str(args[0]) if len(args) > 0 else ""
-    print(message)
-    with open("logs.txt", "a+") as f:
-        f.write(message + "\n")
-
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
-    n_generations = 10, 
+    n_generations = 3000, 
     pop_size = 6,
     fitness_func = fitness_easy,
     n_parents = 3,
     generation_distribution = generation_distribution,
     parent_selector=parent_selector,
     crossover_func=crossover_func,
-    log_func=log_func
+    log_func=logger,
 ).run()
 
 
-raise Exception("Done") # TODO bigger smaller split, evaluate the optimization
+raise Exception("DOOOOONNNEEEE") # TODO bigger smaller split, evaluate the optimization
 
 # Find Architecture Params
 dna = DNA(params_to_optimmize)

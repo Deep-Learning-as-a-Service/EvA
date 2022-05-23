@@ -6,6 +6,7 @@ saved_experiments/
 wandb
 data.csv
 logs.txt
+config.py
 
 
 # Byte-compiled / optimized / DLL files

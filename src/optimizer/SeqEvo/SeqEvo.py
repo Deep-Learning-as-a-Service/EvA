@@ -9,11 +9,11 @@ from model_representation.ModelGenome import ModelGenome
 import copy
 from utils.mutation_helper import get_key_from_prob_dict
 from utils.progress_bar import print_progress_bar
-from utils.print_list import print_list
+
 
 class SeqEvo():
 
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, verbose=True, log_func=print):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, log_func):
         
         assert sum(generation_distribution.values()) == pop_size, "sum of generation distribution must be equal to population size"
         self.n_generations = n_generations
@@ -28,10 +28,12 @@ class SeqEvo():
         self.modelcache = {}
 
         # Logging
-        self.verbose_print = log_func if verbose else lambda *a, **k: None
-        progress_bar = lambda prefix, suffix, progress, total: print_progress_bar(progress, total, prefix = prefix, suffix = suffix, length = 30, log_func = self.verbose_print)
+
+        self.logger = log_func
+        self.prio_logger = lambda *args, **kwargs: self.logger(*args, prio=True, **kwargs)
+        progress_bar = lambda prefix, suffix, progress, total: print_progress_bar(progress, total, prefix = prefix, suffix = suffix, length = 30, log_func = self.logger)
         self.progress_bar_fitting = lambda prefix, progress, total: progress_bar(prefix, '- ' + str(progress) + '/' + str(total) + ' fitted', progress, total)
-        self.print_list = lambda l: print_list(l, self.verbose_print)
+        self.to_list_str_beauty = lambda li: '[\n\t' + ',\n\n\t'.join(list(map(str, li))) + '\n]'
         self.marker_symbol = '██'
         
     def initialize_population(self):
@@ -94,13 +96,13 @@ class SeqEvo():
         
         for gen_idx in range(self.n_generations):
             
-            self.verbose_print("\n================================================================")
-            self.verbose_print(f"========================= Generation {gen_idx + 1}/{self.n_generations} =======================")
-            self.verbose_print("================================================================\n")
+            self.logger("\n================================================================")
+            self.prio_logger(f"======================= Generation {gen_idx + 1}/{self.n_generations} =====================")
+            self.logger("================================================================\n")
             
             # Evaluate fitness of population
             for i, seqevo_genome in enumerate(population):
-                self.verbose_print(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
+                self.prio_logger(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
                 SeqEvoModelChecker.check_model_genome(seqevo_genome)
 
                 # get fitness of seqevo_genome
@@ -108,29 +110,29 @@ class SeqEvo():
                 # by fitting
                 if seqevo_genome.get_architecture_identifier() not in self.modelcache:
                     model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
-                    seqevo_genome.fitness = self.fitness_func(model_genome=model_genome, log_func=self.verbose_print)
+                    seqevo_genome.fitness = self.fitness_func(model_genome=model_genome, log_func=self.logger)
 
                     # cache fitness 
                     self.modelcache[seqevo_genome.get_architecture_identifier()] = seqevo_genome.fitness 
-                    self.verbose_print(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
+                    self.prio_logger(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
 
                 # from cache
                 else:
                     seqevo_genome.fitness = self.modelcache[seqevo_genome.get_architecture_identifier()]
-                    self.verbose_print(f"=> !! fitness from cache: {seqevo_genome.fitness}\n")                           
+                    self.prio_logger(f"=> !! fitness from cache: {seqevo_genome.fitness}\n")                           
         
             # Rank population
             population.sort(key=attrgetter('fitness'), reverse=True)
-            self.verbose_print(f'{self.marker_symbol} Ranking:')
-            self.print_list(population)
-            self.verbose_print('\n')
+            self.prio_logger(f'{self.marker_symbol} Ranking:\n{self.to_list_str_beauty(population)}\n')
             
             # Update best individual
+            best_individual_str = None
             if population[0].fitness > best_individual.fitness:
                 best_individual = population[0]
-                self.verbose_print(f"{self.marker_symbol} New best individual: {best_individual}")
+                best_individual_str = f"New best individual: {best_individual}"
             else:
-                self.verbose_print(f"{self.marker_symbol} Old best individual: {best_individual}")
+                best_individual_str = f"Old best individual: {best_individual}"
+            self.prio_logger(f"{self.marker_symbol} {best_individual_str}")
                 
             # assign next generation
             population = self.create_next_generation(population=population, best_individual=best_individual)
