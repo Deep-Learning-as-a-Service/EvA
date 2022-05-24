@@ -29,6 +29,10 @@ class SeqEvoModelChecker():
 
         for layer in layers:
             
+            # if dimension loss in the middle of model => return -1, -1 to trigger resolver
+            if(timesteps_dimension_size_after_convs <= 0 or features_dimension_size_after_convs <= 0):
+                return -1, -1
+            
             # size of features dimension gets reduced to "units" in LSTM/Dense
             if layer.__class__.__name__ in ["PLstmLayer", "PDenseLayer"]:
                 units = None
