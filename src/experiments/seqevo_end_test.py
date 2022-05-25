@@ -89,7 +89,7 @@ test_percentage = 0.3
 recordings_train, recordings_test = test_train_split(recordings)
 
 # Validation Splits
-k = 4
+k = 2
 k_fold = KFold(n_splits=k, random_state=None)
 recordings_train = np.array(recordings_train)
 recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split(recordings_train)]
@@ -159,6 +159,12 @@ def fitness_easy(model_genome, log_func) -> float:
 
 # Optimization -------------------------------------------------------------------------------------------------------
 
+# Create Folder, save model export and evaluations there
+experiment_folder_path = new_saved_experiment_folder(experiment_name) # create folder to store results
+seqevo_history = SeqEvoHistory(
+    path_to_file=os.path.join(experiment_folder_path, 'seqevo_history.csv')
+)
+
 # Config
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
@@ -175,20 +181,18 @@ generation_distribution = {
 model_genome = SeqEvo(
     n_generations = 2, 
     pop_size = 6,
-    fitness_func = fitness_easy,
-    n_parents = 3,
+    fitness_func = fitness_val_split,
+    n_parents = 4,
     generation_distribution = generation_distribution,
     parent_selector=parent_selector,
     crossover_func=crossover_func,
     log_func=logger,
+    seqevo_history=seqevo_history
 ).run()
 
 # Test, Evaluate
 model = ModelBuilder(model_genome)
 y_test_pred = model.predict(X_test)
-
-# Create Folder, save model export and evaluations there
-experiment_folder_path = new_saved_experiment_folder(experiment_name) # create folder to store results
 
 # model.export(experiment_folder_path) # opt: export model to folder
 create_conf_matrix(experiment_folder_path, y_test_pred, y_test)

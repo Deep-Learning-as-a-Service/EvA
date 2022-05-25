@@ -13,7 +13,7 @@ from utils.progress_bar import print_progress_bar
 
 class SeqEvo():
 
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, log_func):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, log_func, seqevo_history):
         
         assert sum(generation_distribution.values()) == pop_size, "sum of generation distribution must be equal to population size"
         self.n_generations = n_generations
@@ -28,7 +28,7 @@ class SeqEvo():
         self.modelcache = {}
 
         # Logging
-
+        self.seqevo_history = seqevo_history
         self.logger = log_func
         self.prio_logger = lambda *args, **kwargs: self.logger(*args, prio=True, **kwargs)
         progress_bar = lambda prefix, suffix, progress, total: print_progress_bar(progress, total, prefix = prefix, suffix = suffix, length = 30, log_func = self.logger)
@@ -102,7 +102,7 @@ class SeqEvo():
             
             # Evaluate fitness of population
             for i, seqevo_genome in enumerate(population):
-                self.prio_logger(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
+                self.logger(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
                 SeqEvoModelChecker.check_model_genome(seqevo_genome)
 
                 # get fitness of seqevo_genome
@@ -114,12 +114,17 @@ class SeqEvo():
 
                     # cache fitness 
                     self.modelcache[seqevo_genome.get_architecture_identifier()] = seqevo_genome.fitness 
-                    self.prio_logger(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
+                    self.logger(f"=> evaluated fitness: {seqevo_genome.fitness}\n")
 
                 # from cache
                 else:
                     seqevo_genome.fitness = self.modelcache[seqevo_genome.get_architecture_identifier()]
-                    self.prio_logger(f"=> !! fitness from cache: {seqevo_genome.fitness}\n")                           
+                    self.logger(f"=> !! fitness from cache: {seqevo_genome.fitness}\n")
+
+                self.seqevo_history.write(
+                    seqevo_genome=seqevo_genome,
+                    n_generations=gen_idx + 1,
+                )                           
         
             # Rank population
             population.sort(key=attrgetter('fitness'), reverse=True)
