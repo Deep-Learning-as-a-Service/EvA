@@ -5,8 +5,12 @@ opportunity-dataset-csv/
 saved_experiments/
 wandb
 data.csv
-logs.txt
 config.py
+logs/*
+logs.txt
+logs04-artemis-kfold.txt
+logs02.txt
+logs03.txt
 
 
 # Byte-compiled / optimized / DLL files

@@ -11,7 +11,7 @@ def logger(*args, **kwargs):
     print(*args, **kwargs)
 
     # 2
-    with open("logs.txt", "a+") as f:
+    with open("logs/artemis_kfold_run2.txt", "a+") as f:
         f.write(message + "\n")
 
     # 3

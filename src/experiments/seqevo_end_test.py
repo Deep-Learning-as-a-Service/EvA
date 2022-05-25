@@ -10,6 +10,7 @@ import pandas as pd
 from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
 from optimizer.SeqEvo.SeqEvo import SeqEvo
+from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
 from tensorflow import keras
@@ -169,18 +170,18 @@ seqevo_history = SeqEvoHistory(
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
 generation_distribution = {
-    "finetune_best_individual": 1,
-    "crossover" : 1,
-    "mutate_low" : 1,
-    "mutate_mid" : 1,
-    "mutate_high" : 1,
-    "mutate_all" : 1
+    "finetune_best_individual": 2,
+    "crossover" : 2,
+    "mutate_low" : 2,
+    "mutate_mid" : 2,
+    "mutate_high" : 2,
+    "mutate_all" : 2
 }
 
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
-    n_generations = 2, 
-    pop_size = 6,
+    n_generations = 300, 
+    pop_size = 12,
     fitness_func = fitness_val_split,
     n_parents = 4,
     generation_distribution = generation_distribution,
@@ -191,7 +192,19 @@ model_genome = SeqEvo(
 ).run()
 
 # Test, Evaluate
-model = ModelBuilder(model_genome)
+model = model_genome.get_model(
+        window_size=window_size,
+        n_features=n_features,
+        n_classes=n_classes
+    )
+
+model.fit(
+    X_train, 
+    y_train, 
+    batch_size=model_genome.batch_size, 
+    epochs=model_genome.n_epochs,
+    verbose=0
+)
 y_test_pred = model.predict(X_test)
 
 # model.export(experiment_folder_path) # opt: export model to folder
