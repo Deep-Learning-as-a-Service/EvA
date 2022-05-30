@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 from model_representation.EvoParam.DEvoParam import DEvoParam
 from model_representation.EvoParam.EvoParam import EvoParam
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
