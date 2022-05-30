@@ -107,7 +107,7 @@ class SeqEvoHistory:
                     value = attr_value_dict[param_class._key]
                     params.append(param_class.create(value))
                     
-            # then instantiate DEvoParams by looking up the corresponding EvoParam that it is dependent on (IMPORTANT: only working for tuple values right now)
+            # then instantiate DEvoParams by looking up the corresponding EvoParam that it is dependent on (IMPORTANT: only ints and tuples are supported yet)
             for param_class in class_obj._param_classes:
                 if issubclass(param_class, DEvoParam):
                     value = attr_value_dict[param_class._key]
@@ -128,5 +128,7 @@ class SeqEvoHistory:
             dependent_value = dependent_value
             return str(round(value / dependent_value) * 25) + "%"
             
-      
-        return (get_percentage_categorical(value[0], dependent_value[0]), get_percentage_categorical(value[1], dependent_value[1]))
+        if isinstance(dependent_value, tuple):
+            return (get_percentage_categorical(value[0], dependent_value[0]), get_percentage_categorical(value[1], dependent_value[1]))
+        if isinstance(dependent_value, int):
+            return get_percentage_categorical(value, dependent_value)
