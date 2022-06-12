@@ -18,4 +18,21 @@ class Crosser():
         second_half = ma.layers[middle_ma:] if random_int == 1 else pa.layers[middle_pa:]
         first_half.extend(second_half)
         return SeqEvoGenome(first_half, created_from="middlepoint_crossover") 
+    
+    @staticmethod
+    def uniform_crossover(ma: SeqEvoGenome, pa: SeqEvoGenome):
+        child_layers = []
+        lowest_length = min(len(ma.layers), len(pa.layers))
+        
+        # randomize which layer the child gets from which parent layerwise
+        for i in range(lowest_length):
+            child_layers.append(random.choice([ma.layers[i], pa.layers[i]]))
+            
+        # excessive layers will get added randomly or not (50/50)
+        longer_parent = ma if len(ma.layers) > len(pa.layers) else pa
+        for i in range(lowest_length, len(longer_parent.layers)):
+            if round(random.random()) == 0:
+                child_layers.append(longer_parent.layers[i])
+        return SeqEvoGenome(child_layers, created_from="uniform_crossover")
+            
         
