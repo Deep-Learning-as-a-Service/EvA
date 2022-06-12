@@ -1,5 +1,7 @@
 import math
 import random
+from model_representation.ParametrizedLayer.PConv1DLayer import Conv1DKernelSizeParam
+from model_representation.ParametrizedLayer.PConv2DLayer import Conv2DKernelSizeParam
 from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 import utils.settings as settings
 class SeqEvoModelChecker():
@@ -28,7 +30,7 @@ class SeqEvoModelChecker():
         timesteps_dimension_size_after_convs, features_dimension_size_after_convs, channel_dimension_size_after_convs = cls.__calculate_dimensions_after(timesteps_dimension_size, features_dimension_size, seqevo_genome.layers)
 
         while(problematic_input(timesteps_dimension_size_after_convs, features_dimension_size_after_convs, channel_dimension_size_after_convs)):
-            cls.__remove_random_conv_layer(seqevo_genome)
+            cls._change_conv_to_other_layer(seqevo_genome)
             timesteps_dimension_size_after_convs, features_dimension_size_after_convs, channel_dimension_size_after_convs = cls.__calculate_dimensions_after(timesteps_dimension_size, features_dimension_size, seqevo_genome.layers)
 
     @classmethod
@@ -112,5 +114,64 @@ class SeqEvoModelChecker():
         layer_idx_to_remove = random.choice(conv_layer_idx_list)
 
         seqevo_genome.layers.pop(layer_idx_to_remove)
+        
+    @classmethod
+    def _change_conv_to_other_layer(cls, seqevo_genome) -> None:
+        
+        conv_layer_idx_list = list(filter(lambda idx: (seqevo_genome.layers[idx].__class__.__name__ in ["PConv1DLayer", "PConv2DLayer"]), range(len(seqevo_genome.layers))))
+        layer_idx_to_remove = random.choice(conv_layer_idx_list)
 
+        layer_class = random.choice([x for x in settings.layer_pool if x.__name__ not in ["PConv1DLayer", "PConv2DLayer"]])
+        seqevo_genome.layers[layer_idx_to_remove] = layer_class.create_random_default()
+    
+    @classmethod
+    def _lower_high_conv_params(cls, seqevo_genome) -> None:    
+        conv_layer_idx_list = list(filter(lambda idx: (seqevo_genome.layers[idx].__class__.__name__ in ["PConv1DLayer", "PConv2DLayer"]), range(len(seqevo_genome.layers))))
+        
+        highest_kernel_size = 0
+        idx_of_highest_kernel_size_layer = None
+        
+        for layer_idx in conv_layer_idx_list:
+            layer = seqevo_genome.layers[layer_idx]
+            kernel_size = None
+            stride = None
+
+            for param in layer.params:
+                if param._key == "kernel_size":
+                    kernel_size = param.value
+                if param._key == "strides":
+                    stride = param.value  
+            if layer.__class__.__name__ == "PConv1DLayer":
+                if kernel_size > highest_kernel_size:
+                    highest_kernel_size = kernel_size
+                    idx_of_highest_kernel_size_layer = layer_idx
+                    
+            elif layer.__class__.__name__ == "PConv2DLayer":
+                max_kernel_size = max(kernel_size)
+                if max_kernel_size > highest_kernel_size:
+                    highest_kernel_size = max_kernel_size
+                    idx_of_highest_kernel_size_layer = layer_idx
+        
+        # create new kernel size param with lower value
+        new_kernel_param = None
+        if seqevo_genome.layers[idx_of_highest_kernel_size_layer].__class__.__name__ == "PConv1DLayer":            
+            new_kernel_param = Conv1DKernelSizeParam.create(2)
+        elif seqevo_genome.layers[idx_of_highest_kernel_size_layer].__class__.__name__ == "PConv2DLayer":
+            new_kernel_param = Conv2DKernelSizeParam.create((2,2))
+            
+        # add new kernel size param to layer, update dependency for stride param
+        params = seqevo_genome.layers[idx_of_highest_kernel_size_layer].params
+        kernel_size_param_idx = [idx for idx, x in enumerate(params) if x._key == "kernel_size"][0]
+        stride_size_param = [x for x in params if x._key == "strides"][0]
+        params[kernel_size_param_idx] = new_kernel_param
+        stride_size_param._dependent_on_param = new_kernel_param
+        
+            
+            
+
+
+            
+
+    
+    
 
