@@ -64,7 +64,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 # Funcs --------------------------------------------------------------------------------------------------------------
 
-load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
@@ -182,7 +182,7 @@ generation_distribution = {
 model_genome = SeqEvo(
     n_generations = 300, 
     pop_size = 12,
-    fitness_func = fitness_val_split,
+    fitness_func = fitness_easy,
     n_parents = 4,
     generation_distribution = generation_distribution,
     parent_selector=parent_selector,

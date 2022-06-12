@@ -55,7 +55,7 @@ class ModelNode():
         a_block = lambda tensor_list: concatenate_func(tensor_list) # a_block func that takes tensor_list, returns tensor
         b_block = lambda tensor_list: remove_dimensionality_func(a_block(tensor_list))
         c_block = lambda tensor_list: add_dimensionality_func(b_block(tensor_list))
-        d_block = lambda tensor_list: self.layer.get_func()(c_block(tensor_list))
+        d_block = lambda tensr_li: self.layer.get_func()(c_block(tensr_li))
 
         self.architecture_block = d_block
                 

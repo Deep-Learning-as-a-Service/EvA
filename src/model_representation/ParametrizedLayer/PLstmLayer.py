@@ -6,7 +6,8 @@ class LstmUnitsParam(IntEvoParam):
     _default_values = [4, 8, 16]
     _value_range = [2, 32]
     _key = "units"
-
+    _mean = 8
+    _sd = 4
 
 class PLstmLayer(ParametrizedLayer):
     _layer = lambda **kwargs: keras.layers.LSTM(return_sequences=True, **kwargs)

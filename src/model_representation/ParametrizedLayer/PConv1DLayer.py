@@ -7,11 +7,16 @@ class Conv1DFiltersParam(IntEvoParam):
     _default_values = [32, 64, 128]
     _value_range = [16, 128]
     _key = "filters"
+    _mean = 64
+    _sd = 32
 
 class Conv1DKernelSizeParam(IntEvoParam):
     _default_values = [2, 6, 12]
     _value_range = [2, 24]
     _key = "kernel_size"
+    _mean = 6
+    _sd = 3
+
 
 class Conv1DStridesParam(CategDEvoParam):
     """
@@ -22,6 +27,7 @@ class Conv1DStridesParam(CategDEvoParam):
     _dependent_class = Conv1DKernelSizeParam
     _default_values = ["step1", "50%", "100%"]
     _value_range = ["step1", "25%", "50%", "75%", "100%"]
+    _weights = [0.6, 0.1, 0.1, 0.1, 0.1]
     _key = "strides"
 
     @property

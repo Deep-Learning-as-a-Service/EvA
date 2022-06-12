@@ -11,6 +11,9 @@ class TupleIntEvoParam(EvoParam):
         assert type(self._value_range) is list, "value_range must be a list"
         assert type(self._value_range[0]) is tuple, "value_range[0] must be tuple"
         assert type(self._value_range[1]) is tuple, "value_range[1] must be tuple"
+        assert self._mean is not None, f"{self.__class__.__name__}: mean must be set for TupleIntEvoParam"
+        assert self._sd is not None, f"{self.__class__.__name__}: sd must be set for TupleIntEvoParam"
+
         # TODO: value_range checks
         return super().__init__(value=value)
     
@@ -23,7 +26,7 @@ class TupleIntEvoParam(EvoParam):
         range_size = max_value_range - min_value_range
         min_limit = max(min_value_range, value_tup_pos - round(range_size * mutation_percentage))
         max_limit = min(max_value_range, value_tup_pos + round(range_size * mutation_percentage))
-        return random.randint(min_limit, max_limit)
+        return self._distribution_val_sub_range(low=min_limit, upp=max_limit)
 
     def mutate(self, intensity):
         """
@@ -39,6 +42,11 @@ class TupleIntEvoParam(EvoParam):
         mutated_tuple_value_1 = self._mutated_tuple_value(mutation_percentage=intensity_percentages[intensity], tuple_pos=1)
         
         self.value = (mutated_tuple_value_0, mutated_tuple_value_1)
+    
+    # Lib -->
+    def _distribution_val_sub_range(self, low, upp):
+        apply_to_float = lambda x: int(round(x))
+        return EvoParam.normal_distribution_val_sub_range_func(self._mean, self._sd, apply_to_float)(low, upp)
     
 
 
