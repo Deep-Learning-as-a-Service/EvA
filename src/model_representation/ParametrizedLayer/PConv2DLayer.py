@@ -4,9 +4,10 @@ from model_representation.EvoParam.TupleIntEvoParam import TupleIntEvoParam
 from model_representation.EvoParam.TupleCategDEvoParam import TupleCategDEvoParam
 from tensorflow import keras
 
+# TODO: changed value range
 class Conv2DFiltersParam(IntEvoParam):
     _default_values = [32, 64, 128]
-    _value_range = [16, 128]
+    _value_range = [16, 256]
     _key = "filters"
     _mean = 64
     _sd = 32

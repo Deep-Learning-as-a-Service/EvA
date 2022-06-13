@@ -13,7 +13,7 @@ from utils.progress_bar import print_progress_bar
 
 class SeqEvo():
 
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, log_func, seqevo_history):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, log_func, seqevo_history, initial_models):
         
         assert sum(generation_distribution.values()) == pop_size, "sum of generation distribution must be equal to population size"
         self.n_generations = n_generations
@@ -24,7 +24,7 @@ class SeqEvo():
 
         self.parent_selector = parent_selector
         self.crossover_func = crossover_func
-
+        self.initial_models = initial_models
         self.modelcache = {}
 
         # Logging
@@ -34,12 +34,15 @@ class SeqEvo():
         progress_bar = lambda prefix, suffix, progress, total: print_progress_bar(progress, total, prefix = prefix, suffix = suffix, length = 30, log_func = self.logger)
         self.progress_bar_fitting = lambda prefix, progress, total: progress_bar(prefix, '- ' + str(progress) + '/' + str(total) + ' fitted', progress, total)
         self.to_list_str_beauty = lambda li: '[\n\t' + ',\n\n\t'.join(list(map(str, li))) + '\n]'
-        self.marker_symbol = '██'
+        self.marker_symbol = '***'
         
     def initialize_population(self):
         population = []
-        for _ in range(self.pop_size):
-            population.append(SeqEvoGenome.create_random())
+        for i in range(self.pop_size):
+            if(i < len(self.initial_models)):
+                population.append(SeqEvoGenome(self.initial_models[i], created_from="initial_models"))
+            else:
+                population.append(SeqEvoGenome.create_random())
         return population
             
     def pick_two_parents_random(self, parents):

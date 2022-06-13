@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
+from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from optimizer.SeqEvo.SeqEvo import SeqEvo
 from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
 import utils.settings as settings
@@ -64,7 +65,7 @@ leave_person_out_split = lambda test_person_idx: lambda recordings: leave_person
 
 # Funcs --------------------------------------------------------------------------------------------------------------
 
-load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
+load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
     label_column_name='ACTIVITY_IDX', 
     recording_idx_name='RECORDING_IDX', 
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
@@ -188,7 +189,8 @@ model_genome = SeqEvo(
     parent_selector=parent_selector,
     crossover_func=crossover_func,
     log_func=logger,
-    seqevo_history=seqevo_history
+    seqevo_history=seqevo_history,
+    initial_models = InitialModelLayer.get_all_models()
 ).run()
 
 # Test, Evaluate
