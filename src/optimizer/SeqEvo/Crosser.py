@@ -17,7 +17,7 @@ class Crosser():
         first_half = ma.layers[:middle_ma] if random_int == 0 else pa.layers[:middle_pa]
         second_half = ma.layers[middle_ma:] if random_int == 1 else pa.layers[middle_pa:]
         first_half.extend(second_half)
-        return SeqEvoGenome(first_half, created_from="middlepoint_crossover") 
+        return SeqEvoGenome(first_half, created_from="middlepoint_crossover", parents=[ma, pa]) 
     
     @staticmethod
     def uniform_crossover(ma: SeqEvoGenome, pa: SeqEvoGenome):
@@ -33,6 +33,6 @@ class Crosser():
         for i in range(lowest_length, len(longer_parent.layers)):
             if round(random.random()) == 0:
                 child_layers.append(longer_parent.layers[i])
-        return SeqEvoGenome(child_layers, created_from="uniform_crossover")
+        return SeqEvoGenome(child_layers, created_from="uniform_crossover", parents=[ma, pa])
             
         

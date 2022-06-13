@@ -13,14 +13,14 @@ from utils.progress_bar import print_progress_bar
 
 class SeqEvo():
 
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, generation_distribution, parent_selector, crossover_func, log_func, seqevo_history):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, technique_config, parent_selector, crossover_func, log_func, seqevo_history):
         
-        assert sum(generation_distribution.values()) == pop_size, "sum of generation distribution must be equal to population size"
         self.n_generations = n_generations
         self.pop_size = pop_size
         self.fitness_func = fitness_func
         self.n_parents = n_parents
-        self.generation_distribution = generation_distribution
+        self.technique_config = technique_config
+        self.techniques = technique_config.techniques
 
         self.parent_selector = parent_selector
         self.crossover_func = crossover_func
@@ -41,53 +41,69 @@ class SeqEvo():
         for _ in range(self.pop_size):
             population.append(SeqEvoGenome.create_random())
         return population
-            
-    def pick_two_parents_random(self, parents):
-        return random.sample(parents, 2)
+
     
-    def create_next_generation(self, population, best_individual):
+    def create_next_generation(self, population, best_individual, gen_idx):
         next_generation = []
 
         # select parents of next generation via selector function
         parents = self.parent_selector(sorted_population = population, n_parents = self.n_parents)
 
-        # get childs from best individual mutation
-        n_finetuned_childs = self.generation_distribution["finetune_best_individual"]
-        for _ in range(n_finetuned_childs):
-            child_best_individual = copy.deepcopy(best_individual)
-            child_best_individual.mutate("low")
-            child_best_individual.fitness = None
-            child_best_individual.created_from = "finetuned_best_individual"
-            next_generation.append(child_best_individual)
+        # adaptive evolution - choose the techniques for the new population
+        # for the current optimization_stage, it will use the remaining individuals to choose a random technique of that stage
+        assert self.pop_size >= len(list(filter(lambda techn: techn.optimization_stage != "none", self.techniques))), "pop_size needs to be at least as big as the number of techniques, to be able to have one individual per technique"
+        current_optimization_stage = "macro" if gen_idx+1 < self.technique_config.mid_optimization_start_gen else ("mid" if gen_idx+1 < self.technique_config.micro_optimization_start_gen else "micro")
+        n_adaptive_techniques = self.pop_size - len(list(filter(lambda techn: techn.optimization_stage != "none", self.techniques)))
 
-        # get childs from crossover fucntion
-        n_crossover_childs = self.generation_distribution["crossover"]
-        for _ in range(n_crossover_childs):
-            pa, ma = self.pick_two_parents_random(parents)
-            next_generation.append(self.crossover_func(pa, ma))
+        technique_name_to_additional_individuals = {t.name:1 for t in self.techniques if t.optimization_stage != "none"} # start with one individual for each technique
+        techniques_of_optimization_stage = list(filter(lambda techn: techn.optimization_stage == current_optimization_stage, self.techniques))
+        technique_names_of_optimization_stage = list(map(lambda techn: techn.name, self.techniques))
+        # add individuals to the relevant techniques
+        for _ in range(n_adaptive_techniques): 
+            technique_name_new_indi = random.choice(technique_names_of_optimization_stage)
+            technique_name_to_additional_individuals[technique_name_new_indi] += 1
+
+        # build the next generation
+        def add_individuals_of_technique(techn_name, creation_func):
+            n_individuals = technique_name_to_additional_individuals[techn_name]
+            for _ in range(n_individuals):
+                next_generation.append(creation_func())
         
-        # get childs from mutations
-        for mutation_intensity in ["low", "mid", "high"]:
-            n_mutation_childs = self.generation_distribution["mutate_" + mutation_intensity]
-            for _ in range(n_mutation_childs):
-                
-                # copy random parent and mutate it with given intensity
-                parent_to_mutate = copy.deepcopy(random.choice(parents))
-
-                mutated_child = parent_to_mutate.mutate(mutation_intensity)
-                mutated_child.fitness = None
-                mutated_child.created_from = "mutate_" + mutation_intensity
-                next_generation.append(mutated_child)
         
-        # get random individuals for "all" intensity
-        n_mutation_childs_all = self.generation_distribution["mutate_all"]
-        for _ in range(n_mutation_childs_all):
+        for technique in self.techniques:
+            if technique.optimization_stage == "none":
+                continue
+        
+            creation_func = None
+            if technique.name == "finetune_best_individual":
+                def creation_func():
+                    child_best_individual = best_individual.mutate("low")
+                    child_best_individual.created_from = "finetune_best_individual"
+                    return child_best_individual
 
-                mutated_child = SeqEvoGenome.create_random()
-                mutated_child.created_from = "mutate_all" 
-                next_generation.append(mutated_child)
+            elif technique.name == "crossover":
+                def creation_func():
+                    pa, ma = random.sample(parents, 2) # pick 2 parent random
+                    return self.crossover_func(pa, ma)
+
+            elif technique.name in [f"mutate_{mutation_intensity}" for mutation_intensity in ["low", "mid", "high"]]:
+                mutation_intensity = technique.name[7:]
+                def creation_func():
+                    parent_to_mutate = random.choice(parents)
+                    mutated_child = parent_to_mutate.mutate(mutation_intensity)
+                    return mutated_child
+
+            elif technique.name is "mutate_all":
+                def creation_func():
+                    return SeqEvoGenome.create_random()
+
+            add_individuals_of_technique(
+                techn_name=technique.name, 
+                creation_func=creation_func
+            )
 
         return next_generation
+
     
     def run(self):
         
@@ -121,6 +137,7 @@ class SeqEvo():
                     seqevo_genome.fitness = self.modelcache[seqevo_genome.get_architecture_identifier()]
                     self.logger(f"=> !! fitness from cache: {seqevo_genome.fitness}\n")
 
+                # History
                 self.seqevo_history.write(
                     seqevo_genome=seqevo_genome,
                     n_generations=gen_idx + 1,
@@ -129,6 +146,17 @@ class SeqEvo():
             # Rank population
             population.sort(key=attrgetter('fitness'), reverse=True)
             self.prio_logger(f'{self.marker_symbol} Ranking:\n{self.to_list_str_beauty(population)}\n')
+
+            # Adaptive Evolution - EvoTechnique Tracker
+            # techniques_per_individual = [list(filter(lambda techn: techn.name == individual.created_from, self.techniques)) for individual in population]
+            # assert all(list(map(lambda t_p_i: len(t_p_i) == 1, techniques_per_individual))), "there are individuals that have not exactly one match with a technique"
+            benchmark_fitness = best_individual.fitness
+            for technique in self.techniques:
+                indis = list(filter(lambda ind: ind.created_from == technique.name, population))
+                technique.fitnesses.append([indi.fitness for indi in indis])
+                for indi in indis:
+                    if indi.fitness > benchmark_fitness:
+                        technique.improvements.append((gen_idx + 1, indi.fitness))
             
             # Update best individual
             best_individual_str = None
@@ -140,8 +168,8 @@ class SeqEvo():
             self.prio_logger(f"{self.marker_symbol} {best_individual_str}")
                 
             # assign next generation
-            population = self.create_next_generation(population=population, best_individual=best_individual)
-        
+            population = self.create_next_generation(population=population, best_individual=best_individual, gen_idx=gen_idx)
+            assert len(population) == self.pop_size, "got not the pop_size individuals from create_next_generation"
         return SeqEvoModelGenome.create_with_default_params(best_individual)
                     
                 

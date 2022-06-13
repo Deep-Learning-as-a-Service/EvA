@@ -47,9 +47,15 @@ class EvoParam(ABC):
                 (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
         def distribution_val_sub_range(low, upp, number_of_samples=1):
-                output = get_truncated_normal(mean=mean, sd=sd, low=low, upp=upp).rvs(number_of_samples)
-                output = list(map(apply_to_float, output))
+            if low == upp: 
                 if number_of_samples == 1:
-                    return output[0]
-                return output
+                    return low
+                else:
+                    return [low for _ in range(number_of_samples)]
+                    
+            output = get_truncated_normal(mean=mean, sd=sd, low=low, upp=upp).rvs(number_of_samples)
+            output = list(map(apply_to_float, output))
+            if number_of_samples == 1:
+                return output[0]
+            return output
         return distribution_val_sub_range

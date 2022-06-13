@@ -7,6 +7,7 @@ import model_representation.EvoParam as EvoParam
 import utils.settings as settings
 from utils.mutation_helper import get_key_from_prob_dict
 import random
+import copy
 
 class SeqEvoGenome():
     _default_n_layers_range = [2, 7]
@@ -62,16 +63,16 @@ class SeqEvoGenome():
     The other implementation is a generic ModelGenomeType with a network of ModelGenomes
     """
 
-    def __init__(self, layers, created_from="-"):
+    def __init__(self, layers, created_from="-", parents=[]):
         self.layers = layers
         self.fitness = None
         self.created_from = created_from
+        self.parents = parents
 
     @classmethod
     def create_random(cls):
         seq_evo_genome = cls.create_random_default()
         seq_evo_genome.mutate(intensity="all")
-        seq_evo_genome.created_from = "random"
         return seq_evo_genome
 
     @classmethod
@@ -93,18 +94,20 @@ class SeqEvoGenome():
     def get_architecture_identifier(self):
         return self.layer_list_str()
     
-    def mutate(self, intensity):
+    def mutate(self, intensity) -> 'SeqEvoGenome':
+
+        mutated_seqevo_genome = copy.deepcopy(self)
 
         # Structural mutation
-        struct_change_prob = self._mutation_intensitiy_to_struct_change[intensity]
+        struct_change_prob = mutated_seqevo_genome._mutation_intensitiy_to_struct_change[intensity]
         struct_change = get_key_from_prob_dict(struct_change_prob)
-        if struct_change == "add_layer_random" and len(self.layers) < self._default_n_layers_range[1]:
-            self.add_layer_random()
-        elif struct_change == "remove_layer_random" and len(self.layers) > self._default_n_layers_range[0]:
-            self.remove_layer_random()
+        if struct_change == "add_layer_random" and len(mutated_seqevo_genome.layers) < mutated_seqevo_genome._default_n_layers_range[1]:
+            mutated_seqevo_genome.add_layer_random()
+        elif struct_change == "remove_layer_random" and len(mutated_seqevo_genome.layers) > mutated_seqevo_genome._default_n_layers_range[0]:
+            mutated_seqevo_genome.remove_layer_random()
         
         # Layer mutation
-        for layer in self.layers:
+        for layer in mutated_seqevo_genome.layers:
             # get which mutation should be applied per layer
             layer_mutation_prob = SeqEvoGenome._mutation_intensity_to_layer_mutation[intensity]
             layer_mutation = get_key_from_prob_dict(layer_mutation_prob)
@@ -115,7 +118,10 @@ class SeqEvoGenome():
                 continue
             elif layer_mutation == "mutate_layer_params":
                 layer.mutate(intensity)
-        return self
+        
+        mutated_seqevo_genome.fitness = None
+        mutated_seqevo_genome.created_from = f"mutate_{intensity}"
+        return mutated_seqevo_genome
 
     def add_layer_random(self):
         layer_to_add = random.choice(settings.layer_pool).create_random_default()
