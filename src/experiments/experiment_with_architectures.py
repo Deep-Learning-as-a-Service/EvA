@@ -26,10 +26,24 @@ from models.MultilaneConv import MultilaneConv
 from models.BestPerformerConv import BestPerformerConv
 from models.OldLSTM import OldLSTM
 from models.SenselessDeepConvLSTM import SenselessDeepConvLSTM
+from models.LeanderDeepConvLSTM import LeanderDeepConvLSTM
+from model_representation.ParametrizedLayer.PConv1DLayer import PConv1DLayer
+from model_representation.ParametrizedLayer.PConv2DLayer import PConv2DLayer
+from optimizer.SeqEvo.EvoTechniqueConfig import DefaultEvoTechniqueConfig
+from optimizer.SeqEvo.Selector import Selector
+from optimizer.SeqEvo.Crosser import Crosser
+from datetime import datetime
+from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
+from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
+from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
 
 
-settings.init()
-experiment_name = "best-performer-conv-finally"
+
+
+layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] #PConv1DLayer
+settings.init(_layer_pool=layer_pool)
+
+experiment_name = "leander_deep_conv_comparison"
 
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
@@ -67,7 +81,7 @@ test_train_split = lambda recordings: leave_person_out_split(test_person_idx=2)(
 # Load data
 recordings = load_recordings()
 
-random.seed(1678978086101)
+random.seed(1678978086101) # 1678978086101 # 277899747
 random.shuffle(recordings)
 
 # Preprocessing
@@ -83,7 +97,7 @@ windows_train, windows_test = windowize(recordings_train), windowize(recordings_
 X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
 # or JensModel
-model = SenselessDeepConvLSTM(
+model = LeanderDeepConvLSTM(
     window_size=window_size, 
     n_features=recordings[0].sensor_frame.shape[1], 
     n_outputs=n_classes, 

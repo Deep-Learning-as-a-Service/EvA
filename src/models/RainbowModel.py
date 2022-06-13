@@ -25,7 +25,7 @@ import utils.settings as settings
 from utils.folder_operations import create_folders_in_path
 
 import wandb
-from wandb.keras import WandbCallback
+# from wandb.keras import WandbCallback
 
 
 class RainbowModel(ABC):
@@ -106,23 +106,23 @@ class RainbowModel(ABC):
         ), "X_train and y_train have to have the same length"
         
         # Wandb
-        callbacks = None
-        if self.wandb_config is not None:
-            assert self.wandb_config['project'] is not None, "Wandb project name is not set"
-            assert self.wandb_config['entity'] is not None, "Wandb entity name is not set"
-            assert self.wandb_config['name'] is not None, "Wandb name is not set"
+        # callbacks = None
+        # if self.wandb_config is not None:
+        #     assert self.wandb_config['project'] is not None, "Wandb project name is not set"
+        #     assert self.wandb_config['entity'] is not None, "Wandb entity name is not set"
+        #     assert self.wandb_config['name'] is not None, "Wandb name is not set"
 
-            wandb.init(
-                project=str(self.wandb_config['project']), 
-                entity=self.wandb_config['entity'],
-                name=str(self.wandb_config['name'])
-            )
-            wandb.config = {
-                "learning_rate": self.learning_rate,
-                "epochs": self.n_epochs,
-                "batch_size": self.batch_size,
-            }
-            callbacks = [wandb.keras.WandbCallback()]
+            # wandb.init(
+            #     project=str(self.wandb_config['project']), 
+            #     entity=self.wandb_config['entity'],
+            #     name=str(self.wandb_config['name'])
+            # )
+            # wandb.config = {
+            #     "learning_rate": self.learning_rate,
+            #     "epochs": self.n_epochs,
+            #     "batch_size": self.batch_size,
+            # }
+            # callbacks = [wandb.keras.WandbCallback()]
 
         history = self.model.fit(
             X_train,
@@ -131,9 +131,9 @@ class RainbowModel(ABC):
             epochs=self.n_epochs,
             batch_size=self.batch_size,
             verbose=self.verbose,
-            class_weight=self.class_weight,
-            callbacks=callbacks
+            class_weight=self.class_weight
         )
+        # callbacks=callbacks
         
 
         self.history = history

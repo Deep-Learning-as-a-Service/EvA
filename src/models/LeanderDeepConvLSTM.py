@@ -20,6 +20,7 @@ from tensorflow.keras.layers import (
     Permute,
     LSTM
 )
+from tensorflow.keras.optimizers import Adam
 
 
 class LeanderDeepConvLSTM(RainbowModel):
@@ -30,9 +31,9 @@ class LeanderDeepConvLSTM(RainbowModel):
 
     def _create_model(self):
 
-        initializer = Orthogonal()
-        conv_layer = lambda n_filters: lambda the_input: Conv2D(filters=n_filters, strides=(5, 1), kernel_size=(5, 1), activation="relu", kernel_initializer=initializer)(the_input)
-        lstm_layer = lambda the_input: LSTM(units=32, dropout=0.1, return_sequences=True, kernel_initializer=initializer)(the_input)
+        # initializer = Orthogonal()
+        conv_layer = lambda n_filters: lambda the_input: Conv2D(filters=n_filters, strides=(5, 1), kernel_size=(5, 1))(the_input)
+        lstm_layer = lambda the_input: LSTM(units=32, dropout=0.0, return_sequences=True)(the_input)
 
         i = Input(shape=(self.window_size, self.n_features))
 
@@ -57,8 +58,8 @@ class LeanderDeepConvLSTM(RainbowModel):
 
         model = Model(i, x)
         model.compile(
-            optimizer="RMSprop",
-            loss="CategoricalCrossentropy",  # CategoricalCrossentropy (than we have to to the one hot encoding - to_categorical), before: "sparse_categorical_crossentropy"
+            optimizer=Adam(learning_rate=0.001),
+            loss="categorical_crossentropy",  # CategoricalCrossentropy (than we have to to the one hot encoding - to_categorical), before: "sparse_categorical_crossentropy"
             metrics=["accuracy"],
         )
 
