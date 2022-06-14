@@ -39,7 +39,7 @@ class SeqEvo():
     def initialize_population(self):
         population = []
         for i in range(self.pop_size):
-            if(i < len(self.initial_models)):
+            if i < len(self.initial_models):
                 population.append(SeqEvoGenome(self.initial_models[i], created_from="initial_models"))
             else:
                 population.append(SeqEvoGenome.create_random())
@@ -54,13 +54,14 @@ class SeqEvo():
 
         # adaptive evolution - choose the techniques for the new population
         # for the current optimization_stage, it will use the remaining individuals to choose a random technique of that stage
-        assert self.pop_size >= len(list(filter(lambda techn: techn.optimization_stage != "none", self.techniques))), "pop_size needs to be at least as big as the number of techniques, to be able to have one individual per technique"
+        relevant_techniques = list(filter(lambda techn: techn.optimization_stage != "none", self.techniques))
+        assert self.pop_size >= len(relevant_techniques), "pop_size needs to be at least as big as the number of techniques, to be able to have one individual per technique"
         current_optimization_stage = "macro" if gen_idx+1 < self.technique_config.mid_optimization_start_gen else ("mid" if gen_idx+1 < self.technique_config.micro_optimization_start_gen else "micro")
-        n_adaptive_techniques = self.pop_size - len(list(filter(lambda techn: techn.optimization_stage != "none", self.techniques)))
+        n_adaptive_techniques = self.pop_size - len(relevant_techniques)
 
-        technique_name_to_additional_individuals = {t.name:1 for t in self.techniques if t.optimization_stage != "none"} # start with one individual for each technique
+        technique_name_to_additional_individuals = {t.name:1 for t in relevant_techniques} # start with one individual for each technique
         techniques_of_optimization_stage = list(filter(lambda techn: techn.optimization_stage == current_optimization_stage, self.techniques))
-        technique_names_of_optimization_stage = list(map(lambda techn: techn.name, self.techniques))
+        technique_names_of_optimization_stage = list(map(lambda techn: techn.name, techniques_of_optimization_stage))
         # add individuals to the relevant techniques
         for _ in range(n_adaptive_techniques): 
             technique_name_new_indi = random.choice(technique_names_of_optimization_stage)
@@ -73,9 +74,7 @@ class SeqEvo():
                 next_generation.append(creation_func())
         
         
-        for technique in self.techniques:
-            if technique.optimization_stage == "none":
-                continue
+        for technique in relevant_techniques:
         
             creation_func = None
             if technique.name == "finetune_best_individual":
@@ -99,6 +98,8 @@ class SeqEvo():
             elif technique.name is "mutate_all":
                 def creation_func():
                     return SeqEvoGenome.create_random()
+            else:
+                raise ValueError("Unknown technique: " + technique.name)
 
             add_individuals_of_technique(
                 techn_name=technique.name, 
@@ -173,6 +174,7 @@ class SeqEvo():
             # assign next generation
             population = self.create_next_generation(population=population, best_individual=best_individual, gen_idx=gen_idx)
             assert len(population) == self.pop_size, "got not the pop_size individuals from create_next_generation"
+
         return SeqEvoModelGenome.create_with_default_params(best_individual)
                     
                 

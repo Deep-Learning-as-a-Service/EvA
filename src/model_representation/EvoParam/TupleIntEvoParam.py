@@ -26,7 +26,19 @@ class TupleIntEvoParam(EvoParam):
         range_size = max_value_range - min_value_range
         min_limit = max(min_value_range, value_tup_pos - round(range_size * mutation_percentage))
         max_limit = min(max_value_range, value_tup_pos + round(range_size * mutation_percentage))
+        assert min_limit <= max_limit, "min_limit must be smaller than max_limit"
         return self._distribution_val_sub_range(low=min_limit, upp=max_limit)
+    
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        assert value is not None, "value can't be None"
+        assert value[0] >= self._value_range[0][0] and value[0] <= self._value_range[1][0], "value[0] must be in range"
+        assert value[1] >= self._value_range[0][1] and value[1] <= self._value_range[1][1], "value[1] must be in range"
+        self._value = value
 
     def mutate(self, intensity):
         """

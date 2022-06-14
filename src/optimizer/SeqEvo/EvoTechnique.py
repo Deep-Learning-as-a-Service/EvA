@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-technique_names = ["mutate_low", "mutate_mid", "mutate_high", "mutate_all", "crossover", "finetune_best_individual", "random_default"]
+technique_names = ["mutate_low", "mutate_mid", "mutate_high", "mutate_all", "crossover", "finetune_best_individual", "random_default", "initial_models"]
 optimization_stages = ["micro", "mid", "macro", "none"]
 
 @dataclass

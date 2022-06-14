@@ -49,5 +49,9 @@ class DefaultEvoTechniqueConfig(EvoTechniqueConfig):
             EvoTechnique(
                 name="random_default",
                 optimization_stage = "none"
+            ),
+            EvoTechnique(
+                name="initial_models",
+                optimization_stage = "none"
             )
         ]

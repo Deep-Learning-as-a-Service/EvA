@@ -35,6 +35,7 @@ from model_representation.ParametrizedLayer.ParametrizedLayer import Parametrize
 from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
 from utils.logger import logger
+from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 
 # Experiment Name ---------------------------------------------------------------
 experiment_name = "seqevo_big_kfold"
@@ -152,7 +153,7 @@ def fitness_easy(model_genome, log_func) -> float:
         y_train, 
         batch_size=32, 
         epochs=1,
-        verbose=0
+        verbose=1
     )
 
     # model_genome.batch_size
@@ -185,8 +186,12 @@ model_genome = SeqEvo(
     parent_selector=parent_selector,
     crossover_func=crossover_func,
     log_func=logger,
-    seqevo_history=seqevo_history
+    seqevo_history=seqevo_history,
+    initial_models = [
+        InitialModelLayer.leander_deep_conv_1()
+    ]
 ).run()
+# InitialModelLayer.get_all_models()
 
 # Test, Evaluate
 model = model_genome.get_model(

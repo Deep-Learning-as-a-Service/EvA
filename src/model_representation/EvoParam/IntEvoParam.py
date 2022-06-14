@@ -15,6 +15,16 @@ class IntEvoParam(EvoParam):
         assert self._sd is not None, f"{self.__class__.__name__}: sd must be set for IntEvoParams"
 
         super().__init__(value=value)
+
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, value):
+        assert value is not None, "value can't be None"
+        assert self._value_range[0] <= value and value <= self._value_range[1], "value out of range"
+        self._value = value
     
     def _mutated_value(self, mutation_percentage):
         range_size = self._value_range[1] - self._value_range[0]

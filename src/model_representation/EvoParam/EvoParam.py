@@ -47,6 +47,8 @@ class EvoParam(ABC):
                 (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
         def distribution_val_sub_range(low, upp, number_of_samples=1):
+            assert low <= upp, "low must be smaller than upp"
+
             if low == upp: 
                 if number_of_samples == 1:
                     return low
