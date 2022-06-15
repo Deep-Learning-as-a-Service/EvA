@@ -5,7 +5,7 @@ import itertools
 import os
 
 
-def create_conf_matrix(path: str, y_test_pred: np.ndarray, y_test_true: np.ndarray) -> None:
+def create_conf_matrix(path: str, y_test_pred: np.ndarray, y_test_true: np.ndarray, file_name="") -> None:
     """
     creates and saves conf matrix as .png to path 
 
@@ -52,4 +52,4 @@ def create_conf_matrix(path: str, y_test_pred: np.ndarray, y_test_true: np.ndarr
         f3.show()
 
     # Save
-    plt.savefig(os.path.join(path, "conf_matrix.png"))
+    plt.savefig(os.path.join(path, f"{file_name}conf_matrix.png"))

@@ -25,7 +25,7 @@ import utils.settings as settings
 from utils.folder_operations import create_folders_in_path
 
 import wandb
-from wandb.keras import WandbCallback
+# from wandb.keras import WandbCallback
 
 
 class RainbowModel(ABC):
