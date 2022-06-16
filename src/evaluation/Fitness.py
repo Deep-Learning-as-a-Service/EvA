@@ -24,8 +24,10 @@ class Fitness():
         n_epochs = model_genome.n_epochs
 
         accuracies = []
-        for idx, (X_train, y_train, X_val, y_val) in enumerate(self.X_y_validation_splits):
+        idx = 0
+        for X_train, y_train, X_val, y_val in self.X_y_validation_splits:
             prog_bar(progress=idx)
+            idx += 1
             model = model_genome.get_model(
                 window_size=self.window_size,
                 n_features=self.n_features,
