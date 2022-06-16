@@ -82,9 +82,11 @@ def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed):
     # Output: [(recordings_train_01, recordings_test_01), (recordings_train_02, recordings_test_02), ...]
     windows_validation_splits = list(map(lambda validation_split: map(windowize, validation_split), recordings_validation_splits))
     # Output: [(windows_train_01, windows_test_01), (windows_train_02, windows_test_02), ...]
-    for i, windows_train_test in enumerate(windows_validation_splits):
-        windows_train, windows_test = windows_train_test
-        window_test_percentages(windows_train, windows_test, f"Split {i+1}")
+
+    # for i, windows_train_test in enumerate(windows_validation_splits):
+    #     windows_train, windows_test = windows_train_test
+    #     window_test_percentages(windows_train, windows_test, f"Split {i+1}")
+
     X_y_validation_splits = list(map(lambda validation_split: tuple(flatten(map(convert, validation_split))), windows_validation_splits))
     # Output: [(X_train_01, y_train_01, X_val_01, y_val_01), (X_train_02, y_train_02, X_val_02, y_val_02), ...]
 
@@ -93,7 +95,7 @@ def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed):
 
     # Windowize, Convert --------------------------------------------------------------------------------------------------
     windows_train, windows_test = windowize(recordings_train), windowize(recordings_test)
-    window_test_percentages(windows_train, windows_test, "Big split")
+    # window_test_percentages(windows_train, windows_test, "Big split")
     X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
     return X_train, y_train, X_test, y_test, X_y_validation_splits

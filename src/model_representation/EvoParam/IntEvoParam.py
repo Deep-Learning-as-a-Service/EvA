@@ -38,7 +38,7 @@ class IntEvoParam(EvoParam):
         """
         intensity_percentages = {
             "all": 1,
-            "high": 0.5,
+            "high": 0.33,
             "mid": 0.15,
             "low": 0.05
         }

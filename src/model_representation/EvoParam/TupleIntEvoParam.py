@@ -10,7 +10,12 @@ class TupleIntEvoParam(EvoParam):
         assert type(value[1]) is int, "value[1] must be of type int"
         assert type(self._value_range) is list, "value_range must be a list"
         assert type(self._value_range[0]) is tuple, "value_range[0] must be tuple"
-        assert type(self._value_range[1]) is tuple, "value_range[1] must be tuple"
+        assert type(self._value_range[1]) is tuple, "value_range[1] must be tuple" 
+        # first tuple value
+        assert self._value_range[0][0] <= value[0] <= self._value_range[1][0], "value[0] must be in range"
+        # second tuple value
+        assert self._value_range[0][1] <= value[1] <= self._value_range[1][1], "value[1] must be in range"
+
         assert self._mean is not None, f"{self.__class__.__name__}: mean must be set for TupleIntEvoParam"
         assert self._sd is not None, f"{self.__class__.__name__}: sd must be set for TupleIntEvoParam"
 
@@ -24,8 +29,8 @@ class TupleIntEvoParam(EvoParam):
         max_value_range = self._value_range[1][tuple_pos]
 
         range_size = max_value_range - min_value_range
-        min_limit = max(min_value_range, value_tup_pos - round(range_size * mutation_percentage))
-        max_limit = min(max_value_range, value_tup_pos + round(range_size * mutation_percentage))
+        min_limit = max(min_value_range, value_tup_pos - int(round(range_size * mutation_percentage)))
+        max_limit = min(max_value_range, value_tup_pos + int(round(range_size * mutation_percentage)))
         assert min_limit <= max_limit, "min_limit must be smaller than max_limit"
         return self._distribution_val_sub_range(low=min_limit, upp=max_limit)
     
@@ -46,7 +51,7 @@ class TupleIntEvoParam(EvoParam):
         """
         intensity_percentages = {
             "all": 1,
-            "high": 0.5,
+            "high": 0.33,
             "mid": 0.15,
             "low": 0.05
         }

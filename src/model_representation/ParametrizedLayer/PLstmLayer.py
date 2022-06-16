@@ -8,11 +8,11 @@ class LstmUnitsParam(IntEvoParam):
     _default_values = [4, 8, 16]
     _value_range = [2, 1028]
     _key = "units"
-    _mean = 8
-    _sd = 4
+    _mean = 514
+    _sd = 400
 
 class LstmDropoutParam(FloatEvoParam):
-    _default_values = [0, 0.1, 0.2]
+    _default_values = [0.1, 0.2]
     _value_range = [0.0, 0.4]
     _key = "dropout"
     _mean = 0.15

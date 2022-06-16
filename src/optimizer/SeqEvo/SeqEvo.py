@@ -88,16 +88,12 @@ class SeqEvo():
                     pa, ma = random.sample(parents, 2) # pick 2 parent random
                     return self.crossover_func(pa, ma)
 
-            elif technique.name in [f"mutate_{mutation_intensity}" for mutation_intensity in ["low", "mid", "high"]]:
+            elif technique.name in [f"mutate_{mutation_intensity}" for mutation_intensity in ["low", "mid", "high", "all"]]:
                 mutation_intensity = technique.name[7:]
                 def creation_func():
                     parent_to_mutate = random.choice(parents)
                     mutated_child = parent_to_mutate.mutate(mutation_intensity)
                     return mutated_child
-
-            elif technique.name is "mutate_all":
-                def creation_func():
-                    return SeqEvoGenome.create_random()
             else:
                 raise ValueError("Unknown technique: " + technique.name)
 

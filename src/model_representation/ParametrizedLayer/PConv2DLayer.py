@@ -17,7 +17,7 @@ class Conv2DFiltersParam(IntEvoParam):
 # - responsibility for correct params responsibility here or Model Checker
 class Conv2DKernelSizeParam(TupleIntEvoParam):
     _default_values = [(1, 1), (3, 3), (5, 5)]
-    _value_range = [(1, 1), (7, 7)]
+    _value_range = [(1, 1), (10, 10)]
     _key = "kernel_size"
     _mean = 3
     _sd = 1

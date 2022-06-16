@@ -1,5 +1,6 @@
 from evaluation.metrics import accuracy
 from utils.progress_bar import print_progress_bar
+import numpy as np
 
 
 class Fitness():

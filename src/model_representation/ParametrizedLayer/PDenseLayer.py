@@ -8,8 +8,8 @@ class DenseUnitsParam(IntEvoParam):
     _default_values = [32, 64, 128]
     _value_range = [16, 2056]
     _key = "units"
-    _mean = 64
-    _sd = 20
+    _mean = 514
+    _sd = 2000
 
 class PDenseLayer(ParametrizedLayer):
     _layer = keras.layers.Dense
