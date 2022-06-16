@@ -31,8 +31,9 @@ from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
 from utils.logger import logger
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
+from utils.window_test_percentages import window_test_percentages
 
-def get_opportunity_data(window_size, n_features, n_classes):
+def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed):
 
     # Lib -----------------------------------------------------------
     leave_recording_out_split = lambda test_percentage: lambda recordings: split_list_by_percentage(list_to_split=recordings, percentage_to_split=test_percentage)
@@ -48,22 +49,23 @@ def get_opportunity_data(window_size, n_features, n_classes):
 
     # Funcs --------------------------------------------------------------------------------------------------------------
 
-    load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data_small.csv'), 
+    load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
         label_column_name='ACTIVITY_IDX', 
         recording_idx_name='RECORDING_IDX', 
         column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
     )
 
 
-    preprocess = lambda recordings: Preprocessor().jens_preprocess(recordings)
+    preprocess = lambda recordings: Preprocessor().jens_preprocess_with_normalize(recordings)
     windowize = lambda recordings: Windowizer(window_size=window_size).jens_windowize(recordings)
     convert = lambda windows: Converter(n_classes=n_classes).sonar_convert(windows)
     flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
-    test_train_split = lambda recordings: leave_recording_out_split(test_percentage=0.25)(recordings)
+    test_train_split = lambda recordings: leave_recording_out_split(test_percentage=0.3)(recordings)
+    # test_train_split = lambda recordings: leave_person_out_split(test_person_idx=2)(recordings)
 
     recordings = load_recordings()
 
-    random.seed(1678978086101)
+    random.seed(shuffle_seed)
     random.shuffle(recordings)
 
     # Preprocessing
@@ -80,12 +82,18 @@ def get_opportunity_data(window_size, n_features, n_classes):
     # Output: [(recordings_train_01, recordings_test_01), (recordings_train_02, recordings_test_02), ...]
     windows_validation_splits = list(map(lambda validation_split: map(windowize, validation_split), recordings_validation_splits))
     # Output: [(windows_train_01, windows_test_01), (windows_train_02, windows_test_02), ...]
+    for i, windows_train_test in enumerate(windows_validation_splits):
+        windows_train, windows_test = windows_train_test
+        window_test_percentages(windows_train, windows_test, f"Split {i+1}")
     X_y_validation_splits = list(map(lambda validation_split: tuple(flatten(map(convert, validation_split))), windows_validation_splits))
     # Output: [(X_train_01, y_train_01, X_val_01, y_val_01), (X_train_02, y_train_02, X_val_02, y_val_02), ...]
+
+    
 
 
     # Windowize, Convert --------------------------------------------------------------------------------------------------
     windows_train, windows_test = windowize(recordings_train), windowize(recordings_test)
+    window_test_percentages(windows_train, windows_test, "Big split")
     X_train, y_train, X_test, y_test = tuple(flatten(map(convert, [windows_train, windows_test])))
 
     return X_train, y_train, X_test, y_test, X_y_validation_splits

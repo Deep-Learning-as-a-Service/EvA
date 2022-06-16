@@ -28,8 +28,5 @@ class Converter():
         )
 
         return np.array(sensor_arrays), np.array(activity_vectors)
-    
-    def jens_convert(self, windows: "list[Window]") -> "tuple[np.ndarray, np.ndarray]":
-        X_train, y_train = self.sonar_convert(windows)
-        return np.expand_dims(X_train, -1), y_train
+
 

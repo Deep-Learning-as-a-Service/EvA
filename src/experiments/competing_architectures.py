@@ -44,7 +44,8 @@ from models.SenselessDeepConvLSTM import SenselessDeepConvLSTM
 from models.LeanderDeepConvLSTM import LeanderDeepConvLSTM
 from models.ShallowDeepConvLSTM import ShallowDeepConvLSTM
 from sklearn.metrics import f1_score
-
+import random
+from utils.seed import set_global_determinism
 
 
 layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] #PConv1DLayer
@@ -60,13 +61,14 @@ window_size = 30 * 3
 n_classes = 6
 n_features = 51
 X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
+    shuffle_seed=1678978086101,
     window_size=window_size,
     n_features=n_features,
     n_classes=n_classes 
 )
 
 # models
-model_classes = [ShallowDeepConvLSTM, LeanderDeepConvLSTM]
+model_classes = [LeanderDeepConvLSTM]
 
 for model_class in model_classes:
     model_name = model_class.__name__

@@ -40,7 +40,7 @@ from loader.get_opportunity_data import get_opportunity_data
 from evaluation.Fitness import Fitness
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "seqevo_big_kfold"
+experiment_name = "seqevo_finally"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -54,6 +54,7 @@ layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] 
 settings.init(_layer_pool=layer_pool)
 
 X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
+    shuffle_seed=1678978086101,
     window_size=window_size,
     n_features=n_features,
     n_classes=n_classes 
@@ -71,7 +72,7 @@ seqevo_history = SeqEvoHistory(
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
 technique_config = DefaultEvoTechniqueConfig()
-fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, window_size, n_features, n_classes).normal_with_test_set
+fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, window_size, n_features, n_classes).kfold_without_test_set
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
 # NAS - Neural Architecture Search
@@ -85,9 +86,7 @@ model_genome = SeqEvo(
     crossover_func=crossover_func,
     log_func=logger,
     seqevo_history=seqevo_history,
-    initial_models = [
-        InitialModelLayer.leander_deep_conv_1()
-    ]
+    initial_models = InitialModelLayer.get_all_models()
 ).run()
 
 # Test, Evaluate

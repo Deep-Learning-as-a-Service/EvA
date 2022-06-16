@@ -30,7 +30,8 @@ def load_dataset(path: str, label_column_name: str, recording_idx_name: str, col
             sensor_frame = dataset.loc[start_idx:(end_idx - 1), feature_column_names], 
             time_frame = dataset.loc[start_idx:(end_idx - 1), recording_idx_name],
             activities = dataset.loc[start_idx:(end_idx - 1), label_column_name],
-            subject = int(dataset.iloc[start_idx]['SUBJECT_IDX'])
+            subject = int(dataset.iloc[start_idx]['SUBJECT_IDX']),
+            identifier = str(i)
         ))
         start_idx = end_idx + 1
     # TODO: make this work

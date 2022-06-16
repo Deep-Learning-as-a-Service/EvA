@@ -1,4 +1,6 @@
 from evaluation.metrics import accuracy
+from utils.progress_bar import print_progress_bar
+
 
 class Fitness():
     def __init__(self, X_train, y_train, X_test, y_test, X_y_validation_splits, window_size, n_features, n_classes):
@@ -57,6 +59,7 @@ class Fitness():
             epochs=1,
             verbose=1
         )
+        model.summary()
 
         # model_genome.batch_size
         # model_genome.n_epochs

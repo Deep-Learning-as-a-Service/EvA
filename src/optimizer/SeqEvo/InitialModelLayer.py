@@ -1,6 +1,6 @@
 from model_representation.ParametrizedLayer.PConv2DLayer import Conv2DFiltersParam, Conv2DKernelSizeParam, Conv2DStridesParam, PConv2DLayer
 from model_representation.ParametrizedLayer.PDenseLayer import DenseUnitsParam, PDenseLayer
-from model_representation.ParametrizedLayer.PLstmLayer import LstmUnitsParam, PLstmLayer
+from model_representation.ParametrizedLayer.PLstmLayer import LstmUnitsParam, PLstmLayer, LstmDropoutParam
 
 class InitialModelLayer():
     
@@ -38,7 +38,7 @@ class InitialModelLayer():
                 Conv2DStridesParam.create(("100%","step1"), dependent_on_param=third_kernel)
             ]
         )
-        fourth = PLstmLayer(params=[LstmUnitsParam.create(512)])  
+        fourth = PLstmLayer(params=[LstmUnitsParam.create(512), LstmDropoutParam.create(0.1)])  
         return [ 
                 first, second, third, fourth
             ]
@@ -69,7 +69,7 @@ class InitialModelLayer():
                 Conv2DStridesParam.create(("100%","100%"), dependent_on_param=third_kernel)
             ]
         )
-        fourth = PLstmLayer(params=[LstmUnitsParam.create(256)])  
+        fourth = PLstmLayer(params=[LstmUnitsParam.create(256), LstmDropoutParam.create(0.1)])  
         return [ 
                 first, second, third, fourth
             ]
@@ -140,7 +140,7 @@ class InitialModelLayer():
                 Conv2DStridesParam.create(("100%","100%"), dependent_on_param=second_kernel)
             ]
         )
-        third = PLstmLayer(params=[LstmUnitsParam.create(32)])  
+        third = PLstmLayer(params=[LstmUnitsParam.create(32), LstmDropoutParam.create(0.1)])  
         return [ 
                 first, second, third
             ]
@@ -163,7 +163,7 @@ class InitialModelLayer():
                 Conv2DStridesParam.create(("100%","100%"), dependent_on_param=second_kernel)
             ]
         )
-        third = PLstmLayer(params=[LstmUnitsParam.create(64)])  
+        third = PLstmLayer(params=[LstmUnitsParam.create(64), LstmDropoutParam.create(0.1)])  
         return [ 
                 first, second, third
             ]
