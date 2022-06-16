@@ -3,7 +3,7 @@ from model_representation.ModelNode.SeqEvoModelNode import SeqEvoModelNode
 
 class SeqEvoModelGenome(ModelGenome):
     """
-    Model Genome, that also stores the connection to its corresponding NeatGenome
+    Model Genome, that also stores the connection to its corresponding seqevo_genome
     """
     def __init__(self, input_model_node, seqevo_genome, n_epochs, batch_size, learning_rate):
         super().__init__(

@@ -90,6 +90,18 @@ model_genome = SeqEvo(
     ]
 ).run()
 
+model_genome = HyPaEvo(
+    input_model_genome=model_genome,
+    n_generations = 300,
+    pop_size = 8,
+    fitness_func = fitness,
+    n_parents = 4,
+    parent_selector=parent_selector,
+    crossover_func=crossover_func,
+    log_func=logger,
+    initial_genomes = []
+)
+
 # Test, Evaluate
 model = model_genome.get_model(
         window_size=window_size,
