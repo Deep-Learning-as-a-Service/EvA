@@ -26,7 +26,7 @@ class Fitness():
 
         accuracies = []
         idx = 0
-        for X_train, y_train, X_val, y_val in self.X_y_validation_splits:
+        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits:
             prog_bar(progress=idx)
             idx += 1
             model = model_genome.get_model(
@@ -35,14 +35,14 @@ class Fitness():
                 n_classes=self.n_classes
             )
             model.fit(
-                self.X_train, 
-                self.y_train, 
+                X_train_split, 
+                y_train_split, 
                 batch_size=model_genome.batch_size, 
                 epochs=model_genome.n_epochs,
                 verbose=0
             )
-            y_val_pred = model.predict(X_val)
-            accuracies.append(accuracy(y_val, y_val_pred))
+            y_val_pred = model.predict(X_val_split)
+            accuracies.append(accuracy(y_val_split, y_val_pred))
 
         prog_bar(progress=len(self.X_y_validation_splits))
 
