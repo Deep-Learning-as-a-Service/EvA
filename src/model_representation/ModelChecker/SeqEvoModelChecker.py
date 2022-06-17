@@ -1,7 +1,10 @@
 import math
 import random
+from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
 from model_representation.ParametrizedLayer.PConv1DLayer import Conv1DKernelSizeParam
 from model_representation.ParametrizedLayer.PConv2DLayer import Conv2DKernelSizeParam
+from model_representation.ParametrizedLayer.PDenseLayer import DenseUnitsParam
+from model_representation.ParametrizedLayer.PLstmLayer import LstmUnitsParam
 from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 import utils.settings as settings
 class SeqEvoModelChecker():
@@ -13,6 +16,66 @@ class SeqEvoModelChecker():
     @classmethod
     def check_model_genome(cls, seqevo_genome: SeqEvoGenome) -> None:
         cls.fix_convolution_dimension_loss(seqevo_genome)
+        cls.alter_models_with_high_params(seqevo_genome)
+        
+    @classmethod
+    def alter_models_with_high_params(cls, seqevo_genome: SeqEvoGenome):
+        threshold = 20000000 # 20 mil params as threshold, subject of change
+        
+        while True:
+            model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
+            
+            # TODO: get from global settings
+            keras_model = model_genome.get_model(
+                window_size=90,
+                n_features=51,
+                n_classes=6
+            )
+            num_params = keras_model.count_params()
+       
+            if num_params <= threshold:
+                break
+            
+            else:
+                cls.alter_high_param_layers(seqevo_genome)
+
+    
+    @classmethod
+    def alter_high_param_layers(cls, seqevo_genome: SeqEvoGenome):
+        """
+        find Dense/LSTM layer with highest units number and change to a fifth of original units or minimum of value range  
+        """
+        high_param_layer_idx_list = list(filter(lambda idx: (seqevo_genome.layers[idx].__class__.__name__ in ["PDenseLayer", "PLstmLayer"]), range(len(seqevo_genome.layers))))
+        highest_n_units = 0
+        highest_n_units_idx = 0
+        
+        # retrieve layer with highest units param
+        for layer_idx in high_param_layer_idx_list:
+            layer = seqevo_genome.layers[layer_idx]
+            
+            units = None
+            for param in layer.params:
+                if param._key == "units":
+                    units = param.value
+            if units > highest_n_units:
+                highest_n_units = units
+                highest_n_units_idx = layer_idx
+                
+        layer_to_change = seqevo_genome.layers[highest_n_units_idx]
+        
+        new_units_param = None
+        if layer_to_change.__class__.__name__ == "PLstmLayer":
+            new_units_param = LstmUnitsParam.create(max(round(highest_n_units / 5), LstmUnitsParam._value_range[0]))
+        elif layer_to_change.__class__.__name__ == "PDenseLayer":
+            new_units_param = DenseUnitsParam.create(max(round(highest_n_units / 5), DenseUnitsParam._value_range[0]))
+        
+        # add new kernel size param to layer, update dependency for stride param
+        
+        params = layer_to_change.params
+        units_param_idx = [idx for idx, x in enumerate(params) if x._key == "units"][0]
+        params[units_param_idx] = new_units_param
+
+
     
     @classmethod
     def fix_convolution_dimension_loss(cls, seqevo_genome: SeqEvoGenome):
