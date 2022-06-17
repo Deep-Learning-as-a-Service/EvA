@@ -33,7 +33,7 @@ from utils.logger import logger
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from utils.window_test_percentages import window_test_percentages
 
-def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed):
+def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed, num_folds=2):
 
     # Lib -----------------------------------------------------------
     leave_recording_out_split = lambda test_percentage: lambda recordings: split_list_by_percentage(list_to_split=recordings, percentage_to_split=test_percentage)
@@ -75,7 +75,7 @@ def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed):
     recordings_train, recordings_test = test_train_split(recordings)
 
     # Validation Splits
-    k = 2
+    k = num_folds
     k_fold = KFold(n_splits=k, random_state=None)
     recordings_train = np.array(recordings_train)
     recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split(recordings_train)]
