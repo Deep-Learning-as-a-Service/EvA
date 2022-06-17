@@ -18,7 +18,7 @@ from tensorflow import keras
 from utils.folder_operations import new_saved_experiment_folder
 from evaluation.conf_matrix import create_conf_matrix
 from evaluation.text_metrics import create_text_metrics
-from evaluation.metrics import accuracy, f1_score
+from evaluation.metrics import accuracy, f1_score_
 from utils.Windowizer import Windowizer
 from sklearn.model_selection import KFold
 from utils.Converter import Converter
@@ -41,7 +41,7 @@ from evaluation.Fitness import Fitness
 from utils.window_test_percentages import window_test_percentages
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "four_fold" # CHAT_ID: -1001790367792
+experiment_name = "four_fold_f1" # CHAT_ID: -1001790367792
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -76,7 +76,7 @@ seqevo_history = SeqEvoHistory(
 # Config
 parent_selector = Selector.select_from_fitness_probability
 technique_config = DefaultEvoTechniqueConfig()
-fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set
+fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set_f1
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
 # NAS - Neural Architecture Search

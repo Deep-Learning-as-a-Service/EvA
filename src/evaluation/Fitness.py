@@ -1,4 +1,4 @@
-from evaluation.metrics import accuracy
+from evaluation.metrics import accuracy, f1_score_
 from utils.progress_bar import print_progress_bar
 import numpy as np
 import utils.settings as settings
@@ -37,6 +37,32 @@ class Fitness():
         prog_bar(progress=len(self.X_y_validation_splits[:self.validation_iterations]))
 
         fitness = np.mean(accuracies)
+        return fitness
+    
+    def kfold_without_test_set_f1(self, model_genome, log_func) -> float:
+        prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits[:self.validation_iterations]), prefix="k_fold", suffix=f"{progress}/{len(self.X_y_validation_splits[:self.validation_iterations])}", length=30, log_func=log_func, fill=">")
+        # Refactoring idea
+        # model_genome.fit(X_train, y_train)
+
+        f1s = []
+        idx = 0
+        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits[:self.validation_iterations]:
+            prog_bar(progress=idx)
+            idx += 1
+            model = model_genome.get_model()
+            model.fit(
+                X_train_split, 
+                y_train_split, 
+                batch_size=model_genome.batch_size, 
+                epochs=model_genome.n_epochs,
+                verbose=0
+            )
+            y_val_pred = model.predict(X_val_split)
+            f1s.append(f1_score_(y_val_split, y_val_pred))
+
+        prog_bar(progress=len(self.X_y_validation_splits[:self.validation_iterations]))
+
+        fitness = np.mean(f1s)
         return fitness
 
     def normal_with_test_set(self, model_genome, log_func) -> float:

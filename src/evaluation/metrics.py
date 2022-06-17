@@ -10,9 +10,9 @@ if we would execute np.argmax before, infos like the model was not sure would be
 """
 
 import numpy as np
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score 
 
-def f1_score(y_test_pred: np.ndarray, y_test: np.ndarray) -> float:
+def f1_score_(y_test_pred: np.ndarray, y_test: np.ndarray) -> float:
     prediction_vectors = np.argmax(y_test_pred, axis=1)
     y_test_vec = np.argmax(y_test, axis=1)
     return f1_score(y_test_vec, prediction_vectors)
