@@ -49,6 +49,8 @@ experiment_name = experiment_name + "-" + currentDT_str
 window_size = 30*3
 n_features = 51
 n_classes = 6
+num_folds = 4
+validation_iterations = 3
 
 layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] #PConv1DLayer
 data_dimension_dict = {
@@ -60,7 +62,7 @@ settings.init(_layer_pool=layer_pool, _data_dimension_dict=data_dimension_dict)
 
 X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
     shuffle_seed=1678978086101,
-    num_folds=4
+    num_folds=num_folds
 )
 
 # Optimization -------------------------------------------------------------------------------------------------------
@@ -75,7 +77,7 @@ seqevo_history = SeqEvoHistory(
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
 technique_config = DefaultEvoTechniqueConfig()
-fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).kfold_without_test_set
+fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
 # NAS - Neural Architecture Search
