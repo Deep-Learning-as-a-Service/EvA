@@ -75,7 +75,6 @@ seqevo_history = SeqEvoHistory(
 
 # Config
 parent_selector = Selector.select_from_fitness_probability
-crossover_func = Crosser.middlepoint_crossover
 technique_config = DefaultEvoTechniqueConfig()
 fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
@@ -83,12 +82,11 @@ fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, valid
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
     n_generations = 300, 
-    pop_size = 8,
+    pop_size = 10,
     fitness_func = fitness,
     n_parents = 4,
     technique_config = technique_config,
     parent_selector=parent_selector,
-    crossover_func=crossover_func,
     log_func=logger,
     seqevo_history=seqevo_history,
     initial_models = InitialModelLayer.get_all_models()

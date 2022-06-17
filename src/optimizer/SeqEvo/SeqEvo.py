@@ -9,11 +9,12 @@ from model_representation.ModelGenome import ModelGenome
 import copy
 from utils.mutation_helper import get_key_from_prob_dict
 from utils.progress_bar import print_progress_bar
+from optimizer.SeqEvo.Crosser import Crosser
 
 
 class SeqEvo():
 
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, technique_config, parent_selector, crossover_func, log_func, seqevo_history, initial_models):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, technique_config, parent_selector, log_func, seqevo_history, initial_models):
         
         self.n_generations = n_generations
         self.pop_size = pop_size
@@ -23,7 +24,6 @@ class SeqEvo():
         self.techniques = technique_config.techniques
 
         self.parent_selector = parent_selector
-        self.crossover_func = crossover_func
         self.initial_models = initial_models
         self.modelcache = {}
 
@@ -83,10 +83,15 @@ class SeqEvo():
                     child_best_individual.created_from = "finetune_best_individual"
                     return child_best_individual
 
-            elif technique.name == "crossover":
+            elif technique.name == "middlepoint_crossover":
                 def creation_func():
                     pa, ma = random.sample(parents, 2) # pick 2 parent random
-                    return self.crossover_func(pa, ma)
+                    return Crosser.middlepoint_crossover(pa, ma)
+            
+            elif technique.name == "uniform_crossover":
+                def creation_func():
+                    pa, ma = random.sample(parents, 2) # pick 2 parent random
+                    return Crosser.uniform_crossover(pa, ma)
 
             elif technique.name in [f"mutate_{mutation_intensity}" for mutation_intensity in ["low", "mid", "high", "all"]]:
                 mutation_intensity = technique.name[7:]
