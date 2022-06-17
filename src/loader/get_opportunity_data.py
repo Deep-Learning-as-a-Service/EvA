@@ -15,7 +15,7 @@ from evaluation.conf_matrix import create_conf_matrix
 from evaluation.text_metrics import create_text_metrics
 from evaluation.metrics import accuracy, f1_score
 from utils.Windowizer import Windowizer
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, StratifiedKFold
 from utils.Converter import Converter
 from optimizer.NeatNAS.NeatNAS import NeatNAS
 from model_representation.ParametrizedLayer.PDenseLayer import PDenseLayer
@@ -78,9 +78,9 @@ def get_opportunity_data(shuffle_seed, num_folds=2):
 
     # Validation Splits
     k = num_folds
-    k_fold = KFold(n_splits=k, random_state=None)
+    k_fold = StratifiedKFold(n_splits=k, random_state=None)
     recordings_train = np.array(recordings_train)
-    recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split(recordings_train)]
+    recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split([recording.sensor_frame for recording in recordings_train], [recording.subject for recording in recordings_train])]
     # Output: [(recordings_train_01, recordings_test_01), (recordings_train_02, recordings_test_02), ...]
     windows_validation_splits = list(map(lambda validation_split: map(windowize, validation_split), recordings_validation_splits))
     # Output: [(windows_train_01, windows_test_01), (windows_train_02, windows_test_02), ...]
