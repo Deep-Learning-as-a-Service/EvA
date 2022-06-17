@@ -13,6 +13,7 @@ import pandas as pd
 import tensorflow as tf  # type: ignore
 from datetime import datetime
 import os
+import utils.settings as settings
 
 from tensorflow.python.saved_model.utils_impl import get_saved_model_pb_path  # type: ignore
 
@@ -61,9 +62,9 @@ class RainbowModel(ABC):
 
         # self.model = None
         # assert (self.model is not None)
-        self.window_size = kwargs.get("window_size", None)
-        self.n_features = kwargs.get("n_features", None)
-        self.n_outputs = kwargs.get("n_outputs", None)
+        self.window_size = settings.data_dimension_dict["window_size"]
+        self.n_features = settings.data_dimension_dict["n_features"]
+        self.n_outputs = settings.data_dimension_dict["n_classes"]
         self.batch_size = kwargs.get("batch_size", None)
         self.n_epochs = kwargs.get("n_epochs", None)
         self.learning_rate = kwargs.get("learning_rate", None)

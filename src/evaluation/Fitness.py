@@ -1,39 +1,28 @@
 from evaluation.metrics import accuracy
 from utils.progress_bar import print_progress_bar
 import numpy as np
+import utils.settings as settings
 
 
 class Fitness():
-    def __init__(self, X_train, y_train, X_test, y_test, X_y_validation_splits, window_size, n_features, n_classes):
+    def __init__(self, X_train, y_train, X_test, y_test, X_y_validation_splits):
         self.X_train = X_train
         self.y_train = y_train
         self.X_test = X_test
         self.y_test = y_test
         self.X_y_validation_splits = X_y_validation_splits
-        self.window_size = window_size
-        self.n_features = n_features
-        self.n_classes = n_classes
-    
+
     def kfold_without_test_set(self, model_genome, log_func) -> float:
         prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits), prefix="k_fold", suffix=f"{progress}/{len(self.X_y_validation_splits)}", length=30, log_func=log_func, fill=">")
         # Refactoring idea
         # model_genome.fit(X_train, y_train)
-
-        # Traininsparams
-        batch_size = model_genome.batch_size
-        learning_rate = model_genome.learning_rate
-        n_epochs = model_genome.n_epochs
 
         accuracies = []
         idx = 0
         for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits:
             prog_bar(progress=idx)
             idx += 1
-            model = model_genome.get_model(
-                window_size=self.window_size,
-                n_features=self.n_features,
-                n_classes=self.n_classes
-            )
+            model = model_genome.get_model()
             model.fit(
                 X_train_split, 
                 y_train_split, 
@@ -50,11 +39,7 @@ class Fitness():
         return fitness
 
     def normal_with_test_set(self, model_genome, log_func) -> float:
-        model = model_genome.get_model(
-            window_size=self.window_size,
-            n_features=self.n_features,
-            n_classes=self.n_classes
-        )
+        model = model_genome.get_model()
         model.fit(
             self.X_train, 
             self.y_train, 

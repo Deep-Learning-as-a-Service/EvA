@@ -25,12 +25,7 @@ class SeqEvoModelChecker():
         while True:
             model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
             
-            # TODO: get from global settings
-            keras_model = model_genome.get_model(
-                window_size=90,
-                n_features=51,
-                n_classes=6
-            )
+            keras_model = model_genome.get_model()
             num_params = keras_model.count_params()
        
             if num_params <= threshold:

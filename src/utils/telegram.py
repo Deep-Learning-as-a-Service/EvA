@@ -1,7 +1,7 @@
 import math
 import requests
 from urllib.parse import quote
-import config
+import utils.config as config
 
 def send_telegram(message: str) -> None:
     packages_remaining = [message]

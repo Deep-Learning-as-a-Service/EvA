@@ -13,6 +13,7 @@ from tensorflow.keras.layers import (
 )
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+import utils.settings as settings
 
 class ModelGenome():
     """
@@ -41,14 +42,18 @@ class ModelGenome():
     def get_input_model_node(self) -> 'ModelNode':
         return self.input_model_node
     
-    def get_model(self, window_size, n_features, n_classes) -> keras.models.Model:
+    def get_model(self) -> keras.models.Model:
         """
         compile model from current model_genome instance
         """
         
         assert self.input_model_node.architecture_block is not None, "architecture block didn't get initialized yet, call make_compatible() first"
         
-        # TODO: get hyperparams hereeeeeeeeeee - build DataConfig class! global?
+        data_dimension_dict = settings.data_dimension_dict
+        window_size = data_dimension_dict["window_size"]
+        n_features = data_dimension_dict["n_features"]
+        n_classes = data_dimension_dict["n_classes"]
+        
         # TODO: No extra Node here - instead the layer mapper should assign the Input layer to our input_model_node
         i = Input(shape=(window_size, n_features))
         
@@ -106,7 +111,7 @@ class ModelGenome():
         
         # TODO: parametrize thatttttttttttttttttttttt
         model.compile(
-            optimizer=Adam(learning_rate=self.learning_rate),
+            optimizer="Adam",
             loss="categorical_crossentropy",  # CategoricalCrossentropy (than we have to to the one hot encoding - to_categorical), before: "sparse_categorical_crossentropy"
             metrics=["accuracy"],
         )

@@ -51,13 +51,15 @@ n_features = 51
 n_classes = 6
 
 layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] #PConv1DLayer
-settings.init(_layer_pool=layer_pool)
+data_dimension_dict = {
+    "window_size": window_size,
+    "n_features": n_features,
+    "n_classes": n_classes
+}
+settings.init(_layer_pool=layer_pool, _data_dimension_dict=data_dimension_dict)
 
 X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
     shuffle_seed=1678978086101,
-    window_size=window_size,
-    n_features=n_features,
-    n_classes=n_classes, 
     num_folds=4
 )
 
@@ -73,7 +75,7 @@ seqevo_history = SeqEvoHistory(
 parent_selector = Selector.select_from_fitness_probability
 crossover_func = Crosser.middlepoint_crossover
 technique_config = DefaultEvoTechniqueConfig()
-fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, window_size, n_features, n_classes).kfold_without_test_set
+fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).kfold_without_test_set
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
 # NAS - Neural Architecture Search
@@ -91,11 +93,7 @@ model_genome = SeqEvo(
 ).run()
 
 # Test, Evaluate
-model = model_genome.get_model(
-        window_size=window_size,
-        n_features=n_features,
-        n_classes=n_classes
-    )
+model = model_genome.get_model()
 
 model.fit(
     X_train, 

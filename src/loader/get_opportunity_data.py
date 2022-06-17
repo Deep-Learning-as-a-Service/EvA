@@ -33,7 +33,7 @@ from utils.logger import logger
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from utils.window_test_percentages import window_test_percentages
 
-def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed, num_folds=2):
+def get_opportunity_data(shuffle_seed, num_folds=2):
 
     # Lib -----------------------------------------------------------
     leave_recording_out_split = lambda test_percentage: lambda recordings: split_list_by_percentage(list_to_split=recordings, percentage_to_split=test_percentage)
@@ -55,7 +55,9 @@ def get_opportunity_data(window_size, n_features, n_classes, shuffle_seed, num_f
         column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
     )
 
-
+    window_size = settings.data_dimension_dict["window_size"]
+    n_classes = settings.data_dimension_dict["n_classes"]
+        
     preprocess = lambda recordings: Preprocessor().jens_preprocess_with_normalize(recordings)
     windowize = lambda recordings: Windowizer(window_size=window_size).jens_windowize(recordings)
     convert = lambda windows: Converter(n_classes=n_classes).sonar_convert(windows)
