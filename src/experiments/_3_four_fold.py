@@ -11,6 +11,7 @@ from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
 from optimizer.SeqEvo.SeqEvo import SeqEvo
 from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
+from utils.Tester import Tester
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
 from tensorflow import keras
@@ -65,6 +66,10 @@ X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
     shuffle_seed=1678978086101,
     num_folds=num_folds
 )
+
+tester = Tester(X_train, y_train, X_test, y_test)
+
+
 # Optimization -------------------------------------------------------------------------------------------------------
 
 # Create Folder, save model export and evaluations there
@@ -89,7 +94,8 @@ model_genome = SeqEvo(
     parent_selector=parent_selector,
     log_func=logger,
     seqevo_history=seqevo_history,
-    initial_models = InitialModelLayer.get_all_models()
+    initial_models = InitialModelLayer.get_all_models(),
+    tester=tester
 ).run()
 
 # Test, Evaluate

@@ -11,6 +11,7 @@ from loader.load_dataset import load_dataset
 from loader.Preprocessor import Preprocessor
 from optimizer.SeqEvo.SeqEvo import SeqEvo
 from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
+from utils.Tester import Tester
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
 from tensorflow import keras
@@ -79,6 +80,9 @@ technique_config = DefaultEvoTechniqueConfig()
 fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
+tester = Tester(X_train, y_train, X_test, y_test)
+
+
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
     n_generations = 300, 
@@ -89,7 +93,8 @@ model_genome = SeqEvo(
     parent_selector=parent_selector,
     log_func=logger,
     seqevo_history=seqevo_history,
-    initial_models = InitialModelLayer.get_all_models()
+    initial_models = InitialModelLayer.get_all_models(),
+    tester = tester
 ).run()
 
 # Test, Evaluate
