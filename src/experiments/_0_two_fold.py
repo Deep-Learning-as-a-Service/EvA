@@ -65,7 +65,7 @@ X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
     shuffle_seed=1678978086101,
     num_folds=num_folds
 )
-tester = Tester(X_train, y_train, X_test, y_test)
+tester = Tester("logs/benchmark_logs_0.txt", X_train, y_train, X_test, y_test)
 
 # Optimization -------------------------------------------------------------------------------------------------------
 

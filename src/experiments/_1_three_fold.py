@@ -80,7 +80,7 @@ technique_config = DefaultEvoTechniqueConfig()
 fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
-tester = Tester(X_train, y_train, X_test, y_test)
+tester = Tester("logs/benchmark_logs_1.txt", X_train, y_train, X_test, y_test)
 
 
 # NAS - Neural Architecture Search

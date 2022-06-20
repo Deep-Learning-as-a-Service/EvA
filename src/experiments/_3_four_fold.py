@@ -67,7 +67,7 @@ X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
     num_folds=num_folds
 )
 
-tester = Tester(X_train, y_train, X_test, y_test)
+tester = Tester("logs/benchmark_logs_3.txt", X_train, y_train, X_test, y_test)
 
 
 # Optimization -------------------------------------------------------------------------------------------------------

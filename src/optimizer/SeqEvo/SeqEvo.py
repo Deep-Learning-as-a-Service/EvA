@@ -11,12 +11,11 @@ from utils.Tester import Tester
 from utils.mutation_helper import get_key_from_prob_dict
 from utils.progress_bar import print_progress_bar
 from optimizer.SeqEvo.Crosser import Crosser
-import time
 
 
 class SeqEvo():
 
-    def __init__(self, n_generations, pop_size, fitness_func, n_parents, technique_config, parent_selector, log_func, seqevo_history, initial_models, tester):
+    def __init__(self, n_generations, pop_size, fitness_func, n_parents, technique_config, parent_selector, log_func, seqevo_history, initial_models, tester=None):
         
         self.n_generations = n_generations
         self.pop_size = pop_size
@@ -24,7 +23,6 @@ class SeqEvo():
         self.n_parents = n_parents
         self.technique_config = technique_config
         self.techniques = technique_config.techniques
-        self.starttime = time.time()
         self.tester = tester
 
         self.parent_selector = parent_selector
@@ -180,8 +178,11 @@ class SeqEvo():
             population = self.create_next_generation(population=population, best_individual=best_individual, gen_idx=gen_idx)
             assert len(population) == self.pop_size, "got not the pop_size individuals from create_next_generation"
 
-            with open("logs/benchmark_logs.txt", "a+") as f:
-                f.write(f"{str(time.time() - self.starttime)} : {self.tester.get_test_accuracy(SeqEvoModelGenome.create_with_default_params(best_individual))} \n")
+            if self.tester:
+                self.tester.log_test_accuracy(
+                    model_genome=SeqEvoModelGenome.create_with_default_params(best_individual), 
+                    current_gen_idx=gen_idx
+                    )
 
         return SeqEvoModelGenome.create_with_default_params(best_individual)
                     
