@@ -14,7 +14,7 @@ prio_logger = lambda *args, **kwargs: logger(*args, prio=True, **kwargs)
 @log_job_start_done(log_func=prio_logger)
 def main():
     # import tests.test_seqevo
-    import experiments.seqevo_distr_adaptive
+    import experiments.optuna_exp
 
 if __name__ == "__main__":
     prio_logger(device_lib.list_local_devices())

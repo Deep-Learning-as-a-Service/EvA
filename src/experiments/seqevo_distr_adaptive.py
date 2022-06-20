@@ -99,7 +99,10 @@ model_genome = HyPaEvo(
     parent_selector=parent_selector,
     crossover_func=crossover_func,
     log_func=logger,
-    initial_genomes = []
+    initial_genomes = [
+        { 'batch_size': 32, 'epochs': 5 }, 
+        { 'batch_size': 32, 'epochs': 10 }
+    ]
 )
 
 # Test, Evaluate
