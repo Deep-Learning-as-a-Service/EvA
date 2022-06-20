@@ -22,9 +22,9 @@ class ModelGenome():
     - keras layer hyperparams
     - training params
     """
-    default_n_epochs = 5
+    default_n_epochs = 10
     default_batch_size = 32 
-    default_learning_rate = 0.001
+    default_learning_rate = 0.01
 
     def __init__(self, input_model_node, n_epochs, batch_size, learning_rate):
         self.input_model_node = input_model_node
@@ -38,6 +38,11 @@ class ModelGenome():
         Subclass responsibility
         """
         raise NotImplementedError
+    
+    def reset_to_default_params(self):
+        self.n_epochs = ModelGenome.default_n_epochs
+        self.batch_size = ModelGenome.default_batch_size
+        self.learning_rate = ModelGenome.default_learning_rate
     
     def get_input_model_node(self) -> 'ModelNode':
         return self.input_model_node
@@ -111,7 +116,7 @@ class ModelGenome():
         
         # TODO: parametrize thatttttttttttttttttttttt
         model.compile(
-            optimizer="Adam",
+            optimizer=Adam(learning_rate=self.learning_rate),
             loss="categorical_crossentropy",  # CategoricalCrossentropy (than we have to to the one hot encoding - to_categorical), before: "sparse_categorical_crossentropy"
             metrics=["accuracy"],
         )

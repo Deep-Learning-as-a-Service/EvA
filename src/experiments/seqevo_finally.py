@@ -81,7 +81,7 @@ fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, valid
 
 # NAS - Neural Architecture Search
 model_genome = SeqEvo(
-    n_generations = 300, 
+    n_generations = 1, 
     pop_size = 10,
     fitness_func = fitness,
     n_parents = 4,
@@ -90,6 +90,13 @@ model_genome = SeqEvo(
     log_func=logger,
     seqevo_history=seqevo_history,
     initial_models = InitialModelLayer.get_all_models()
+).run()
+
+model_genome = HyPaOptuna(
+    input_model_genome=model_genome,
+    n_trials=100,
+    fitness_func=fitness,
+    log_func=logger
 ).run()
 
 # Test, Evaluate
