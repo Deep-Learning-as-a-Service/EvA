@@ -6,12 +6,14 @@ def logger(*args, **kwargs):
         prio = kwargs['prio']
         del kwargs['prio']
     message = str(args[0]) if len(args) > 0 else ""
-
+    path = kwargs['path']
+    del kwargs['path']
+    
     # 1
     print(*args, **kwargs)
 
     # 2
-    with open("logs/artemis_kfold_run2.txt", "a+") as f:
+    with open(path, "a+") as f:
         f.write(message + "\n")
 
     # 3
