@@ -21,17 +21,11 @@ def get_problematic_genome():
     third = PConv2DLayer(
         params=[
             Conv2DFiltersParam.create(88),
-            Conv2DKernelSizeParam.create((7,6)),
-            Conv2DStridesParam.create(("25%","100%"), dependent_on_param=Conv2DKernelSizeParam.create((7,6)))
+            Conv2DKernelSizeParam.create((3,3)),
+            Conv2DStridesParam.create(("25%","100%"), dependent_on_param=Conv2DKernelSizeParam.create((3,3)))
         ]
     )    
-    fourth = PConv2DLayer(
-        params=[
-            Conv2DFiltersParam.create(103),
-            Conv2DKernelSizeParam.create((6,4)),
-            Conv2DStridesParam.create(("50%","100%"), dependent_on_param=Conv2DKernelSizeParam.create((6,4)))
-        ]
-    )    
+
     # fifth = PDenseLayer(params=[DenseUnitsParam.create(104)]) 
     # sixth = PLstmLayer(params=[LstmUnitsParam.create(30)])
     # seventh = PConv2DLayer(
@@ -43,7 +37,7 @@ def get_problematic_genome():
     # ) 
     
     layers = [
-        first, second, third, fourth
+        first, second, third
     ]
     # return SeqEvoGenome(layers=layers)
     return layers

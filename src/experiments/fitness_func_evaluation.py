@@ -44,6 +44,8 @@ from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from loader.get_opportunity_data import get_opportunity_data
 from evaluation.Fitness import Fitness
 from utils.build_custom_genome import get_problematic_genome
+from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
+from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
 
 testing = False
 test_fitness_big_split = lambda model_genome, logger: 0.6
@@ -92,6 +94,10 @@ model_genomes_to_check = [
     ('conv_lstm_1', InitialModelLayer.conv_lstm_1()),
     ('weird_model', get_problematic_genome())
 ]
+layers_to_model_genome = lambda layers: SeqEvoModelGenome.create_with_default_params(SeqEvoGenome(layers=layers))
+model_genomes_to_check = list(map(lambda x: (x[0], layers_to_model_genome(x[1])), model_genomes_to_check))
+
+
 
 # Printing
 stringify_list = lambda l: list(map(str, l))
