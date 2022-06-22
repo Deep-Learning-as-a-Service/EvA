@@ -155,7 +155,7 @@ class InitialModelLayer():
                 Conv2DStridesParam.create(("100%","100%"), dependent_on_param=first_kernel)
             ]
         )
-        second_kernel = Conv2DKernelSizeParam.create((10,1))
+        second_kernel = Conv2DKernelSizeParam.create((3,1))
         second = PConv2DLayer(
             params=[
                 Conv2DFiltersParam.create(256),

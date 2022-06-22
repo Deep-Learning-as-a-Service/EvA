@@ -7,7 +7,7 @@ from utils.telegram import send_telegram
 from tensorflow.python.client import device_lib
 from utils.logger import logger
 
-prio_logger = lambda *args, **kwargs: logger(*args, prio=True, **kwargs)
+prio_logger = lambda *args, **kwargs: logger(*args, prio=True, path="logs/find_best_fitness", **kwargs)
 
 @on_error_restart(log_func=prio_logger)
 @on_error_send_traceback(log_func=prio_logger)
@@ -15,7 +15,8 @@ prio_logger = lambda *args, **kwargs: logger(*args, prio=True, **kwargs)
 def main():
     # import tests.test_seqevo
     # import experiments.recreate_acc
-    import experiments.fitness_func_evaluation
+    # import experiments.fitness_func_evaluation
+    import experiments.find_best_fitness
 
 if __name__ == "__main__":
     prio_logger(device_lib.list_local_devices())

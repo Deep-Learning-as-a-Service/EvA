@@ -36,7 +36,7 @@ class SeqEvoModelChecker():
     def fix_memory_overflow(cls, seqevo_genome: SeqEvoGenome):
         # TODO: get batch size from settings as well
         batch_size = 32
-        threshold = pow(2, 24) # if number of neurons in any layer is higher than threshold, reduce big layers
+        threshold = pow(2, 30) # if number of neurons in any layer is higher than threshold, reduce big layers
         
         # reduce layer params while GPU would be OOM when compiling
         while True:
