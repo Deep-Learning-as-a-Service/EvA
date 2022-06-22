@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+@dataclass
 class HistorySeqEvoGenome():
     def __init__(self, seqevo_genome, n_generations, created_unix_timestamp, fitness, created_from, src_file):
         self.seqevo_genome = seqevo_genome
