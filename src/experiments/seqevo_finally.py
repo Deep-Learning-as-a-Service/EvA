@@ -41,7 +41,7 @@ from evaluation.Fitness import Fitness
 from utils.Tester import Tester
 from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
 
-testing = True
+testing = False
 
 # Experiment Name ---------------------------------------------------------------
 experiment_name = "seqevo_finally"
