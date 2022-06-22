@@ -11,6 +11,7 @@ from utils.Tester import Tester
 from utils.mutation_helper import get_key_from_prob_dict
 from utils.progress_bar import print_progress_bar
 from optimizer.SeqEvo.Crosser import Crosser
+import time
 
 
 class SeqEvo():
@@ -122,7 +123,7 @@ class SeqEvo():
             self.logger("\n================================================================")
             self.prio_logger(f"======================= Generation {gen_idx + 1}/{self.n_generations} =====================")
             self.logger("================================================================\n")
-            
+            starttime = time.time()
             # Evaluate fitness of population
             for i, seqevo_genome in enumerate(population):
                 self.logger(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
@@ -181,7 +182,8 @@ class SeqEvo():
             if self.tester:
                 self.tester.log_test_accuracy(
                     model_genome=SeqEvoModelGenome.create_with_default_params(best_individual), 
-                    current_gen_idx=gen_idx
+                    current_gen_idx=gen_idx,
+                    time=time.time() - starttime
                     )
 
         return SeqEvoModelGenome.create_with_default_params(best_individual)

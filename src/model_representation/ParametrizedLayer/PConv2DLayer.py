@@ -50,6 +50,5 @@ class Conv2DStridesParam(TupleCategDEvoParam):
 
 class PConv2DLayer(ParametrizedLayer):
     _layer = lambda **kwargs: keras.layers.Conv2D(activation="relu", kernel_initializer=Orthogonal(), **kwargs)
-    _layer = 
     _param_classes = [Conv2DFiltersParam, Conv2DKernelSizeParam, Conv2DStridesParam]
 

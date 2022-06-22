@@ -22,7 +22,7 @@ class ModelGenome():
     - keras layer hyperparams
     - training params
     """
-    default_n_epochs = 10
+    default_n_epochs = 5
     default_batch_size = 32 
     default_learning_rate = 0.001
 

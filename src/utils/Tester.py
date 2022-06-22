@@ -8,7 +8,7 @@ class Tester():
         self.y_test = y_test
         self.path = path
     
-    def log_test_accuracy(self, model_genome, current_gen_idx):
+    def log_test_accuracy(self, model_genome, current_gen_idx, time):
         model = model_genome.get_model()
 
         model.fit(
@@ -20,4 +20,4 @@ class Tester():
         )
         y_test_pred = model.predict(self.X_test)
         with open(self.path, "a+") as f:
-            f.write(f"{current_gen_idx} : {accuracy(y_test_pred, self.y_test)} \n")
+            f.write(f"{current_gen_idx} : {time} : {accuracy(y_test_pred, self.y_test)} \n")
