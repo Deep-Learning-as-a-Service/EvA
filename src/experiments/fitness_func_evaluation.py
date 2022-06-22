@@ -39,12 +39,13 @@ from datetime import datetime
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
-from utils.logger import logger
+from utils.logger import logger as log_func
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from loader.get_opportunity_data import get_opportunity_data
 from evaluation.Fitness import Fitness
+from utils.build_custom_genome import get_problematic_genome
 
-testing = True
+testing = False
 test_fitness_big_split = lambda model_genome, logger: 0.6
 test_fitness_small_split = lambda model_genome, logger: 0.75
 
@@ -53,12 +54,15 @@ experiment_name = "fitness_func_evaluation"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
+logger = lambda *args, **kwargs: log_func(*args, path=f"logs/{experiment_name}", **kwargs)
+
 
 # Config --------------------------------------------------------------------------
 window_size = 30*3
 n_features = 51
 n_classes = 6
-num_folds = 2
+num_folds = 4
+validation_iterations = 3
 
 layer_pool: 'list[ParametrizedLayer]' = [PConv2DLayer, PDenseLayer, PLstmLayer] #PConv1DLayer
 data_dimension_dict = {
@@ -73,7 +77,7 @@ X_train, y_train, X_test, y_test, X_y_validation_splits = get_opportunity_data(
     num_folds=num_folds
 )
 
-fi = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, verbose=True)
+fi = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations, verbose=True)
 fi.log_split_insights()
 
 
@@ -82,13 +86,11 @@ logger(f"Starting Experiment fitness_func_evaluation")
 experiment_folder_path = new_saved_experiment_folder(experiment_name) # create folder to store results
 model_genomes_to_check = [
     ('triple_2dconv_lstm_1', InitialModelLayer.triple_2dconv_lstm_1()),
-    ('triple_2dconv_lstm_2', InitialModelLayer.triple_2dconv_lstm_2()),
     ('double_2dconv_dense_1', InitialModelLayer.double_2dconv_dense_1()), 
-    ('double_2dconv_dense_2', InitialModelLayer.double_2dconv_dense_2()), 
     ('leander_deep_conv_1', InitialModelLayer.leander_deep_conv_1()), 
-    ('leander_deep_conv_2', InitialModelLayer.leander_deep_conv_2()), 
     ('jens_1', InitialModelLayer.jens_1()), 
-    ('conv_lstm_1', InitialModelLayer.conv_lstm_1())
+    ('conv_lstm_1', InitialModelLayer.conv_lstm_1()),
+    ('weird_model', get_problematic_genome())
 ]
 
 # Printing
@@ -126,7 +128,10 @@ logger(f"{nl}Starting small_split evaluation{nl}")
 
 small_split_fitness_funcs = [
     ("small_split_kfold_acc", fi.small_split_kfold_acc),
-    ("small_split_kfold_f1", fi.small_split_kfold_acc)
+    ("small_split_kfold_f1", fi.small_split_kfold_f1),
+    ("small_split_kfold_max_val_iter_acc", fi.small_split_kfold_max_val_iter_acc),
+    ("small_split_kfold_max_val_iter_f1", fi.small_split_kfold_max_val_iter_acc),
+
 ] if not testing else [("small_split_test_func", test_fitness_small_split)]
 funcs_to_evaluate_str = " ".join([name for name, _ in small_split_fitness_funcs])
 logger(f"{nl}fitness funcs to evaluate [{funcs_to_evaluate_str}]{nl}")

@@ -13,7 +13,7 @@ prio_logger = lambda *args, **kwargs: logger(*args, prio=True, path="logs/find_b
 # @on_error_send_traceback(log_func=prio_logger)
 @log_job_start_done(log_func=prio_logger)
 def main():
-    import tests.test_seqevo
+    import experiments.fitness_func_evaluation
     # import experiments.recreate_acc
     # import experiments.fitness_func_evaluation
     # import experiments.find_best_fitness
