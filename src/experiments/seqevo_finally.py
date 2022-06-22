@@ -34,16 +34,22 @@ from datetime import datetime
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
-from utils.logger import logger
+from utils.logger import logger as log_func
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from loader.get_opportunity_data import get_opportunity_data
 from evaluation.Fitness import Fitness
+from utils.Tester import Tester
+from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
+
+testing = True
 
 # Experiment Name ---------------------------------------------------------------
 experiment_name = "seqevo_finally"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
+logger = lambda *args, **kwargs: log_func(*args, path=f"logs/{experiment_name}", **kwargs)
+
 
 # Config --------------------------------------------------------------------------
 window_size = 30*3
@@ -72,16 +78,19 @@ experiment_folder_path = new_saved_experiment_folder(experiment_name) # create f
 seqevo_history = SeqEvoHistory(
     path_to_file=os.path.join(experiment_folder_path, 'seqevo_history.csv')
 )
+tester_path = os.path.join(experiment_folder_path, "tester.txt")
 
 # Config
 parent_selector = Selector.select_from_fitness_probability
 technique_config = DefaultEvoTechniqueConfig()
-fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).kfold_without_test_set
+fitness = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations).small_split_kfold_f1 if not testing else lambda model_genome, log_func: random.random()
+tester = Tester(tester_path, X_train, y_train, X_test, y_test)
 # lambda model_genome, log_func: Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits).normal_with_test_set(model_genome, log_func) # kfold_without_test_set
 
 # NAS - Neural Architecture Search
+n_generations = 300 if not testing else 1
 model_genome = SeqEvo(
-    n_generations = 1, 
+    n_generations = n_generations, 
     pop_size = 10,
     fitness_func = fitness,
     n_parents = 4,
@@ -89,7 +98,8 @@ model_genome = SeqEvo(
     parent_selector=parent_selector,
     log_func=logger,
     seqevo_history=seqevo_history,
-    initial_models = InitialModelLayer.get_all_models()
+    initial_models = InitialModelLayer.get_all_models(),
+    tester=tester
 ).run()
 
 model_genome = HyPaOptuna(

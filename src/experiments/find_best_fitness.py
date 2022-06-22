@@ -33,15 +33,16 @@ from loader.get_opportunity_data import get_opportunity_data
 from evaluation.Fitness import Fitness
 import utils.config as config
 
+testing = False
 
 
 # Config --------------------------------------------------------------------------
 
 experiment_configs = [ 
-                (2, 2, "-1001731938222", "logs/2x2_fold_acc.txt", "logs/2x2_fold_acc_tester.txt", "kfold_without_test_set"),
-                (3, 3, "-1001555874641", "logs/3x3_fold_acc.txt", "logs/3x3_fold_acc_tester.txt", "kfold_without_test_set"),
-                (3, 2, "-1001790367792", "logs/3x2_fold_acc.txt", "logs/3x2_fold_acc_tester.txt", "kfold_without_test_set"),
-                (4, 4, "-1001675856254", "logs/4x4_fold_acc.txt", "logs/4x4_fold_f1_tester.txt", "kfold_without_test_set_f1")
+                (2, 2, "-1001731938222", "logs/2x2_fold_acc.txt", "logs/2x2_fold_acc_tester.txt", "small_split_kfold_max_val_iter_acc"),
+                (3, 3, "-1001555874641", "logs/3x3_fold_acc.txt", "logs/3x3_fold_acc_tester.txt", "small_split_kfold_max_val_iter_acc"),
+                (3, 2, "-1001790367792", "logs/3x2_fold_acc.txt", "logs/3x2_fold_acc_tester.txt", "small_split_kfold_max_val_iter_f1"),
+                (4, 4, "-1001675856254", "logs/4x4_fold_acc.txt", "logs/4x4_fold_f1_tester.txt", "small_split_kfold_max_val_iter_f1")
             ]
 for num_folds, validation_iterations, telegram_chat_id, log_path, tester_path, fitness_func_str in experiment_configs:
     
@@ -55,7 +56,7 @@ for num_folds, validation_iterations, telegram_chat_id, log_path, tester_path, f
     window_size = 30*3
     n_features = 51
     n_classes = 6
-    evo_generations = 1
+    evo_generations = 50
     config.telegram_chat_id = telegram_chat_id
 
     
@@ -86,7 +87,7 @@ for num_folds, validation_iterations, telegram_chat_id, log_path, tester_path, f
     technique_config = DefaultEvoTechniqueConfig()
     fitness_obj = Fitness(X_train, y_train, X_test, y_test, X_y_validation_splits, validation_iterations)
     fitness_func = getattr(fitness_obj, fitness_func_str)
-    fitness = fitness_func
+    fitness = fitness_func if not testing else lambda model_genome, log_func: random.random()
 
     logger_ = lambda *args, **kwargs: logger(*args, path=log_path, **kwargs)
     
