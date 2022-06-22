@@ -1,6 +1,7 @@
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
 from model_representation.EvoParam.FloatEvoParam import FloatEvoParam
+from tensorflow.keras.initializers import Orthogonal
 from tensorflow import keras
 
 # TODO: changed value range
@@ -19,5 +20,5 @@ class LstmDropoutParam(FloatEvoParam):
     _sd = 0.05
 
 class PLstmLayer(ParametrizedLayer):
-    _layer = lambda **kwargs: keras.layers.LSTM(return_sequences=True, **kwargs)
+    _layer = lambda **kwargs: keras.layers.LSTM(return_sequences=True, kernel_initializer=Orthogonal(), **kwargs)
     _param_classes = [LstmUnitsParam, LstmDropoutParam]

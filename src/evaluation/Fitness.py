@@ -58,128 +58,74 @@ class Fitness():
             _, y_train_i, _, y_test_i = small_split
             log_percentage(f"Small Split {idx}", y_train_i, y_test_i)
             idx += 1
-
-    def small_split_kfold_acc(self, model_genome, log_func) -> float:
-        prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits), prefix="k_fold", suffix=f"{progress}/{len(self.X_y_validation_splits)}", length=30, log_func=log_func, fill=">")
-        # Refactoring idea
-        # model_genome.fit(X_train, y_train)
-
-        accuracies = []
-        idx = 0
-        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits:
-            prog_bar(progress=idx)
-            idx += 1
-            model = model_genome.get_model()
-            model.fit(
-                X_train_split, 
-                y_train_split, 
-                batch_size=model_genome.batch_size, 
-                epochs=model_genome.n_epochs,
-                verbose=0
-            )
-            y_val_pred = model.predict(X_val_split)
-            acc = accuracy(y_val_split, y_val_pred)
-            self.log_func(f"small_split_kfold_acc fold {idx} acc: {acc}")
-            accuracies.append(acc)
-
-        prog_bar(progress=len(self.X_y_validation_splits))
-
-        fitness = np.mean(accuracies)
-        self.log_func(f"small_split_kfold_acc returning mean acc: {acc}")
-        return fitness
     
-    def small_split_kfold_f1(self, model_genome, log_func) -> float:
-        prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits), prefix="k_fold", suffix=f"{progress}/{len(self.X_y_validation_splits)}", length=30, log_func=log_func, fill=">")
-        # Refactoring idea
-        # model_genome.fit(X_train, y_train)
-
-        f1s = []
-        idx = 0
-        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits:
-            prog_bar(progress=idx)
-            idx += 1
-            model = model_genome.get_model()
-            model.fit(
-                X_train_split, 
-                y_train_split, 
-                batch_size=model_genome.batch_size, 
-                epochs=model_genome.n_epochs,
-                verbose=0
-            )
-            y_val_pred = model.predict(X_val_split)
-            f1s.append(f1_score_(y_val_split, y_val_pred))
-
-        prog_bar(progress=len(self.X_y_validation_splits))
-
-        fitness = np.mean(f1s)
-        return fitness
-
-    def big_split_acc(self, model_genome, log_func) -> float:
+    def _model_fit_test(self, model_genome, X_train_fit, y_train_fit, X_test_fit, y_test_fit, eval_func):
         model = model_genome.get_model()
         model.fit(
-            self.X_train, 
-            self.y_train, 
-            batch_size=32, 
-            epochs=1,
+            X_train_fit, 
+            y_train_fit, 
+            batch_size=model_genome.batch_size, 
+            epochs=model_genome.n_epochs,
             verbose=1
         )
         model.summary()
-
-        # model_genome.batch_size
-        # model_genome.n_epochs
-
-        y_test_pred = model.predict(self.X_test)
-        fitness = accuracy(self.y_test, y_test_pred)
+        y_test_pred = model.predict(X_test_fit)
+        fitness = eval_func(y_test_fit, y_test_pred)
         return fitness
+    
+    def _kfold_fit_test(self, model_genome, X_y_val_splits, eval_func):
+        prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits), prefix="k_fold", suffix=f"{progress}/{len(X_y_val_splits)}", length=30, log_func=self.log_func, fill=">")
+
+        fitnesses = []
+        idx = 0
+        for X_train_split, y_train_split, X_val_split, y_val_split in X_y_val_splits:
+            prog_bar(progress=idx)
+            idx += 1
+            fitness = self._model_fit_test(model_genome=model_genome, 
+                X_train_fit=X_train_split, 
+                y_train_fit=y_train_split, 
+                X_test_fit=X_val_split, 
+                y_test_fit=y_val_split, 
+                eval_func=eval_func
+            )
+            self.log_func(f"kfold {idx} fitness: {fitness}")
+            fitnesses.append(fitness)
+        return np.mean(fitnesses)
+
+    
+    def small_split_kfold_acc(self, model_genome, log_func) -> float:
+        return self._kfold_fit_test(
+            model_genome=model_genome, 
+            X_y_val_splits=self.X_y_validation_splits, 
+            eval_func=accuracy
+        )
+    
+    def small_split_kfold_f1(self, model_genome, log_func) -> float:
+        return self._kfold_fit_test(
+            model_genome=model_genome, 
+            X_y_val_splits=self.X_y_validation_splits, 
+            eval_func=f1_score_
+        )
+
+    def big_split_acc(self, model_genome, log_func) -> float:
+        return self._model_fit_test(model_genome=model_genome, 
+            X_train_fit=self.X_train, 
+            y_train_fit=self.y_train, 
+            X_test_fit=self.X_test, 
+            y_test_fit=self.y_test, 
+            eval_func=accuracy
+        )
     
     def small_split_kfold_max_val_iter_f1(self, model_genome, log_func) -> float:
-        prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits[:self.validation_iterations]), prefix="k_fold", suffix=f"{progress}/{len(self.X_y_validation_splits[:self.validation_iterations])}", length=30, log_func=log_func, fill=">")
-        # Refactoring idea
-        # model_genome.fit(X_train, y_train)
-
-        f1s = []
-        idx = 0
-        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits[:self.validation_iterations]:
-            prog_bar(progress=idx)
-            idx += 1
-            model = model_genome.get_model()
-            model.fit(
-                X_train_split, 
-                y_train_split, 
-                batch_size=model_genome.batch_size, 
-                epochs=model_genome.n_epochs,
-                verbose=0
-            )
-            y_val_pred = model.predict(X_val_split)
-            f1s.append(f1_score_(y_val_split, y_val_pred))
-
-        prog_bar(progress=len(self.X_y_validation_splits[:self.validation_iterations]))
-
-        fitness = np.mean(f1s)
-        return fitness
+        return self._kfold_fit_test(
+            model_genome=model_genome, 
+            X_y_val_splits=self.X_y_validation_splits[:self.validation_iterations], 
+            eval_func=f1_score_
+        )
     
     def small_split_kfold_max_val_iter_acc(self, model_genome, log_func) -> float:
-        prog_bar = lambda progress: print_progress_bar(progress, total=len(self.X_y_validation_splits[:self.validation_iterations]), prefix="k_fold", suffix=f"{progress}/{len(self.X_y_validation_splits[:self.validation_iterations])}", length=30, log_func=log_func, fill=">")
-        # Refactoring idea
-        # model_genome.fit(X_train, y_train)
-
-        accuracies = []
-        idx = 0
-        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_validation_splits[:self.validation_iterations]:
-            prog_bar(progress=idx)
-            idx += 1
-            model = model_genome.get_model()
-            model.fit(
-                X_train_split, 
-                y_train_split, 
-                batch_size=model_genome.batch_size, 
-                epochs=model_genome.n_epochs,
-                verbose=0
-            )
-            y_val_pred = model.predict(X_val_split)
-            accuracies.append(accuracy(y_val_split, y_val_pred))
-
-        prog_bar(progress=len(self.X_y_validation_splits[:self.validation_iterations]))
-
-        fitness = np.mean(accuracies)
-        return fitness
+        return self._kfold_fit_test(
+            model_genome=model_genome, 
+            X_y_val_splits=self.X_y_validation_splits[:self.validation_iterations], 
+            eval_func=accuracy
+        )

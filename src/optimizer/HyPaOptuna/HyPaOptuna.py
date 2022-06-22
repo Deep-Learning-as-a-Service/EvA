@@ -35,7 +35,7 @@ class HyPaOptuna():
 
             self.current_model_genome.n_epochs = trial.suggest_int('n_epochs', low=5, high=30)
             self.current_model_genome.batch_size = trial.suggest_int('batch_size', low=16, high=64)
-            self.current_model_genome.learning_rate = trial.suggest_loguniform('learning_rate', low=0.001, high=0.1)
+            self.current_model_genome.learning_rate = trial.suggest_loguniform('learning_rate', low=0.0001, high=0.002)
 
             return 1 - self.get_fitness()
 

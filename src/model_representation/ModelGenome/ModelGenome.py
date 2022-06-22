@@ -12,7 +12,7 @@ from tensorflow.keras.layers import (
     BatchNormalization,
 )
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, RMSprop
 import utils.settings as settings
 
 class ModelGenome():
@@ -24,7 +24,7 @@ class ModelGenome():
     """
     default_n_epochs = 10
     default_batch_size = 32 
-    default_learning_rate = 0.01
+    default_learning_rate = 0.001
 
     def __init__(self, input_model_node, n_epochs, batch_size, learning_rate):
         self.input_model_node = input_model_node
@@ -116,7 +116,7 @@ class ModelGenome():
         
         # TODO: parametrize thatttttttttttttttttttttt
         model.compile(
-            optimizer=Adam(learning_rate=self.learning_rate),
+            optimizer=RMSprop(learning_rate=self.learning_rate), # Adam
             loss="categorical_crossentropy",  # CategoricalCrossentropy (than we have to to the one hot encoding - to_categorical), before: "sparse_categorical_crossentropy"
             metrics=["accuracy"],
         )

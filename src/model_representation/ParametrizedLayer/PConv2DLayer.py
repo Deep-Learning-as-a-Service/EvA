@@ -2,6 +2,7 @@ from model_representation.ParametrizedLayer.ParametrizedLayer import Parametrize
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
 from model_representation.EvoParam.TupleIntEvoParam import TupleIntEvoParam
 from model_representation.EvoParam.TupleCategDEvoParam import TupleCategDEvoParam
+from tensorflow.keras.initializers import Orthogonal
 from tensorflow import keras
 
 # TODO: changed value range
@@ -48,6 +49,7 @@ class Conv2DStridesParam(TupleCategDEvoParam):
         return (self._value_tup_pos(tuple_position=0), self._value_tup_pos(tuple_position=1))
 
 class PConv2DLayer(ParametrizedLayer):
-    _layer = keras.layers.Conv2D
+    _layer = lambda **kwargs: keras.layers.Conv2D(activation="relu", kernel_initializer=Orthogonal(), **kwargs)
+    _layer = 
     _param_classes = [Conv2DFiltersParam, Conv2DKernelSizeParam, Conv2DStridesParam]
 
