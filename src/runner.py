@@ -15,7 +15,7 @@ prio_logger = lambda *args, **kwargs: logger(*args, prio=True, **kwargs)
 def main():
     # import tests.test_seqevo
     # import experiments.recreate_acc
-    import experiments.seqevo_finally
+    import experiments.fitness_func_evaluation
 
 if __name__ == "__main__":
     prio_logger(device_lib.list_local_devices())
