@@ -9,15 +9,16 @@ from utils.logger import logger
 
 prio_logger = lambda *args, **kwargs: logger(*args, prio=True, path="logs/find_best_fitness", **kwargs)
 
-@on_error_restart(log_func=prio_logger)
-@on_error_send_traceback(log_func=prio_logger)
+# @on_error_restart(log_func=prio_logger)
+# @on_error_send_traceback(log_func=prio_logger)
 @log_job_start_done(log_func=prio_logger)
 def main():
-    import experiments.seqevo_finally
+    # import tests.test_seqevo
     # import experiments.recreate_acc
     # import experiments.fitness_func_evaluation
     # import experiments.find_best_fitness
     # import experiments.analyse_history
+    import experiments.analyse_history
 
 if __name__ == "__main__":
     prio_logger(device_lib.list_local_devices())

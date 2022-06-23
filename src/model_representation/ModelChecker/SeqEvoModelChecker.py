@@ -21,7 +21,7 @@ class SeqEvoModelChecker():
         
     @classmethod
     def alter_models_with_high_params(cls, seqevo_genome: SeqEvoGenome):
-        threshold = 10000000 # 10 mil params as threshold, subject of change
+        threshold = 30_000_000 # 10 mil params as threshold, subject of change
         
         while True:
             model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)

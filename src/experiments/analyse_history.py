@@ -3,7 +3,7 @@ from matplotlib import pyplot
 import random
 
 # Read
-folder_name = "22-06-20_17-44-13_192831-TEST"
+folder_name = "22-06-22_17-53-38_455253-seqevo_finally-22-06-22_17-53-19_770712"
 seq_hist = SeqEvoHistory(
     path_to_file=f'src/saved_experiments/{folder_name}/seqevo_history.csv'
 )
@@ -28,6 +28,7 @@ def show_line_from_points(points):
     pyplot.show()
 
 def show_scatter_plot(points):
+
     # Set the figure size in inches
     pyplot.figure(figsize=(10,6))
 
@@ -42,10 +43,29 @@ def show_scatter_plot(points):
     pyplot.legend()
     pyplot.show()
 
+def multicolor_scatter_plot(color_points):
+    xPoints = list(map(lambda point: point[0], color_points))
+    yPoints = list(map(lambda point: point[1], color_points))
+    colours = list(map(lambda point: point[2], color_points))
+    
+    pyplot.figure(figsize=(10,6))
+
+    pyplot.scatter(xPoints, yPoints, c = colours, label = "label_name", alpha=0.5)
+
+    # Set x and y axes labels
+    pyplot.xlabel('X Values')
+    pyplot.ylabel('Y Values')
+
+    pyplot.title('Scatter Title')
+    pyplot.legend()
+    pyplot.show()
+
+
 # Test
 # show_scatter_plot([(5, 5), (5, 5), (6, 7), (1, 2), (5.1, 5), (5, 5.1)])
 # show_line_from_points([(1, 1), (1.1, 3), (7, 8), (0.9, 4)])
 # show_scatter_plot([(6, 7), (1, 2), (5.1, 5), (5, 5.1)])
+multicolor_scatter_plot([(6, 7, "green"), (1, 2, "red"), (5.1, 5, "red"), (5, 5.1, "blue")])
 
 
 # Generation Buckets
@@ -62,12 +82,14 @@ for technique in techniques:
 
 
 # Idea: Generation x-axis, y axis fitness techniques coloured differnty
+# for techni, buck in technique_buckets.items():
+#     points = []
+#     for i, h_genome in enumerate(buck):
+#         points.append((i, h_genome.fitness))
+#     show_line_from_points(points)
 
 # Show how good the individuals are, that produced a technique over time
-for techni, buck in technique_buckets.items():
-    points = []
-    for i, h_genome in enumerate(buck):
-        points.append((i, h_genome.fitness))
-    show_line_from_points(points)
-
+# points = []
+# for generation_buck in generation_buckets:
+#     points.append()
 
