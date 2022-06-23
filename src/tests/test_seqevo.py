@@ -51,7 +51,7 @@ def fitness_func(model_genome, log_func):
 
 model_genome = SeqEvo(
     n_generations = 50, 
-    pop_size = 8,
+    pop_size = 10,
     fitness_func = fitness_func,
     n_parents = 4,
     technique_config = DefaultEvoTechniqueConfig(),

@@ -19,8 +19,8 @@ class EvoTechniqueConfig():
 
 class DefaultEvoTechniqueConfig(EvoTechniqueConfig):
     def __init__(self):
-        self._mid_optimization_start_gen = 30
-        self._micro_optimization_start_gen = 100
+        self._mid_optimization_start_gen = 40
+        self._micro_optimization_start_gen = 250
         self._techniques = [
             EvoTechnique(
                 name="mutate_low",
@@ -57,5 +57,9 @@ class DefaultEvoTechniqueConfig(EvoTechniqueConfig):
             EvoTechnique(
                 name="initial_models",
                 optimization_stage = "none"
+            ),
+            EvoTechnique(
+                name="random",
+                optimization_stage = "macro"
             )
         ]

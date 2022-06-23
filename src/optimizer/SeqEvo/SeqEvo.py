@@ -102,6 +102,9 @@ class SeqEvo():
                     parent_to_mutate = random.choice(parents)
                     mutated_child = parent_to_mutate.mutate(mutation_intensity)
                     return mutated_child
+            elif technique.name == "random":
+                def creation_func():
+                    return SeqEvoGenome.create_random()
             else:
                 raise ValueError("Unknown technique: " + technique.name)
 

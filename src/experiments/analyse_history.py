@@ -50,7 +50,7 @@ def multicolor_scatter_plot(color_points):
     
     pyplot.figure(figsize=(10,6))
 
-    pyplot.scatter(xPoints, yPoints, c = colours, label = "label_name", alpha=0.5)
+    pyplot.scatter(xPoints, yPoints, c = colours, label = "label_name", alpha=0.05)
 
     # Set x and y axes labels
     pyplot.xlabel('X Values')
@@ -65,7 +65,7 @@ def multicolor_scatter_plot(color_points):
 # show_scatter_plot([(5, 5), (5, 5), (6, 7), (1, 2), (5.1, 5), (5, 5.1)])
 # show_line_from_points([(1, 1), (1.1, 3), (7, 8), (0.9, 4)])
 # show_scatter_plot([(6, 7), (1, 2), (5.1, 5), (5, 5.1)])
-multicolor_scatter_plot([(6, 7, "green"), (1, 2, "red"), (5.1, 5, "red"), (5, 5.1, "blue")])
+# multicolor_scatter_plot([(6, 7, "green"), (1, 2, "red"), (5.1, 5, "red"), (5, 5.1, "blue")])
 
 
 # Generation Buckets
@@ -80,6 +80,53 @@ technique_buckets = {}
 for technique in techniques:
     technique_buckets[technique] = list(filter(lambda h_genome: h_genome.created_from == technique, history_seqevo_genomes))
 
+# Plots ----------
+def accuracy_all_plot():
+    points = []
+    for i, generation_buck in enumerate(generation_buckets):
+        x_axis = i+1
+        for h_genome in generation_buck:
+            if h_genome.created_from != "initial_models":
+                continue
+            y_axis = h_genome.fitness
+            color = {
+                "mutate_all": "green",
+                "random_default": "blue",
+                "mutate_mid": "yellow",
+                "mutate_low": "black",
+                "uniform_crossover": "red",
+                "middlepoint_crossover": "magenta",
+                "mutate_high": "cyan",
+                "finetune_best_individual": "#DEB887",
+                "initial_models": "#696969"
+            }[h_genome.created_from]
+
+            points.append((x_axis, y_axis, color))
+        
+    multicolor_scatter_plot(points)
+
+
+def distribution_plot():
+    points = []
+    y_axis = None
+    x_axis = None
+    for h_genome in history_seqevo_genomes:
+        seqevo_genome = h_genome.seqevo_genome
+        for layer in seqevo_genome.layers:
+            if layer.__class__.__name__ != "PDenseLayer":
+                continue
+            
+            for param in layer.params:
+                if param._key == "units":
+                    points.append((h_genome.fitness, param.value, "blue"))
+                    break
+
+    multicolor_scatter_plot(points)
+
+distribution_plot()
+            
+
+
 
 # Idea: Generation x-axis, y axis fitness techniques coloured differnty
 # for techni, buck in technique_buckets.items():
@@ -89,7 +136,4 @@ for technique in techniques:
 #     show_line_from_points(points)
 
 # Show how good the individuals are, that produced a technique over time
-# points = []
-# for generation_buck in generation_buckets:
-#     points.append()
 

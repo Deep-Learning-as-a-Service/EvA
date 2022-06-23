@@ -19,7 +19,7 @@ from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 class SeqEvoHistory:
     def __init__(self, path_to_file):
         self.path_to_file = path_to_file
-        self.header = ['created_unix_timestamp', 'layer_list', 'fitness', 'created_from', 'n_generations']
+        self.header = ['created_unix_timestamp', 'layer_list', 'fitness', 'created_from', 'n_generations', 'parent_fitness']
         self.file_exists = os.path.isfile(self.path_to_file)
     
     def _write_row(self, data_row) -> None:
@@ -40,8 +40,9 @@ class SeqEvoHistory:
         layer_list = seqevo_genome.layer_list_str()
         fitness = seqevo_genome.fitness
         created_from = seqevo_genome.created_from
+        parent_fitness = seqevo_genome.parent_fitness
 
-        data_row = [created_unix_timestamp, layer_list, fitness, created_from, n_generations]
+        data_row = [created_unix_timestamp, layer_list, fitness, created_from, n_generations, parent_fitness]
         self._write_row(data_row)
 
 
@@ -57,7 +58,9 @@ class SeqEvoHistory:
                 created_from=dataline['created_from'], 
                 n_generations=dataline['n_generations'],
                 created_unix_timestamp = dataline['created_unix_timestamp'],
-                src_file = self.path_to_file))
+                src_file = self.path_to_file,
+                parent_fitness = dataline['parent_fitness']
+                ))
             
         return history_seqevo_genomes
 

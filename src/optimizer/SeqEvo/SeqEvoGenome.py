@@ -1,5 +1,5 @@
 
-
+import numpy as np
 import random
 import utils.nas_settings as nas_settings
 import model_representation.ParametrizedLayer as ParametrizedLayer
@@ -42,19 +42,19 @@ class SeqEvoGenome():
             "mutate_layer_params" : 0.5
         },
         "mid": {
-            "mutate_layer_type" : 0.05,
-            "leave_out_layer" : 0.35,
+            "mutate_layer_type" : 0.2,
+            "leave_out_layer" : 0.2,
             "mutate_layer_params" : 0.6
         },
         "high": {
-            "mutate_layer_type" : 0.3,
-            "leave_out_layer" : 0.2,
-            "mutate_layer_params" : 0.5
+            "mutate_layer_type" : 0.4,
+            "leave_out_layer" : 0.0,
+            "mutate_layer_params" : 0.6
         },
         "all": {
-            "mutate_layer_type" : 0.3,
+            "mutate_layer_type" : 0.0,
             "leave_out_layer" : 0.0,
-            "mutate_layer_params" : 0.7
+            "mutate_layer_params" : 1
         }
     }
     """
@@ -67,7 +67,8 @@ class SeqEvoGenome():
         self.layers = layers
         self.fitness = None
         self.created_from = created_from
-        self.parents = parents
+        self.parents = None # parents
+        self.parent_fitness = np.mean(list(map(lambda parent: parent.fitness, parents)))
 
     @classmethod
     def create_random(cls):

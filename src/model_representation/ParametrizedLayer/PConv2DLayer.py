@@ -11,7 +11,7 @@ class Conv2DFiltersParam(IntEvoParam):
     _value_range = [16, 256]
     _key = "filters"
     _mean = 64
-    _sd = 32
+    _sd = 200
 
 # TODO: smart data specific choice?
 # TODO: global dict? should not be bigger, than window size!
@@ -21,7 +21,7 @@ class Conv2DKernelSizeParam(TupleIntEvoParam):
     _value_range = [(1, 1), (10, 10)]
     _key = "kernel_size"
     _mean = 3
-    _sd = 1
+    _sd = 8
     
 
 class Conv2DStridesParam(TupleCategDEvoParam):

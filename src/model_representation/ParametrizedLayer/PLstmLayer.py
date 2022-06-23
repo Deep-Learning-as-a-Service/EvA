@@ -6,11 +6,12 @@ from tensorflow import keras
 
 # TODO: changed value range
 class LstmUnitsParam(IntEvoParam):
-    _default_values = [4, 8, 16]
-    _value_range = [2, 1028]
+    _default_values = [8, 64, 256]
+    _value_range = [2, 512]
     _key = "units"
-    _mean = 514
-    _sd = 400
+    _mean = 256
+    _sd = 300
+
 
 class LstmDropoutParam(FloatEvoParam):
     _default_values = [0.1, 0.2]
