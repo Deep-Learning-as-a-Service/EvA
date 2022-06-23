@@ -44,7 +44,7 @@ from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
 testing = False
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "seqevo_finally"
+experiment_name = "seqevo_finally_new"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
