@@ -101,7 +101,7 @@ for num_folds, validation_iterations, telegram_chat_id, log_path, tester_path, f
         parent_selector=parent_selector,
         log_func=logger_,
         seqevo_history=seqevo_history,
-        initial_models = InitialModelLayer.get_all_models(),
+        initial_models = [],
         tester=tester
     ).run()
 
