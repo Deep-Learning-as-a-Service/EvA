@@ -21,7 +21,20 @@ def init(_layer_pool, _data_dimension_dict):
     global opportunity_dataset_csv_path
     opportunity_dataset_csv_path = "data/opportunity-dataset-csv"
     
-
+    global pamap2_dataset_path
+    pamap2_dataset_path = "data/pamap2-dataset/Protocol"
+    
+    global pamap2_initial_num_to_activity_idx
+    pamap2_initial_num_to_activity_idx = {
+        1:0, 
+        2:1, 
+        3:2, 
+        4:3, 
+        16:4, 
+        17:5
+        
+    }
+    
     global activity_initial_num_to_activity_str
     activity_initial_num_to_activity_str = {
         0: "null",

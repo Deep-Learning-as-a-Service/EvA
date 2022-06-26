@@ -1,6 +1,7 @@
 from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
 from matplotlib import pyplot
 import random
+from utils import Visualizer
 
 # Read
 folder_name = "22-06-22_17-53-38_455253-seqevo_finally-22-06-22_17-53-19_770712"
@@ -12,61 +13,6 @@ history_seqevo_genomes = seq_hist.read()
 # Test
 print(history_seqevo_genomes[0])
 print(history_seqevo_genomes[0].seqevo_genome.layer_list_str())
-
-# Funcs
-def points_to_two_lists(points):
-    xPoints = list(map(lambda point: point[0], points))
-    yPoints = list(map(lambda point: point[1], points))
-    return xPoints, yPoints
-
-def show_line_from_points(points):
-    """
-    show_point_plot([(1, 1), (1.1, 3), (7, 8), (0.9, 4)])
-    """
-    xPoints, yPoints = points_to_two_lists(points)
-    pyplot.plot(xPoints, yPoints)
-    pyplot.show()
-
-def show_scatter_plot(points):
-
-    # Set the figure size in inches
-    pyplot.figure(figsize=(10,6))
-
-    xPoints, yPoints = points_to_two_lists(points)
-    pyplot.scatter(xPoints, yPoints, label = "label_name", alpha=0.5)
-
-    # Set x and y axes labels
-    pyplot.xlabel('X Values')
-    pyplot.ylabel('Y Values')
-
-    pyplot.title('Scatter Title')
-    pyplot.legend()
-    pyplot.show()
-
-def multicolor_scatter_plot(color_points):
-    xPoints = list(map(lambda point: point[0], color_points))
-    yPoints = list(map(lambda point: point[1], color_points))
-    colours = list(map(lambda point: point[2], color_points))
-    
-    pyplot.figure(figsize=(10,6))
-
-    pyplot.scatter(xPoints, yPoints, c = colours, label = "label_name", alpha=0.05)
-
-    # Set x and y axes labels
-    pyplot.xlabel('X Values')
-    pyplot.ylabel('Y Values')
-
-    pyplot.title('Scatter Title')
-    pyplot.legend()
-    pyplot.show()
-
-
-# Test
-# show_scatter_plot([(5, 5), (5, 5), (6, 7), (1, 2), (5.1, 5), (5, 5.1)])
-# show_line_from_points([(1, 1), (1.1, 3), (7, 8), (0.9, 4)])
-# show_scatter_plot([(6, 7), (1, 2), (5.1, 5), (5, 5.1)])
-# multicolor_scatter_plot([(6, 7, "green"), (1, 2, "red"), (5.1, 5, "red"), (5, 5.1, "blue")])
-
 
 # Generation Buckets
 generation_buckets = []
@@ -103,7 +49,7 @@ def accuracy_all_plot():
 
             points.append((x_axis, y_axis, color))
         
-    multicolor_scatter_plot(points)
+    Visualizer.multicolor_scatter_plot(points)
 
 
 def distribution_plot():
@@ -121,7 +67,7 @@ def distribution_plot():
                     points.append((h_genome.fitness, param.value, "blue"))
                     break
 
-    multicolor_scatter_plot(points)
+    Visualizer.multicolor_scatter_plot(points)
 
 distribution_plot()
             

@@ -50,7 +50,7 @@ def fitness_func(model_genome, log_func):
     return random.random()
 
 model_genome = SeqEvo(
-    n_generations = 50, 
+    n_generations = 150, 
     pop_size = 10,
     fitness_func = fitness_func,
     n_parents = 4,
