@@ -120,6 +120,7 @@ class SeqEvoGenome():
             elif layer_mutation == "mutate_layer_params":
                 layer.mutate(intensity)
         
+        mutated_seqevo_genome.parent_fitness = mutated_seqevo_genome.fitness
         mutated_seqevo_genome.fitness = None
         mutated_seqevo_genome.created_from = f"mutate_{intensity}"
         return mutated_seqevo_genome

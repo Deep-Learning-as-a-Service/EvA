@@ -44,7 +44,7 @@ from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
 testing = False
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "seqevo_finally_new"
+experiment_name = "seqevo_finally_hermes"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -98,7 +98,7 @@ model_genome = SeqEvo(
     parent_selector=parent_selector,
     log_func=logger,
     seqevo_history=seqevo_history,
-    initial_models = InitialModelLayer.get_all_models(),
+    initial_models = [],
     tester=tester
 ).run()
 
