@@ -33,6 +33,54 @@ from utils.logger import logger
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
 from utils.window_test_percentages import window_test_percentages
 
+
+def get_opportunity_data_big_split(shuffle_seed, num_folds):
+
+    # Funcs --------------------------------------------------------------------------------------------------------------
+
+    load_recordings = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
+        label_column_name='ACTIVITY_IDX', 
+        recording_idx_name='RECORDING_IDX', 
+        column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
+    )
+
+    window_size = settings.data_dimension_dict["window_size"]
+    n_classes = settings.data_dimension_dict["n_classes"]
+        
+    preprocess = lambda recordings: Preprocessor().jens_preprocess_with_normalize(recordings)
+    windowize = lambda recordings: Windowizer(window_size=window_size).jens_windowize(recordings)
+    convert = lambda windows: Converter(n_classes=n_classes).sonar_convert(windows)
+    flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
+
+    recordings = load_recordings()
+
+    random.seed(shuffle_seed)
+    random.shuffle(recordings)
+
+    # Preprocessing
+    recordings = preprocess(recordings)
+
+    # Validation Splits
+    k = num_folds
+    k_fold = StratifiedKFold(n_splits=k, random_state=None) #Stratified
+    recordings_train = np.array(recordings)
+    recordings_validation_splits = [(recordings_train[train_idx], recordings_train[val_idx]) for train_idx, val_idx in k_fold.split([recording.sensor_frame for recording in recordings_train], [recording.subject for recording in recordings_train])]
+    # Output: [(recordings_train_01, recordings_test_01), (recordings_train_02, recordings_test_02), ...]
+    windows_validation_splits = list(map(lambda validation_split: map(windowize, validation_split), recordings_validation_splits))
+    # Output: [(windows_train_01, windows_test_01), (windows_train_02, windows_test_02), ...]
+
+    # for i, windows_train_test in enumerate(windows_validation_splits):
+    #     windows_train, windows_test = windows_train_test
+    #     window_test_percentages(windows_train, windows_test, f"Split {i+1}")
+
+    X_y_validation_splits = list(map(lambda validation_split: tuple(flatten(map(convert, validation_split))), windows_validation_splits))
+    # Output: [(X_train_01, y_train_01, X_val_01, y_val_01), (X_train_02, y_train_02, X_val_02, y_val_02), ...]
+
+
+
+    return X_y_validation_splits
+
+
 def get_opportunity_data(shuffle_seed, num_folds=2):
 
     # Lib -----------------------------------------------------------
