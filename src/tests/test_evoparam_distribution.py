@@ -1,6 +1,8 @@
 from utils.Visualizer import Visualizer
 from model_representation.EvoParam.FloatEvoParam import FloatEvoParam
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
+from model_representation.ParametrizedLayer.PLstmLayer import LstmDropoutParam, LstmUnitsParam, PLstmLayer
+
 
 
 def test_float_mutate_only_distributions():
@@ -55,8 +57,12 @@ def test_int_mutate_only_distributions():
 def test_random_default_influence():
     param_02 = ExampleFloatEvoParam.create_random_default()
     
+def lstm_dropout_test():
+    lstm_layer = PLstmLayer(params=[LstmUnitsParam.create(64), LstmDropoutParam.create(0.1)])  
+    for _ in range(10):
+        lstm_layer.mutate(intensity="high")
+        print(lstm_layer)
 
-
-test_int_mutate_only_distributions()
+# test_int_mutate_only_distributions()
 
     

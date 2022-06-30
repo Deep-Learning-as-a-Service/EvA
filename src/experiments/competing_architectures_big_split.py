@@ -78,49 +78,49 @@ X_y_validation_splits = get_opportunity_data_big_split(
 )
 
 # models
-model_classes = [(LeanderDeepConvLSTM, InitialModelLayer.leander_deep_conv_1())]
+model_classes = [(JensModel, InitialModelLayer.jens_1())] # (LeanderDeepConvLSTM, InitialModelLayer.leander_deep_conv_1())
 
 for model_class, model_genome in model_classes:
     model_name = model_class.__name__
 
 
 
-    # # Rainbow Model
-    # f1_scores = []
-    # accuracies = []
-    # for X_train, y_train, X_test, y_test in X_y_validation_splits:
+    # Rainbow Model
+    f1_scores = []
+    accuracies = []
+    for X_train, y_train, X_test, y_test in X_y_validation_splits:
     
-    #     # or JensModel
-    #     model = model_class(
-    #         window_size=window_size, 
-    #         n_features=n_features, 
-    #         n_outputs=n_classes, 
-    #         n_epochs=5, 
-    #         learning_rate=0.001, 
-    #         batch_size=32
-    #     )
+        # or JensModel
+        model = model_class(
+            window_size=window_size, 
+            n_features=n_features, 
+            n_outputs=n_classes, 
+            n_epochs=5, 
+            learning_rate=0.001, 
+            batch_size=32
+        )
 
-    #     model.fit(X_train, y_train)
+        model.fit(X_train, y_train)
 
-    #     y_test_pred = model.predict(X_test)
-    #     y_test_pred_numbers = np.argmax(y_test_pred, axis=1)
-    #     y_test_numbers = np.argmax(y_test, axis=1)
+        y_test_pred = model.predict(X_test)
+        y_test_pred_numbers = np.argmax(y_test_pred, axis=1)
+        y_test_numbers = np.argmax(y_test, axis=1)
 
-    #     # Create Folder, save model export and evaluations there
-    #     # experiment_folder_path = new_saved_experiment_folder(experiment_name) # create folder to store results
+        # Create Folder, save model export and evaluations there
+        # experiment_folder_path = new_saved_experiment_folder(experiment_name) # create folder to store results
 
-    #     # model.export(experiment_folder_path) # opt: export model to folder
-    #     # create_conf_matrix(experiment_folder_path, y_test_pred, y_test, model_name)
-    #     f1 = f1_score(y_true=y_test_numbers, y_pred=y_test_pred_numbers, average="weighted")
-    #     acc = np.sum(y_test_pred_numbers == y_test_numbers) / len(y_test_numbers)
+        # model.export(experiment_folder_path) # opt: export model to folder
+        # create_conf_matrix(experiment_folder_path, y_test_pred, y_test, model_name)
+        f1 = f1_score(y_true=y_test_numbers, y_pred=y_test_pred_numbers, average="weighted")
+        acc = np.sum(y_test_pred_numbers == y_test_numbers) / len(y_test_numbers)
 
-    #     print("fold F1:", f1)
-    #     print("fold Acc:", acc)
-    #     f1_scores.append(f1)
-    #     accuracies.append(acc)
+        print("fold F1:", f1)
+        print("fold Acc:", acc)
+        f1_scores.append(f1)
+        accuracies.append(acc)
     
-    # print("F1:", np.mean(f1_scores))
-    # print("Acc:", np.mean(accuracies))
+    print("F1:", np.mean(f1_scores))
+    print("Acc:", np.mean(accuracies))
 
     # ModelGenome
 
