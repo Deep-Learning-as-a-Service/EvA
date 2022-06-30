@@ -80,7 +80,7 @@ technique_config = DefaultEvoTechniqueConfig()
 fitness = Fitness([], [], [], [], X_y_validation_splits, None).small_split_kfold_acc if not testing else lambda model_genome, log_func: random.random()
 
 # NAS - Neural Architecture Search
-n_generations = 300 if not testing else 2
+n_generations = 150 if not testing else 2
 model_genome = SeqEvo(
     n_generations = n_generations, 
     pop_size = 12,
