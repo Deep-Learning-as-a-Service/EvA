@@ -19,7 +19,8 @@ def main():
     # import experiments.find_best_fitness
     # import experiments.analyse_history
     # import experiments.analyse_history
-    import experiments.competing_architectures_big_split
+    # import experiments.competing_architectures_big_split
+    import experiments.big_fold_only
 
 if __name__ == "__main__":
     prio_logger(device_lib.list_local_devices())

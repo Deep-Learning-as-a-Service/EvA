@@ -50,25 +50,13 @@ class ModelNode():
             if len(self.parents) > 1:
                 return concatenate(input_tensor_list)
             return input_tensor_list[0]
-        
-        def add_max_pooling(input_tensor):
-            if is_conv2D_layer:
-                max_pooling_value = next(param for param in self.layer.params if param._key == "max_pooling")
-                if max_pooling_value.value == "MaxPooling(2,2)":
-                    return MaxPool2D(pool_size=(2,2))(input_tensor)
-                elif max_pooling_value.value == "MaxPooling(4,4)":
-                    return MaxPool2D(pool_size=(4,4))(input_tensor)
-                
-            return input_tensor
-                   
 
         a_block = lambda tensor_list: concatenate_func(tensor_list) # a_block func that takes tensor_list, returns tensor
         b_block = lambda tensor_list: remove_dimensionality_func(a_block(tensor_list))
         c_block = lambda tensor_list: add_dimensionality_func(b_block(tensor_list))
         d_block = lambda tensr_li: self.layer.get_func()(c_block(tensr_li))
-        e_block = lambda tensor_list: add_max_pooling(d_block(tensor_list))
 
-        self.architecture_block = e_block
+        self.architecture_block = d_block
                 
         for child in self.childs:
             child.make_compatible()

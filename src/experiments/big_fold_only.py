@@ -36,10 +36,10 @@ from evaluation.Fitness import Fitness
 from utils.Tester import Tester
 from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
 
-testing = True
+testing = False
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "big_fold_only"
+experiment_name = "batchdropout_artemis"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -80,7 +80,7 @@ technique_config = DefaultEvoTechniqueConfig()
 fitness = Fitness([], [], [], [], X_y_validation_splits, None).small_split_kfold_acc if not testing else lambda model_genome, log_func: random.random()
 
 # NAS - Neural Architecture Search
-n_generations = 300 if not testing else 1
+n_generations = 300 if not testing else 2
 model_genome = SeqEvo(
     n_generations = n_generations, 
     pop_size = 12,

@@ -129,8 +129,8 @@ class SeqEvo():
             starttime = time.time()
             # Evaluate fitness of population
             for i, seqevo_genome in enumerate(population):
-                self.logger(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
                 SeqEvoModelChecker.check_model_genome(seqevo_genome)
+                self.logger(f"{self.marker_symbol} Evaluating {i+1}/{len(population)} ...\n{seqevo_genome}")
 
                 # get fitness of seqevo_genome
                 # TODO: if we have a lot of duplicates, the gen_distribution is inaccurate, while no new individual mutate("low")

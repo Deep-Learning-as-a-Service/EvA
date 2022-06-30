@@ -199,7 +199,7 @@ class SeqEvoModelChecker():
                     if param._key == "filters":
                         filters = param.value
                     if param._key == "max_pooling":
-                        max_pooling = 2 if param.value == "MaxPooling(2,2)" else 4 if param.value == "MaxPooling(4,4)" else 1 
+                        max_pooling = 2 if param.value == (2,2) else 4 if param.value == (4,4) else 1 
                 timesteps_kernel_size = kernel_size[0]
                 features_kernel_size = kernel_size[1]
                 timesteps_stride = stride[0]

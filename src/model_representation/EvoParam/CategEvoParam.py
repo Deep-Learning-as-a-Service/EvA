@@ -4,17 +4,14 @@ import random
 class CategEvoParam(EvoParam):
 
     def __init__(self, value):
-        super().__init__(value=value)
 
-    @property
-    def value(self):
-        return self._value
-    
-    @value.setter
-    def value(self, value):
-        assert value is not None, "value can't be None"
-        self._value = value
-        
+        assert len(self._value_range) == len(self._weights), "_weights needs as many elements as _value_range"
+        assert value in self._value_range, "value not possible"
+        assert 0.99 < sum(self._weights) < 1.001 , "weights need to be in sum 1"
+
+        # TODO: value_range checks
+        return super().__init__(value=value)
+
     def mutate(self, intensity):
 
             intensity_percentages = {

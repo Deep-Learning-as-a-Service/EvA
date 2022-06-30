@@ -1,6 +1,7 @@
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
 from model_representation.EvoParam.FloatEvoParam import FloatEvoParam
+from model_representation.EvoParam.CategEvoParam import CategEvoParam
 from tensorflow.keras.initializers import Orthogonal
 from tensorflow import keras
 
@@ -13,12 +14,11 @@ class LstmUnitsParam(IntEvoParam):
     _sd = 300
 
 
-class LstmDropoutParam(FloatEvoParam):
-    _default_values = [0.1, 0.2]
-    _value_range = [0.0, 0.4]
+class LstmDropoutParam(CategEvoParam):
+    _default_values = [0.0, 0.1]
+    _value_range = [0.0, 0.1, 0.15, 0.2, 0.25, 0.3]
+    _weights = [0.5, 0.1, 0.1, 0.1, 0.1, 0.1]
     _key = "dropout"
-    _mean = 0.15
-    _sd = 0.05
 
 class PLstmLayer(ParametrizedLayer):
     _layer = lambda **kwargs: keras.layers.LSTM(return_sequences=True, kernel_initializer=Orthogonal(), **kwargs)

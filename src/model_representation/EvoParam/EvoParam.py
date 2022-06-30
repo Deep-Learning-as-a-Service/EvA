@@ -8,7 +8,6 @@ class EvoParam(ABC):
         assert self._default_values is not None, f"{self.__class__.__name__} has no cls._default_values"
         assert self._value_range is not None, f"{self.__class__.__name__} has no cls._value_range"
         assert self._key is not None, f"{self.__class__.__name__} has no cls._key"
-        assert self._distribution_val_sub_range is not None, f"{self.__class__.__name__} has no cls._distribution_val_sub_range"
 
         self._value = value
     

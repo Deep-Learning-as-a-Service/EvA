@@ -45,11 +45,31 @@ class ParametrizedLayer(ABC):
     
     def get_func(self) -> keras.layers.Layer:
         kwargs = {}
-        for param in self.params:
+        main_layer_params = self.params if not hasattr(self, '_after_layer_params') else [p for p in self.params if p.__class__ not in self._after_layer_params]
+        for param in main_layer_params:
             kwargs[param._key] = param.value
         
-        # return lambda x: self.__class__._layer(**kwargs)(x)
-        return self.__class__._layer(**kwargs) # if we call it without __class__ we would pass self as first arg!!!
+        main_layer_func = self.__class__._layer(**kwargs) # this is a tensor to tensor function
+
+        if hasattr(self, '_after_layer_params'):
+            def param_tensor_func(after_layer_param_class):
+                after_layer_params_matching = [param for param in self.params if param.__class__ == after_layer_param_class]
+                assert len(after_layer_params_matching) == 1, f"after_layer_param_class {after_layer_param_class} has not exactly one match in {self.__class__}"
+                after_layer_param = after_layer_params_matching[0]
+                return after_layer_param._layer()
+            
+            # weird coding because lambda recursive naming problem | fun = lambda a: a+1 | fun = lambda a: fun(a) + 4 | appending functions not possible
+            if len(self._after_layer_params) == 1:
+                return lambda tensor: param_tensor_func(self._after_layer_params[0])(main_layer_func(tensor))
+            elif len(self._after_layer_params) == 2:
+                return lambda tensor: param_tensor_func(self._after_layer_params[1])(param_tensor_func(self._after_layer_params[0])(main_layer_func(tensor)))
+            elif len(self._after_layer_params) == 3:
+                return lambda tensor: param_tensor_func(self._after_layer_params[2])(param_tensor_func(self._after_layer_params[1])(param_tensor_func(self._after_layer_params[0])(main_layer_func(tensor))))
+
+            else:
+                raise Exception(f"found more _after_layer_params than implemented")
+        
+        return main_layer_func
     
     def mutate(self, intensity: str) -> None:
         for param in self.params:
