@@ -190,6 +190,7 @@ class SeqEvoModelChecker():
                 kernel_size = None
                 stride = None
                 filters = None
+                max_pooling = None
                 for param in layer.params:
                     if param._key == "kernel_size":
                         kernel_size = param.value
@@ -197,13 +198,16 @@ class SeqEvoModelChecker():
                         stride = param.value 
                     if param._key == "filters":
                         filters = param.value
+                    if param._key == "max_pooling":
+                        max_pooling = 2 if param.value == "MaxPooling(2,2)" else 4 if param.value == "MaxPooling(4,4)" else 1 
                 timesteps_kernel_size = kernel_size[0]
                 features_kernel_size = kernel_size[1]
                 timesteps_stride = stride[0]
                 features_stride = stride[1]
                 
-                timesteps_dimension_size_after_convs = math.floor((timesteps_dimension_size_after_convs - timesteps_kernel_size) / timesteps_stride) + 1
-                features_dimension_size_after_convs = math.floor((features_dimension_size_after_convs - features_kernel_size) / features_stride) + 1
+                
+                timesteps_dimension_size_after_convs = math.floor((math.floor((timesteps_dimension_size_after_convs - timesteps_kernel_size) / timesteps_stride) + 1) / max_pooling)
+                features_dimension_size_after_convs = math.floor((math.floor((features_dimension_size_after_convs - features_kernel_size) / features_stride) + 1) / max_pooling)
                 channel_dimension_size_after_convs = filters
 
         return timesteps_dimension_size_after_convs, features_dimension_size_after_convs, channel_dimension_size_after_convs

@@ -1,3 +1,4 @@
+from model_representation.EvoParam.CategEvoParam import CategEvoParam
 from model_representation.ParametrizedLayer.ParametrizedLayer import ParametrizedLayer
 from model_representation.EvoParam.IntEvoParam import IntEvoParam
 from model_representation.EvoParam.TupleIntEvoParam import TupleIntEvoParam
@@ -22,6 +23,12 @@ class Conv2DKernelSizeParam(TupleIntEvoParam):
     _key = "kernel_size"
     _mean = 3
     _sd = 8
+    
+class Conv2DMaxPoolParam(CategEvoParam):
+    _default_values = ["None", "MaxPooling(2,2)", "MaxPooling(4,4)"]
+    _value_range = ["None", "MaxPooling(2,2)", "MaxPooling(4,4)"]
+    _weights = [0.5, 0.25, 0.25]
+    _key = "max_pooling"
     
 
 class Conv2DStridesParam(TupleCategDEvoParam):
@@ -50,5 +57,14 @@ class Conv2DStridesParam(TupleCategDEvoParam):
 
 class PConv2DLayer(ParametrizedLayer):
     _layer = lambda **kwargs: keras.layers.Conv2D(activation="relu", kernel_initializer=Orthogonal(), **kwargs)
-    _param_classes = [Conv2DFiltersParam, Conv2DKernelSizeParam, Conv2DStridesParam]
+    _param_classes = [Conv2DFiltersParam, Conv2DKernelSizeParam, Conv2DStridesParam, Conv2DMaxPoolParam]
+    
+    def get_func(self) -> keras.layers.Layer:
+        kwargs = {}
+        for param in self.params:
+            kwargs[param._key] = param.value
+        del kwargs["max_pooling"]
+        # return lambda x: self.__class__._layer(**kwargs)(x)
+        return self.__class__._layer(**kwargs) # if we call it without __class__ we would pass self as first arg!!!
+    
 
