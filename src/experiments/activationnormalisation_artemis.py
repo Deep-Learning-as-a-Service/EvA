@@ -31,15 +31,16 @@ from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
 from utils.logger import logger as log_func
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
-from loader.get_opportunity_data import get_opportunity_data_big_split
 from evaluation.Fitness import Fitness
 from utils.Tester import Tester
 from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
+from loader.load_dataset import load_dataset
+from loader.get_data import get_data
 
 testing = False
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "batchdropout_artemis"
+experiment_name = "activationnormalisation_artemis"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -61,7 +62,14 @@ data_dimension_dict = {
 }
 settings.init(_layer_pool=layer_pool, _data_dimension_dict=data_dimension_dict)
 
-X_y_validation_splits = get_opportunity_data_big_split(
+load_recs = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_path, 'data.csv'), 
+    label_column_name='ACTIVITY_IDX', 
+    recording_idx_name='RECORDING_IDX', 
+    column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
+)
+
+X_y_validation_splits = get_data(
+    load_recordings=load_recs,
     shuffle_seed=1678978086101,
     num_folds=num_folds
 )

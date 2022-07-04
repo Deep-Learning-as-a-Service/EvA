@@ -8,6 +8,12 @@ def init(_layer_pool, _data_dimension_dict):
     - mapping.py file (in utils) should include activity and subject mappings for the datasets
     - the experiments loads the required ones and passes them in the init (settings.init(mappings)O
     """
+
+    global input_distribution_mean
+    input_distribution_mean = None
+    
+    global input_distribution_variance
+    input_distribution_variance = None
     
     global data_dimension_dict
     data_dimension_dict = _data_dimension_dict

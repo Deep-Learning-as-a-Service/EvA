@@ -14,6 +14,7 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam, RMSprop
 import utils.settings as settings
+import tensorflow as tf
 
 class ModelGenome():
     """
@@ -47,6 +48,16 @@ class ModelGenome():
     def get_input_model_node(self) -> 'ModelNode':
         return self.input_model_node
     
+    def _preprocessing_layer(
+        self, input_layer: tf.keras.layers.Layer
+    ) -> tf.keras.layers.Layer:
+        x = tf.keras.layers.Normalization(
+            axis=-1,
+            variance=settings.input_distribution_variance,
+            mean=settings.input_distribution_mean,
+        )(input_layer)
+        return x
+    
     def get_model(self) -> keras.models.Model:
         """
         compile model from current model_genome instance
@@ -61,9 +72,11 @@ class ModelGenome():
         
         # TODO: No extra Node here - instead the layer mapper should assign the Input layer to our input_model_node
         i = Input(shape=(window_size, n_features))
+
+        x = self._preprocessing_layer(i)
         
         # wrap i into list, since architecture_block expects a list of all inputs
-        x = self.input_model_node.architecture_block([i])
+        x = self.input_model_node.architecture_block([x])
 
         current_nodes_with_output = {self.input_model_node: x}
         calculated_nodes = [self.input_model_node] # Queue: in progress, not all childs considered yet

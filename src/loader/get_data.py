@@ -31,6 +31,7 @@ from model_representation.ParametrizedLayer.PLstmLayer import PLstmLayer
 from utils.progress_bar import print_progress_bar
 from utils.logger import logger
 from optimizer.SeqEvo.InitialModelLayer import InitialModelLayer
+import tensorflow as tf
 from utils.window_test_percentages import window_test_percentages
 
 
@@ -41,12 +42,27 @@ def get_data(load_recordings, shuffle_seed, num_folds):
     window_size = settings.data_dimension_dict["window_size"]
     n_classes = settings.data_dimension_dict["n_classes"]
         
-    preprocess = lambda recordings: Preprocessor().jens_preprocess_with_normalize(recordings)
+    preprocess = lambda recordings: Preprocessor().jens_preprocess(recordings)
     windowize = lambda recordings: Windowizer(window_size=window_size).jens_windowize(recordings)
     convert = lambda windows: Converter(n_classes=n_classes).sonar_convert(windows)
     flatten = lambda tuple_list: [item for sublist in tuple_list for item in sublist]
 
     recordings = load_recordings()
+
+    # Dirty!!!!! pls refactor we set the global vars for the Normalisation
+    print("Calculating mean and variance of whole dataset, and store it (dirty) in the global settings. This can take a while...")
+    startTime = datetime.now()
+    sensor_frames = tf.constant(np.concatenate(
+        [recording.sensor_frame.to_numpy() for recording in recordings], axis=0))
+    layer = tf.keras.layers.Normalization(axis=-1)
+    layer.adapt(sensor_frames)
+
+    settings.input_distribution_variance = layer.variance
+    settings.input_distribution_mean = layer.mean
+
+    endTime = datetime.now()
+    print("Time spent for finding mean and variance: ", str(endTime-startTime))
+
 
     random.seed(shuffle_seed)
     random.shuffle(recordings)
