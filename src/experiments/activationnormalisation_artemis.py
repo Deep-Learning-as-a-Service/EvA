@@ -91,7 +91,7 @@ fitness = Fitness([], [], [], [], X_y_validation_splits, None).small_split_kfold
 n_generations = 150 if not testing else 2
 model_genome = SeqEvo(
     n_generations = n_generations, 
-    pop_size = 12,
+    pop_size = 8,
     fitness_func = fitness,
     n_parents = 4,
     technique_config = technique_config,
@@ -104,7 +104,7 @@ model_genome = SeqEvo(
 
 model_genome = HyPaOptuna(
     input_model_genome=model_genome,
-    n_trials=100,
+    n_trials=200,
     fitness_func=fitness,
     log_func=logger
 ).run()
