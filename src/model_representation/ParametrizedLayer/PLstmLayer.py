@@ -4,6 +4,7 @@ from model_representation.EvoParam.FloatEvoParam import FloatEvoParam
 from model_representation.EvoParam.CategEvoParam import CategEvoParam
 from tensorflow.keras.initializers import Orthogonal
 from tensorflow import keras
+from keras.layers import ReLU
 
 # TODO: changed value range
 class LstmUnitsParam(IntEvoParam):
@@ -23,3 +24,4 @@ class LstmDropoutParam(CategEvoParam):
 class PLstmLayer(ParametrizedLayer):
     _layer = lambda **kwargs: keras.layers.LSTM(return_sequences=True, kernel_initializer=Orthogonal(), **kwargs)
     _param_classes = [LstmUnitsParam, LstmDropoutParam]
+    _activation_function = ReLU

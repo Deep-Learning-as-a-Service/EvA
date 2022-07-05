@@ -10,6 +10,8 @@ from tensorflow.keras.initializers import Orthogonal
 from tensorflow import keras
 from keras.layers import Dropout, MaxPool2D
 from keras.layers import SpatialDropout2D, BatchNormalization
+from keras.layers import ReLU
+
 
 # TODO: changed value range
 class Conv2DFiltersParam(IntEvoParam):
@@ -106,8 +108,9 @@ class Conv2DBatchNormalizationParam(BoolEvoParam):
 
 
 class PConv2DLayer(ParametrizedLayer):
-    _layer = lambda **kwargs: keras.layers.Conv2D(activation="relu", kernel_initializer=Orthogonal(), **kwargs)
+    _layer = lambda **kwargs: keras.layers.Conv2D(kernel_initializer=Orthogonal(), **kwargs)
     _param_classes = [Conv2DFiltersParam, Conv2DKernelSizeParam, Conv2DStridesParam, Conv2DDropoutParam, Conv2DMaxPoolParam, Conv2DBatchNormalizationParam]
     _after_layer_params = [Conv2DBatchNormalizationParam, Conv2DMaxPoolParam, Conv2DDropoutParam]
+    _activation_function = ReLU
     
 

@@ -5,6 +5,7 @@ from model_representation.EvoParam.IntEvoParam import IntEvoParam
 from model_representation.EvoParam.FloatEvoParam import FloatEvoParam
 from model_representation.EvoParam.CategEvoParam import CategEvoParam
 from keras.layers import Dropout
+from keras.layers import ReLU
 
 # TODO: changed value range
 class DenseUnitsParam(IntEvoParam):
@@ -33,7 +34,7 @@ class DenseDropoutParam(CategEvoParam):
         return dropout
 
 class PDenseLayer(ParametrizedLayer):
-    _layer = lambda **kwargs: keras.layers.Dense(activation="relu", **kwargs)
+    _layer = keras.layers.Dense
     _param_classes = [DenseUnitsParam, DenseDropoutParam]
     _after_layer_params = [DenseDropoutParam]
-            
+    _activation_function = ReLU
