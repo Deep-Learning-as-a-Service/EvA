@@ -49,11 +49,12 @@ def get_data(load_recordings, shuffle_seed, num_folds):
 
     recordings = load_recordings()
 
-    # random.seed(shuffle_seed)
+    random.seed(shuffle_seed)
     random.shuffle(recordings)
 
     # Preprocessing
     recordings = preprocess(recordings)
+
 
     # Dirty!!!!! pls refactor we set the global vars for the Normalisation
     print("Calculating mean and variance of whole dataset, and store it (dirty) in the global settings. This can take a while...")
@@ -65,9 +66,14 @@ def get_data(load_recordings, shuffle_seed, num_folds):
 
     settings.input_distribution_variance = layer.variance
     settings.input_distribution_mean = layer.mean
+    print("variance: " + str(layer.variance))
+    print("mean: " + str(layer.mean))
+
 
     endTime = datetime.now()
     print("Time spent for finding mean and variance: ", str(endTime-startTime))
+
+
 
 
     # Validation Splits

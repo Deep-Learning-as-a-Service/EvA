@@ -36,8 +36,13 @@ class LeanderDeepConvLSTM(RainbowModel):
 
         i = Input(shape=(self.window_size, self.n_features))
 
+        if self.add_preprocessing_layer:
+            x = self._preprocessing_layer(i)
+        else:
+            x = i
+
         # Adding 4 CNN layers.
-        x = Reshape(target_shape=(self.window_size, self.n_features, 1))(i)
+        x = Reshape(target_shape=(self.window_size, self.n_features, 1))(x)
         conv_n_filters = [32, 64]
         for n_filters in conv_n_filters:
             x = conv_layer(n_filters=n_filters)(x)

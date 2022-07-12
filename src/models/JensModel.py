@@ -52,6 +52,10 @@ class JensModel(RainbowModel):
     def _create_model(self):
 
         i = Input(shape=(self.window_size, self.n_features, 1))  # before: self.x_train[0].shape - (25, 51, 1)... before self_x_train = np.expand_dims(self.x_train[0], -1) - around the value another []
+        if self.add_preprocessing_layer:
+            x = self._preprocessing_layer(i)
+        else:
+            x = i
         x = Conv2D(
             32,
             (3, 3),
@@ -59,7 +63,7 @@ class JensModel(RainbowModel):
             activation="relu",
             padding="same",
             kernel_regularizer=regularizers.l2(0.0005),
-        )(i)
+        )(x)
         x = BatchNormalization()(x)
         x = MaxPooling2D((2, 2))(x)
         x = Dropout(0.2)(x)

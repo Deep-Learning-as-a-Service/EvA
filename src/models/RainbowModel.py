@@ -35,6 +35,7 @@ class RainbowModel(ABC):
     model_name = None
     class_weight = None
     model: Any = None
+    add_preprocessing_layer: bool = None
 
     # Input Params
     n_features: Union[int, None] = None
@@ -66,6 +67,7 @@ class RainbowModel(ABC):
         self.n_features = settings.data_dimension_dict["n_features"]
         self.n_outputs = settings.data_dimension_dict["n_classes"]
         self.batch_size = kwargs.get("batch_size", None)
+        self.add_preprocessing_layer = kwargs.get("add_preprocessing_layer", False)
         self.n_epochs = kwargs.get("n_epochs", None)
         self.learning_rate = kwargs.get("learning_rate", None)
         self.validation_split = kwargs.get("validation_split", 0.2)
@@ -180,4 +182,13 @@ class RainbowModel(ABC):
 
         print("Export finished")
 
+    def _preprocessing_layer(
+        self, input_layer: tf.keras.layers.Layer
+    ) -> tf.keras.layers.Layer:
+        x = tf.keras.layers.Normalization(
+            axis=-1,
+            variance=settings.input_distribution_variance,
+            mean=settings.input_distribution_mean,
+        )(input_layer)
+        return x
     
