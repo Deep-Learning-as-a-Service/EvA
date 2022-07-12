@@ -39,6 +39,9 @@ prio_logger(f"starting {experiment_name}")
 
 
 # Config --------------------------------------------------------------------------
+
+features = ["dq_W_LF", "dq_X_LF", "dq_Y_LF", "dq_Z_LF", "dv[1]_LF", "dv[2]_LF", "dv[3]_LF", "Mag_X_LF", "Mag_Y_LF", "Mag_Z_LF", "dq_W_LW", "dq_X_LW", "dq_Y_LW", "dq_Z_LW", "dv[1]_LW", "dv[2]_LW", "dv[3]_LW", "Mag_X_LW", "Mag_Y_LW", "Mag_Z_LW", "dq_W_ST", "dq_X_ST", "dq_Y_ST", "dq_Z_ST", "dv[1]_ST",
+            "dv[2]_ST", "dv[3]_ST", "Mag_X_ST", "Mag_Y_ST", "Mag_Z_ST", "dq_W_RW", "dq_X_RW", "dq_Y_RW", "dq_Z_RW", "dv[1]_RW", "dv[2]_RW", "dv[3]_RW", "Mag_X_RW", "Mag_Y_RW", "Mag_Z_RW", "dq_W_RF", "dq_X_RF", "dq_Y_RF", "dq_Z_RF", "dv[1]_RF", "dv[2]_RF", "dv[3]_RF", "Mag_X_RF", "Mag_Y_RF", "Mag_Z_RF"]
 category_labels = {
     "null - activity": 0,
     "aufräumen": 1,
@@ -56,8 +59,8 @@ category_labels = {
     "rollstuhl transfer": 13
 }
 
-window_size = 30*3
-n_features = 70
+window_size = 900 # 15 seconds (60 Hz * 15 s)
+n_features = len(features)
 n_classes = len(category_labels)
 num_folds = 5
 validation_iterations = 3
@@ -72,7 +75,8 @@ settings.init(_layer_pool=layer_pool, _data_dimension_dict=data_dimension_dict)
 
 load_lab_data = lambda: load_lab_dataset(
     path="../../data/lab_data_filtered_without_null", 
-    activityLabelToIndexMap=category_labels
+    activityLabelToIndexMap=category_labels,
+    features=features
 )
 X_y_validation_splits = get_data(
     load_recordings=load_lab_data,
@@ -100,8 +104,8 @@ for model_class in model_classes:
             window_size=window_size, 
             n_features=n_features, 
             n_outputs=n_classes, 
-            n_epochs=5, 
-            learning_rate=0.001, 
+            n_epochs=10, 
+            learning_rate=0.0001, 
             batch_size=32,
             add_preprocessing_layer=True
         )

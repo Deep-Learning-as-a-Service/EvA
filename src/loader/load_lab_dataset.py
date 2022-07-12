@@ -34,7 +34,7 @@ def filter_activities(activities_to_keep: list):
         lambda activities: activities.isin(activities_to_keep),
         new_idx=lambda activities: activities)
 
-def load_lab_dataset(path: str, activityLabelToIndexMap: dict, limit: int = None) -> "list[Recording]":
+def load_lab_dataset(path: str, activityLabelToIndexMap: dict, features = None, limit: int = None) -> "list[Recording]":
     """
     Load the recordings from a folder containing csv files.
     """
@@ -59,6 +59,9 @@ def load_lab_dataset(path: str, activityLabelToIndexMap: dict, limit: int = None
         activities = recording_dataframe.loc[:, 'activity']
         sensor_frame = recording_dataframe.loc[:,
                                                recording_dataframe.columns.difference(['SampleTimeFine', 'activity'])]
+        if features is not None:
+            sensor_frame = sensor_frame[features]
+
         subject = file.split('_')[1]
 
         recordings.append(Recording(sensor_frame, time_frame,
