@@ -36,11 +36,12 @@ from utils.Tester import Tester
 from optimizer.HyPaOptuna.HyPaOptuna import HyPaOptuna
 from loader.load_dataset import load_dataset
 from loader.get_data import get_data
+from loader.load_lab_dataset import load_lab_dataset
 
 testing = False
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "activationnormalisation_artemis"
+experiment_name = "opportunity_hermes_rerun"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -48,6 +49,35 @@ logger = lambda *args, **kwargs: log_func(*args, path=f"logs/{experiment_name}",
 
 
 # Config --------------------------------------------------------------------------
+category_labels = {
+    "null - activity": 0,
+    "aufräumen": 1,
+    "aufwischen (staub)": 2,
+    "bett machen": 3,
+    "dokumentation": 4,
+    "umkleiden": 5,
+    "essen reichen": 6,
+    "gesamtwaschen im bett": 7,
+    "getränke ausschenken": 8,
+    "haare kämmen": 9,
+    "waschen am waschbecken": 10,
+    "medikamente stellen": 11,
+    "rollstuhl schieben": 12,
+    "rollstuhl transfer": 13
+}
+
+# window_size = 30*3
+# n_features = 70
+# n_classes = len(category_labels)
+# num_folds = 5
+# validation_iterations = 3
+
+# load_recs = lambda: load_lab_dataset(
+#     path="../../data/lab_data_filtered_without_null", 
+#     activityLabelToIndexMap=category_labels
+# )
+
+
 window_size = 30*3
 n_features = 51
 n_classes = 6
