@@ -1,4 +1,5 @@
 from utils.telegram import send_telegram
+import os
 
 def logger(*args, **kwargs):
     prio = False
@@ -13,7 +14,7 @@ def logger(*args, **kwargs):
     print(*args, **kwargs)
 
     # 2
-    with open(path, "a+") as f:
+    with open(os.path.join(path, ".txt"), "a+") as f:
         f.write(message + "\n")
 
     # 3

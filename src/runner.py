@@ -21,7 +21,7 @@ def main():
     # import experiments.analyse_history
     # import experiments.competing_architectures_big_split
     # import tests.test_get_data
-    import experiments.opportunity_hermes_rerun
+    import experiments.resnet_rainbow_lab
 
 if __name__ == "__main__":
     prio_logger(device_lib.list_local_devices())
