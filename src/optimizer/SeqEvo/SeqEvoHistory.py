@@ -95,11 +95,26 @@ class SeqEvoHistory:
             layer = layer.replace(class_name + '(', '')
             layer = layer[:-1]
             
-            # parse params and param values from layer string (IMPORTANT: only ints and tuples are supported yet)
+            # parse params and param values from layer string 
             attr_value_dict = {}
             for attribute_str in layer.split(" "):
                 attribute_tuple = attribute_str.split("=")
-                value = int(attribute_tuple[1]) if attribute_tuple[1].isdigit() else make_tuple(attribute_tuple[1])
+
+                # int
+                if attribute_tuple[1].isdigit():
+                    value = int(attribute_tuple[1])
+                # tuple
+                elif set(['(', ')', ',']) <= set([char for char in attribute_tuple[1]]):
+                    value = make_tuple(attribute_tuple[1])
+                # bool
+                elif attribute_tuple[1] in ["True", "False"]:
+                    value = bool(attribute_tuple[1]) 
+                # hacky float check lol 
+                elif attribute_tuple[1].replace('.','', 1).isdigit():
+                    value = float(attribute_tuple[1])
+                # probably categorical string (add more elifs if needed ^^)
+                else:
+                    value = attribute_tuple[1]
                 attr_value_dict[attribute_tuple[0]] = value
                 
             params = []
