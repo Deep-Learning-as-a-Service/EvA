@@ -74,8 +74,6 @@ def get_data(load_recordings, shuffle_seed, num_folds):
     print("Time spent for finding mean and variance: ", str(endTime-startTime))
 
 
-
-
     # Validation Splits
     k = num_folds
     k_fold = StratifiedKFold(n_splits=k, random_state=None) #Stratified

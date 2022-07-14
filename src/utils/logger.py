@@ -14,7 +14,7 @@ def logger(*args, **kwargs):
     print(*args, **kwargs)
 
     # 2
-    with open(os.path.join(path, ".txt"), "a+") as f:
+    with open(f"{path}.txt", "a+") as f:
         f.write(message + "\n")
 
     # 3
