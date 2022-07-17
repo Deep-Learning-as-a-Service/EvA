@@ -37,19 +37,25 @@ def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     fitness = accuracy(y_test_fit, y_test_pred)
     return fitness
 
-def _model_fit_test_after_optuna(model, n_epochs, n_batch_size, lr, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
+def _model_fit_test_after_optuna(model, n_epochs, n_batch_size, lr, X_train_fit, y_train_fit, X_test_fit, y_test_fit, is_seqevo):
+
+        keras_model = None
+        if is_seqevo:
+            keras_model = model.get_model()
+        else:
+            keras_model = model._create_model()
 
         # set learning rate
-        K.set_value(model.optimizer.learning_rate, lr)
+        K.set_value(keras_model.optimizer.learning_rate, lr)
 
-        model.fit(
+        keras_model.fit(
             X_train_fit, 
             y_train_fit,
             epochs=n_epochs,
             batch_size=n_batch_size,
         )
 
-        y_test_pred = model.predict(X_test_fit)
+        y_test_pred = keras_model.predict(X_test_fit)
 
         fitness = accuracy(y_test_fit, y_test_pred)
         return fitness
@@ -121,7 +127,7 @@ for model_class in model_classes:
             learning_rate=0.001, 
             batch_size=32,
             add_preprocessing_layer=True
-        )
+        )._create_model()
 
         fitness = _model_fit_test(model=model, 
             X_train_fit=X_train_split, 
@@ -167,15 +173,17 @@ for model_class in model_classes:
             learning_rate=0.001, 
             batch_size=32,
             add_preprocessing_layer=True
-        )._create_model())
+        ))
 
 # our best performer
-models.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome).get_model())
+models.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome))
 
 hyperparams = []
 
 for model in models:
     prio_logger(f"====================={model.__class__.__name__}==========================")
+    is_seqevo = model.__class__.__name__ =='SeqEvoModelGenome'
+
     optuna_params = ModelOptuna(
         model = model,
         n_trials=optuna_iterations,
@@ -183,7 +191,8 @@ for model in models:
         y_train_fit=X_y_validation_splits[0][1],
         X_test_fit=X_y_validation_splits[0][2],
         y_test_fit=X_y_validation_splits[0][3],
-        log_func=logger
+        log_func=logger,
+        is_seqevo=is_seqevo
     ).run()
     n_epochs = optuna_params["n_epochs"]
     batch_size = optuna_params["batch_size"]
@@ -208,13 +217,14 @@ for model_class in model_classes:
             learning_rate=0.001, 
             batch_size=32,
             add_preprocessing_layer=True
-        )._create_model())
+        ))
 
-models_for_validation.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome).get_model())
+models_for_validation.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome))
 
 
 for i, model in enumerate(models_for_validation):
-    model_name = "Unser Bestperformer" if i == 3 else model_classes[i].__name__
+    is_seqevo = model.__class__.__name__ =='SeqEvoModelGenome'
+
     
     logger("========================================================")
     prio_logger(f"====================={model_name}==========================")
@@ -224,7 +234,6 @@ for i, model in enumerate(models_for_validation):
     idx = 0
     for X_train_split, y_train_split, X_val_split, y_val_split in X_y_validation_splits:
         idx += 1
-        model.save_weights('data/model.h5')
         
         fitness = _model_fit_test_after_optuna(model=model,
             n_epochs = hyperparams[i][0],
@@ -233,11 +242,11 @@ for i, model in enumerate(models_for_validation):
             X_train_fit=X_train_split, 
             y_train_fit=y_train_split, 
             X_test_fit=X_val_split, 
-            y_test_fit=y_val_split
+            y_test_fit=y_val_split,
+            is_seqevo=is_seqevo
             ) if not testing else 0.1
 
-        # load default weights to reset model weights
-        model.load_weights('data/model.h5')
+
         fitnesses.append(fitness)
         prio_logger(f"fitness on {idx}. fold: {fitness}")
     prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")
