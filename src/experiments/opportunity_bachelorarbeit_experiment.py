@@ -28,7 +28,8 @@ import utils.config as config
 def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     model.fit(
         X_train_fit, 
-        y_train_fit
+        y_train_fit,
+        epochs=5
     )
     y_test_pred = model.predict(X_test_fit)
     fitness = accuracy(y_test_fit, y_test_pred)
@@ -118,7 +119,7 @@ for model_class in model_classes:
             learning_rate=0.001, 
             batch_size=32,
             add_preprocessing_layer=True
-        )._create_model()
+        )
 
         fitness = _model_fit_test(model=model, 
             X_train_fit=X_train_split, 
