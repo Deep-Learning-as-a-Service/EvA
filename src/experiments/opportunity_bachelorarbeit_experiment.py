@@ -28,9 +28,8 @@ import utils.config as config
 def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     model.fit(
         X_train_fit, 
-        y_train_fit,
-        epochs=5
-    )
+        y_train_fit
+        )
     y_test_pred = model.predict(X_test_fit)
     fitness = accuracy(y_test_fit, y_test_pred)
     return fitness
