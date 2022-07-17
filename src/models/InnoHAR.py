@@ -36,7 +36,7 @@ class InnoHAR(RainbowModel):
     def _create_model(self):
 
         model = Sequential(name='InnoHAR')
-        model.add(InputLayer(input_shape=(settings.data_dimension_dict["window_size"], settings.data_dimension_dict["n_features"])))
+        model.add(tf.keras.layers.Input((settings.data_dimension_dict["window_size"], settings.data_dimension_dict["n_features"])))
         if self.add_preprocessing_layer:
             model.add(self._preprocessing_layer())
 

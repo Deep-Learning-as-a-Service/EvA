@@ -26,7 +26,7 @@ from keras import backend as K
 import utils.config as config
 
 testing = False
-optuna_iterations = 100
+optuna_iterations = 1
 
 def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     model.fit(
@@ -54,9 +54,9 @@ def _model_fit_test_after_optuna(model, n_epochs, n_batch_size, lr, X_train_fit,
         fitness = accuracy(y_test_fit, y_test_pred)
         return fitness
 
-experiment_name = "opportunity_evaluation_bestmodel_vs_others"
+experiment_name = "TEST_opportunity_model_vergleich"
 
-config.telegram_chat_id = "-1001555874641"
+config.telegram_chat_id = "-1001731938222"
 
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")

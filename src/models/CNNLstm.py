@@ -10,7 +10,7 @@ class CNNLstm(RainbowModel):
 
     def _create_model(self): 
         model = tf.keras.models.Sequential([
-            InputLayer(input_shape=(settings.data_dimension_dict["window_size"], settings.data_dimension_dict["n_features"])),
+            tf.keras.layers.Input((settings.data_dimension_dict["window_size"], settings.data_dimension_dict["n_features"])),
             self._preprocessing_layer(),
             tf.keras.layers.Conv1D(filters=64, kernel_size=5, strides=1, activation="relu"),
             tf.keras.layers.MaxPooling1D(pool_size=2, strides=1, padding="valid"),
