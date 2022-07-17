@@ -25,6 +25,8 @@ from models.ResNetModel import ResNetModel
 from keras import backend as K
 import utils.config as config
 
+testing = False
+
 def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     model.fit(
         X_train_fit, 
@@ -58,8 +60,8 @@ config.telegram_chat_id = "-1001555874641"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
-logger = lambda *args, **kwargs: log_func(*args, path=f"logs/{experiment_name}", **kwargs)
-prio_logger = lambda *args, **kwargs: logger(*args, prio=True, **kwargs)
+logger = lambda *args, **kwargs: log_func(*args, path=f"logs/{experiment_name}", **kwargs) if not testing else print(*args, **kwargs)
+prio_logger = lambda *args, **kwargs: logger(*args, prio=True, **kwargs) if not testing else print(*args, **kwargs)
 
 prio_logger(f"starting {experiment_name}")
 
@@ -125,7 +127,7 @@ for model_class in model_classes:
             y_train_fit=y_train_split, 
             X_test_fit=X_val_split, 
             y_test_fit=y_val_split
-            )
+            ) if not testing else 0.1
         fitnesses.append(fitness)
         prio_logger(f"fitness on {idx}. fold: {fitness}")
     prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")
@@ -145,7 +147,7 @@ for X_train_split, y_train_split, X_val_split, y_val_split in X_y_validation_spl
             y_train_fit=y_train_split, 
             X_test_fit=X_val_split, 
             y_test_fit=y_val_split
-            )
+            ) if not testing else 0.1
     fitnesses.append(fitness)
     prio_logger(f"fitness on {idx}. fold: {fitness}")
 prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")
@@ -168,7 +170,6 @@ for model_class in model_classes:
             add_preprocessing_layer=True
         )._create_model())
 
-# deepcopy of all model instances, to 
 hyperparams = []
 
 for model in models:
@@ -228,7 +229,7 @@ for i, model in enumerate(models_for_validation):
             y_train_fit=y_train_split, 
             X_test_fit=X_val_split, 
             y_test_fit=y_val_split
-            )
+            ) if not testing else 0.1
         fitnesses.append(fitness)
         prio_logger(f"fitness on {idx}. fold: {fitness}")
     prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")

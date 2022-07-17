@@ -22,6 +22,15 @@ class ModelOptuna():
                 self.current_model_genome.__setattr__(name, hypa_generator())
                 
     """
+    def _test(self, n_epochs, n_batch_size, lr):
+        # set learning rate
+        K.set_value(self.model.optimizer.learning_rate, lr)
+
+        # save default weights
+        self.model.save_weights('data/model.h5')
+        # load default weights to reset model weights
+        self.model.load_weights('data/model.h5')
+        return 0.1
 
     def _model_fit_test(self, n_epochs, n_batch_size, lr):
 
@@ -29,7 +38,7 @@ class ModelOptuna():
         K.set_value(self.model.optimizer.learning_rate, lr)
 
         # save default weights
-        self.model.save_weights('model.h5')
+        self.model.save_weights('data/model.h5')
         self.model.fit(
             self.X_train_fit, 
             self.y_train_fit,
@@ -40,17 +49,18 @@ class ModelOptuna():
         y_test_pred = self.model.predict(self.X_test_fit)
 
         # load default weights to reset model weights
-        self.model.load_weights('model.h5')
+        self.model.load_weights('data/model.h5')
         fitness = accuracy(self.y_test_fit, y_test_pred)
         return fitness
 
     def __init__(self, model, n_trials, X_train_fit, y_train_fit, X_test_fit, y_test_fit, log_func):
+        self.testing = False
         self.model = model
         self.n_trials = n_trials
         self.X_train_fit, self.y_train_fit, self.X_test_fit, self.y_test_fit = X_train_fit, y_train_fit, X_test_fit, y_test_fit
         self.log_func = log_func
 
-        self.get_fitness = lambda n_epochs, n_batch_size, lr: self._model_fit_test(n_epochs, n_batch_size, lr)
+        self.get_fitness = self._model_fit_test if not self.testing else self._test
 
     def run(self):
         def objective(trial):
