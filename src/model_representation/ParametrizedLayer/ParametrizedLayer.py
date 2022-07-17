@@ -111,7 +111,7 @@ class ParametrizedLayer(ABC):
 
         for i, param in enumerate(params):
             param_class = cls._param_classes[i]
-            assert type(param) is param_class, f"received param of type {type(param).__name__} must be of type {param_class.__name__}"
+            #assert type(param) is param_class, f"received param of type {type(param).__name__} must be of type {param_class.__name__}"
         return cls(params=params)
     
     @classmethod

@@ -117,16 +117,15 @@ for model_class in model_classes:
             n_epochs=5, 
             learning_rate=0.001, 
             batch_size=32,
-            add_preprocessing_layer=True,
-        )
+            add_preprocessing_layer=True
+        )._create_model()
 
         fitness = _model_fit_test(model=model, 
             X_train_fit=X_train_split, 
             y_train_fit=y_train_split, 
             X_test_fit=X_val_split, 
-            y_test_fit=y_val_split, 
-            eval_func=accuracy
-        )
+            y_test_fit=y_val_split
+            )
         fitnesses.append(fitness)
         prio_logger(f"fitness on {idx}. fold: {fitness}")
     prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")
@@ -167,7 +166,7 @@ for model_class in model_classes:
             learning_rate=0.001, 
             batch_size=32,
             add_preprocessing_layer=True
-        ))
+        )._create_model())
 
 # deepcopy of all model instances, to 
 hyperparams = []
@@ -207,7 +206,7 @@ for model_class in model_classes:
             learning_rate=0.001, 
             batch_size=32,
             add_preprocessing_layer=True
-        ))
+        )._create_model())
 
 for i, model in enumerate(models_for_validation):
     model_name = model.__class__.__name__
