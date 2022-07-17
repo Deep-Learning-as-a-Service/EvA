@@ -26,6 +26,7 @@ from keras import backend as K
 import utils.config as config
 
 testing = False
+optuna_iterations = 1
 
 def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     model.fit(
@@ -155,8 +156,6 @@ prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")
 prio_logger( "========================= Optuna Optimized Hyperparams ========================")
 
 models = []
-# our best performer
-models.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome).get_model())
 
 # all others
 for model_class in model_classes:
@@ -170,13 +169,16 @@ for model_class in model_classes:
             add_preprocessing_layer=True
         )._create_model())
 
+# our best performer
+models.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome).get_model())
+
 hyperparams = []
 
 for model in models:
     prio_logger(f"====================={model.__class__.__name__}==========================")
     optuna_params = ModelOptuna(
         model = model,
-        n_trials=100,
+        n_trials=optuna_iterations,
         X_train_fit=X_y_validation_splits[0][0],
         y_train_fit=X_y_validation_splits[0][1],
         X_test_fit=X_y_validation_splits[0][2],
@@ -195,7 +197,6 @@ for model in models:
 #########################################################################################
 
 models_for_validation = []
-models_for_validation.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome).get_model())
 
 # (hyperparams will get overwritten later, don't worry, once again ugly but should work)
 for model_class in model_classes:
@@ -209,8 +210,11 @@ for model_class in model_classes:
             add_preprocessing_layer=True
         )._create_model())
 
+models_for_validation.append(SeqEvoModelGenome.create_with_default_params(best_hist_genome.seqevo_genome).get_model())
+
+
 for i, model in enumerate(models_for_validation):
-    model_name = model.__class__.__name__
+    model_name = "Unser Bestperformer" if i == 3 else model_classes[i].__name__
     
     logger("========================================================")
     prio_logger(f"====================={model_name}==========================")
@@ -220,7 +224,8 @@ for i, model in enumerate(models_for_validation):
     idx = 0
     for X_train_split, y_train_split, X_val_split, y_val_split in X_y_validation_splits:
         idx += 1
-
+        model.save_weights('data/model.h5')
+        
         fitness = _model_fit_test_after_optuna(model=model,
             n_epochs = hyperparams[i][0],
             n_batch_size= hyperparams[i][1],
@@ -230,6 +235,9 @@ for i, model in enumerate(models_for_validation):
             X_test_fit=X_val_split, 
             y_test_fit=y_val_split
             ) if not testing else 0.1
+
+        # load default weights to reset model weights
+        model.load_weights('data/model.h5')
         fitnesses.append(fitness)
         prio_logger(f"fitness on {idx}. fold: {fitness}")
     prio_logger(f"average fitness of all splits: {np.mean(fitnesses)}")
