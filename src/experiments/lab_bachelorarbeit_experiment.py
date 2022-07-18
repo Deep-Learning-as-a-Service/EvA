@@ -18,8 +18,8 @@ from models.ResNetModel import ResNetModel
 from keras import backend as K
 import utils.config as config
 
-testing = False
-optuna_iterations = 100
+testing = True
+optuna_iterations = 1
 
 def _model_fit_test(model, X_train_fit, y_train_fit, X_test_fit, y_test_fit):
     model.fit(
@@ -236,7 +236,7 @@ for i, model in enumerate(models_for_validation):
 
     
     logger("========================================================")
-    prio_logger(f"====================={model_name}==========================")
+    prio_logger(f"====================={model.__class__.__name__}==========================")
     logger("========================================================")
 
     fitnesses = []
