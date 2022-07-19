@@ -25,23 +25,21 @@ class ModelOptuna2():
         # load default weights to reset model weights
         fitness = accuracy(self.y_test_fit, y_test_pred)
         return fitness
-        return 0.1
 
     def _model_fit_test(self, n_epochs, n_batch_size, lr):
-        keras_model = None
-
-        if self.is_seqevo:
-            keras_model = self.model.get_model()
-        else:
-            keras_model = self.model._create_model()
-
-        # set learning rate
-        K.set_value(keras_model.optimizer.learning_rate, lr)
-
-
+        
         fitnesses = []
         idx = 0
-        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_val_splits:  
+        for X_train_split, y_train_split, X_val_split, y_val_split in self.X_y_val_splits: 
+            keras_model = None
+
+            if self.is_seqevo:
+                keras_model = self.model.get_model()
+            else:
+                keras_model = self.model._create_model()
+
+            # set learning rate
+            K.set_value(keras_model.optimizer.learning_rate, lr) 
             idx += 1
             
             keras_model.fit(
@@ -66,6 +64,7 @@ class ModelOptuna2():
         self.X_y_val_splits = X_y_val_splits
         self.log_func = log_func
         self.is_seqevo = is_seqevo
+        self.best_fitness = 0
 
         self.get_fitness = self._model_fit_test if not self.testing else self._test
 
@@ -75,8 +74,10 @@ class ModelOptuna2():
             n_epochs = trial.suggest_int('n_epochs', low=5, high=30)
             batch_size = trial.suggest_int('batch_size', low=16, high=64)
             learning_rate = trial.suggest_loguniform('learning_rate', low=0.0001, high=0.002)
-
-            return 1 - self.get_fitness(n_epochs, batch_size, learning_rate)
+            fitness = self.get_fitness(n_epochs, batch_size, learning_rate)
+            self.best_fitness = max(self.best_fitness, fitness)
+            self.log_func(f"this trial: {fitness}, global best: {self.best_fitness}")
+            return 1 - fitness
 
         # Do optimization
         study = optuna.create_study()  # Create a new study.
