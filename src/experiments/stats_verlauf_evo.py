@@ -2,7 +2,7 @@ from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
 
 # Read
 seq_hist = SeqEvoHistory(
-    path_to_file=f'data/seqevo_history.csv'
+    path_to_file=f'data/lab/seqevo_history.csv'
 )
 history_seqevo_genomes = seq_hist.read()
 labels = []
