@@ -40,11 +40,11 @@ class DefaultEvoTechniqueConfig(EvoTechniqueConfig):
             ),
             EvoTechnique(
                 name="uniform_crossover",
-                optimization_stage="mid"
+                optimization_stage="macro"
             ),
             EvoTechnique(
                 name="middlepoint_crossover",
-                optimization_stage="mid"
+                optimization_stage="macro"
             ),
             EvoTechnique(
                 name="finetune_best_individual",

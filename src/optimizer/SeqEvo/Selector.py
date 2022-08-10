@@ -51,3 +51,10 @@ class Selector():
             sorted_pop.remove(chosen_genome)
             
         return chosen_genomes
+    
+    @staticmethod
+    def select_best(sorted_population, n_parents):
+        """
+        reverse sorted - highest first
+        """
+        return sorted_population[:n_parents]
