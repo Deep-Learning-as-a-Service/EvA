@@ -99,11 +99,13 @@ load_recs = lambda: load_dataset(os.path.join(settings.opportunity_dataset_csv_p
     column_names_to_ignore=['SUBJECT_IDX', 'MILLISECONDS']
 )
 
-X_y_validation_splits = get_data(
-    load_recordings=load_recs,
-    shuffle_seed=1678978086101,
-    num_folds=num_folds
-)
+X_y_validation_splits = []
+if not testing:
+    X_y_validation_splits = get_data(
+        load_recordings=load_recs,
+        shuffle_seed=1678978086101,
+        num_folds=num_folds
+    )
 
 # Optimization -------------------------------------------------------------------------------------------------------
 
@@ -118,7 +120,7 @@ technique_config = DefaultEvoTechniqueConfig()
 fitness = Fitness([], [], [], [], X_y_validation_splits, None).small_split_kfold_acc if not testing else lambda model_genome, log_func: random.random()
 
 # NAS - Neural Architecture Search
-n_generations = 200 if not testing else 10
+n_generations = 200 if not testing else 30
 model_genome = AdaptiveSeqEvo(
     n_generations = n_generations,
     fitness_func = fitness,

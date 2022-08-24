@@ -24,4 +24,5 @@ class LstmDropoutParam(CategEvoParam):
 class PLstmLayer(ParametrizedLayer):
     _layer = lambda **kwargs: keras.layers.LSTM(return_sequences=True, kernel_initializer=Orthogonal(), **kwargs)
     _param_classes = [LstmUnitsParam, LstmDropoutParam]
+    _after_layer_params = []
     _activation_function = ReLU

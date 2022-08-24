@@ -1,5 +1,16 @@
 from optimizer.SeqEvo.SeqEvo import SeqEvo
 from optimizer.SeqEvo.Selector import Selector
+from optimizer.SeqEvo.Crosser import Crosser
+from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
+from operator import attrgetter
+from model_representation.ModelChecker.SeqEvoModelChecker import SeqEvoModelChecker
+from model_representation.ModelGenome.SeqEvoModelGenome import SeqEvoModelGenome
+from model_representation.ModelGenome import ModelGenome
+import copy
+from utils.Tester import Tester
+from utils.mutation_helper import get_key_from_prob_dict
+from utils.progress_bar import print_progress_bar
+import time
 import random
 
 
@@ -73,28 +84,48 @@ class AdaptiveSeqEvo(SeqEvo):
         best_individual_last_population = population[:1][0]
         best_individual_fitness_last_population = best_individual_last_population.fitness
         difference_to_threshold = self.current_fitness_threshold - best_individual_fitness_last_population
-        self.current_fitness_threshold = best_individual_fitness_last_population
+        old_fitness_threshold = self.current_fitness_threshold
+        if difference_to_threshold < 0:
+            self.current_fitness_threshold = best_individual_fitness_last_population
+
+        self.prio_logger(f"\n{self.marker_symbol} Adaptive Evolution Update:")
 
         old_optimization_stage = self.current_optimization_stage
 
         # in the macro stage make the threshold smaller over time
-        if self.current_optimization_stage == "macro" and self.current_fitness_threshold > self.basic_fitness_threshold:
-            self.current_fitness_threshold -= 0.005
+        if self.current_optimization_stage == "macro" and self.current_fitness_threshold > self.basic_fitness_threshold and difference_to_threshold >= 0:
+            self.current_fitness_threshold -= 0.025
+            self.prio_logger("-> macro stage found no better - decreasing threshold")
 
         # better individual, go to next stage
-        if difference_to_threshold < 0 and self.current_optimization_stage != "micro":
-            self.current_optimization_stage = self.go_to_next_optimization_stage(self.current_optimization_stage)
+        highest_stage_improvement = False
+        if difference_to_threshold < 0:
+            self.prio_logger("-> found better individual")
+            if self.current_optimization_stage != "micro":
+                self.current_optimization_stage = self.go_to_next_optimization_stage(self.current_optimization_stage)
+                self.prio_logger("-> new stage, new threshold")
+            else:
+                self.prio_logger("-> highest stage improvement, will stay in here")
+                highest_stage_improvement = True
+        else:
+            self.prio_logger("-> found no better individual")
+        
+        # no better individual, go back to stage
+        if old_optimization_stage != "macro" and self.generations_since_threshold_improvement >= self.generations_limit_no_improvement and self.current_optimization_stage != "macro":
+            self.current_optimization_stage = self.go_to_previous_optimization_stage(self.current_optimization_stage)
+            self.prio_logger("-> too long no better individual - go optimization stage back")
         
         # count how long already in optimization stage
-        if self.current_optimization_stage != old_optimization_stage:
+        old_generations_since_threshold_improvement = self.generations_since_threshold_improvement
+        if self.current_optimization_stage != old_optimization_stage or highest_stage_improvement:
             self.generations_since_threshold_improvement = 0
         else:
             self.generations_since_threshold_improvement += 1
-        
-        # no better individual, go back to stage
-        if self.generations_since_threshold_improvement > self.generations_limit_no_improvement and self.current_optimization_stage != "macro":
-            self.current_optimization_stage = self.go_to_previous_optimization_stage(self.current_optimization_stage)
 
+        print_gen_since_improvement_current_stage = lambda current_gen, stage: f"{current_gen}/{self.generations_limit_no_improvement if stage != 'macro' else 'x'}"
+        print_gen_since_improvement = f"{print_gen_since_improvement_current_stage(old_generations_since_threshold_improvement, old_optimization_stage)}->{print_gen_since_improvement_current_stage(self.generations_since_threshold_improvement, self.current_optimization_stage)}"
+        self.prio_logger(f"Optimization stage: {old_optimization_stage}->{self.current_optimization_stage}\nFitness threshold: {old_fitness_threshold}->{self.current_fitness_threshold} (min. {self.basic_fitness_threshold})\nGenerations since improvement: {print_gen_since_improvement}")
+        
         # adaptive evolution - choose the techniques for the new population
         # for the current optimization_stage, it will use the remaining individuals to choose a random technique of that stage
         # development_techniques = list(filter(lambda techn: techn.optimization_stage != "none", self.techniques))
@@ -119,7 +150,6 @@ class AdaptiveSeqEvo(SeqEvo):
             for _ in range(n_individuals):
                 next_generation.append(creation_func())
 
-
         for technique in self.techniques:
 
             creation_func = None
@@ -131,12 +161,20 @@ class AdaptiveSeqEvo(SeqEvo):
 
             elif technique.name == "middlepoint_crossover":
                 def creation_func():
-                    pa, ma = parents[0], parents[1] if self.current_optimization_stage != "macro" else random.sample(parents, 2)
+                    pa, ma = None, None
+                    if self.current_optimization_stage != "macro":
+                        pa, ma = parents[0], parents[1]
+                    else:
+                        pa, ma = random.sample(parents, 2)
                     return Crosser.middlepoint_crossover(pa, ma)
             
             elif technique.name == "uniform_crossover":
                 def creation_func():
-                    pa, ma = parents[0], parents[1] if self.current_optimization_stage != "macro" else random.sample(parents, 2)
+                    pa, ma = None, None
+                    if self.current_optimization_stage != "macro":
+                        pa, ma = parents[0], parents[1]
+                    else:
+                        pa, ma = random.sample(parents, 2)
                     return Crosser.uniform_crossover(pa, ma)
 
             elif technique.name in [f"mutate_{mutation_intensity}" for mutation_intensity in ["low", "mid", "high", "all"]]:

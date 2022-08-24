@@ -43,6 +43,20 @@ class ParametrizedLayer(ABC):
         self.innovation_number = ParametrizedLayer.innovation_number
         ParametrizedLayer.innovation_number += 1
     
+    def estimated_n_of_params(self):
+        """
+        TODO: implement
+        - needs to take an input shape to calculate an output
+        - for count_params_algorithmic() the whole nets needs to be simulated
+        """
+        raise Exception("subclass responsibility")
+    
+    def get_param_value_with_class(self, cls):
+        combined_params = self._param_classes + self._after_layer_params 
+        filtered = list(filter(lambda param: param.__class__ == cls, combined_params))
+        assert len(filtered) == 1, "wrong parameter in class, not exactly one parameter of class type found"
+        return filtered[0].value
+    
     def __str__(self):
         return f"{self.__class__.__name__}({' '.join([str(param) for param in self.params])})"
     

@@ -7,6 +7,8 @@ from model_representation.ParametrizedLayer.PDenseLayer import DenseUnitsParam
 from model_representation.ParametrizedLayer.PLstmLayer import LstmUnitsParam
 from optimizer.SeqEvo.SeqEvoGenome import SeqEvoGenome
 import utils.settings as settings
+import gc
+
 class SeqEvoModelChecker():
     """
     - data remaining in the end?
@@ -17,16 +19,42 @@ class SeqEvoModelChecker():
     def check_model_genome(cls, seqevo_genome: SeqEvoGenome) -> None:
         cls.fix_convolution_dimension_loss(seqevo_genome) # make model compilable 
         cls.fix_memory_overflow(seqevo_genome) # make model compilable 
-        cls.alter_models_with_high_params(seqevo_genome) # reduce time expenditure
-        
+
+        # nice to have, but while loop leads to overflow
+        # cls.alter_models_with_high_params(seqevo_genome) # reduce time expenditure
+
+        cls.alter_models_if_memory_overflow(seqevo_genome)
+
+    @classmethod
+    def alter_models_if_memory_overflow(cls, seqevo_genome: SeqEvoGenome):
+        memory_leak = True
+        keras_model = None
+        while memory_leak:
+            try:
+                keras_model = None
+                model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
+                keras_model = model_genome.get_model()
+                memory_leak = False
+            except:
+                print("memory leak prevented")
+                del keras_model
+                gc.collect()
+                cls.alter_high_param_layers(seqevo_genome)
+
     @classmethod
     def alter_models_with_high_params(cls, seqevo_genome: SeqEvoGenome):
         threshold = 30_000_000 # 10 mil params as threshold, subject of change
         
+
         while True:
             model_genome = SeqEvoModelGenome.create_with_default_params(seqevo_genome)
             keras_model = model_genome.get_model()
             num_params = keras_model.count_params()
+
+            # unfortunately this doesnt fixes the memory overflow   
+            del keras_model
+            gc.collect()
+
             if num_params <= threshold:
                 break
             else:
