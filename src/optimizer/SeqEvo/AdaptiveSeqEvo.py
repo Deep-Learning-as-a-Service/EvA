@@ -47,7 +47,7 @@ wenn Verbesserung des globalen Optimas Übergang in mid
 
 class AdaptiveSeqEvo(SeqEvo):
 
-    def __init__(self, n_generations, fitness_func, technique_config, seqevo_history, log_func):
+    def __init__(self, n_generations, fitness_func, technique_config, seqevo_history, adaptive_seqevo_history, log_func):
         pop_size = 5
         n_parents = 2
         parent_selector = Selector.select_best
@@ -61,6 +61,8 @@ class AdaptiveSeqEvo(SeqEvo):
 
         self.generations_since_threshold_improvement = 0
         self.generations_limit_no_improvement = 3
+
+        self.adaptive_seqevo_history = adaptive_seqevo_history
 
         super().__init__(n_generations, pop_size, fitness_func, n_parents, technique_config, parent_selector, log_func, seqevo_history, initial_models, tester=None)
     
@@ -126,6 +128,15 @@ class AdaptiveSeqEvo(SeqEvo):
         print_gen_since_improvement = f"{print_gen_since_improvement_current_stage(old_generations_since_threshold_improvement, old_optimization_stage)}->{print_gen_since_improvement_current_stage(self.generations_since_threshold_improvement, self.current_optimization_stage)}"
         self.prio_logger(f"Optimization stage: {old_optimization_stage}->{self.current_optimization_stage}\nFitness threshold: {old_fitness_threshold}->{self.current_fitness_threshold} (min. {self.basic_fitness_threshold})\nGenerations since improvement: {print_gen_since_improvement}")
         
+        # History
+        # always writes down the stage from the old model
+        self.adaptive_seqevo_history.write(
+            n_generation=gen_idx + 1,
+            optimization_stage=old_optimization_stage,
+            current_fitness_threshold=old_fitness_threshold,
+            best_seqevo_genome=best_individual_last_population
+        )    
+
         # adaptive evolution - choose the techniques for the new population
         # for the current optimization_stage, it will use the remaining individuals to choose a random technique of that stage
         # development_techniques = list(filter(lambda techn: techn.optimization_stage != "none", self.techniques))

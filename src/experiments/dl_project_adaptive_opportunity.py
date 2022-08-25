@@ -7,6 +7,7 @@ from loader.Preprocessor import Preprocessor
 from optimizer.SeqEvo.SeqEvo import SeqEvo
 from optimizer.SeqEvo.AdaptiveSeqEvo import AdaptiveSeqEvo
 from optimizer.SeqEvo.SeqEvoHistory import SeqEvoHistory
+from optimizer.SeqEvo.AdaptiveSeqEvoHistory import AdaptiveSeqEvoHistory
 import utils.settings as settings
 from utils.array_operations import split_list_by_percentage
 from tensorflow import keras
@@ -39,10 +40,10 @@ from loader.load_dataset import load_dataset
 from loader.get_data import get_data
 from loader.load_lab_dataset import load_lab_dataset
 
-testing = True
+testing = False
 
 # Experiment Name ---------------------------------------------------------------
-experiment_name = "dl_project_adaptive_opportunity"
+experiment_name = "dl_project_adaptive_opportunity_eva3"
 currentDT = datetime.now()
 currentDT_str = currentDT.strftime("%y-%m-%d_%H-%M-%S_%f")
 experiment_name = experiment_name + "-" + currentDT_str
@@ -114,6 +115,9 @@ experiment_folder_path = new_saved_experiment_folder(experiment_name) # create f
 seqevo_history = SeqEvoHistory(
     path_to_file=os.path.join(experiment_folder_path, 'seqevo_history.csv')
 )
+adaptive_seqevo_history = AdaptiveSeqEvoHistory(
+    path_to_file=os.path.join(experiment_folder_path, 'adaptive_seqevo_history.csv')
+)
 
 # Config
 technique_config = DefaultEvoTechniqueConfig()
@@ -127,6 +131,7 @@ model_genome = AdaptiveSeqEvo(
     technique_config = technique_config,
     log_func=logger,
     seqevo_history=seqevo_history,
+    adaptive_seqevo_history=adaptive_seqevo_history
 ).run()
 
 
