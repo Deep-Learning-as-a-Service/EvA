@@ -51,33 +51,6 @@ logger = lambda *args, **kwargs: log_func(*args, path=f"logs/{experiment_name}",
 
 
 # Config --------------------------------------------------------------------------
-category_labels = {
-    "null - activity": 0,
-    "aufräumen": 1,
-    "aufwischen (staub)": 2,
-    "bett machen": 3,
-    "dokumentation": 4,
-    "umkleiden": 5,
-    "essen reichen": 6,
-    "gesamtwaschen im bett": 7,
-    "getränke ausschenken": 8,
-    "haare kämmen": 9,
-    "waschen am waschbecken": 10,
-    "medikamente stellen": 11,
-    "rollstuhl schieben": 12,
-    "rollstuhl transfer": 13
-}
-
-# window_size = 30*3
-# n_features = 70
-# n_classes = len(category_labels)
-# num_folds = 5
-# validation_iterations = 3
-
-# load_recs = lambda: load_lab_dataset(
-#     path="../../data/lab_data_filtered_without_null", 
-#     activityLabelToIndexMap=category_labels
-# )
 
 
 window_size = 30*3
@@ -133,14 +106,3 @@ model_genome = AdaptiveSeqEvo(
     seqevo_history=seqevo_history,
     adaptive_seqevo_history=adaptive_seqevo_history
 ).run()
-
-
-model_genome = HyPaOptuna(
-    input_model_genome=model_genome,
-    n_trials=200,
-    fitness_func=fitness,
-    log_func=logger
-).run()
-
-raise Exception("**** EVO DONE EXCEPTION *****") # TODO bigger smaller split, evaluate the optimization
-

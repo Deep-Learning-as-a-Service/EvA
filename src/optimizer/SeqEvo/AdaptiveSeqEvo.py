@@ -15,33 +15,18 @@ import random
 
 
 """"
-concept
-
+Notes Adaptive Evolution:
 - generation_size = 5
 - n_parents = 2
 - choose best_parents always
 - always focus on one variation strength: micro | mid | macro
+- if micro 3 generations without success, then there is nothing more to get there, go optimzation stage back
+- the current fitness threshold decreases in the macro stage, if it is above 0.6
+- we start with 0.6 threshold
 
-- wenn mico 5 Generationen ohne Erfolg, dann gibt es da nichts mehr zu holen
-- der aktuelle Gütethreshold unabhängig von global muss in den Generationen muss absinken - wir entwickeln pyramidal
-
-- we start with 0.5 threshold
-- first gen only macro if we go above the threshold, a specific genome was found, that is good, and needs some finetuning?
-- macro until we get over the threshold? - high threshold
-- mid either 3 Generations or threshold
-- micro either 3 Generations or threshold - again 3 
-
-Future:
+Future ideas:
 - make a bigger pool? has 4 generations time to come up with good individuals?
 - than the best go to the next development stage... pools are passed?
-
-
-
-
-immer macro
-wenn Verbesserung des globalen Optimas Übergang in mid
-
-
 
 """
 
